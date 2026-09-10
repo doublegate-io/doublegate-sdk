@@ -811,6 +811,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#installed-wheel-acceptance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installed wheel acceptance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#github-pages-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -889,6 +900,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#installed-wheel-acceptance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installed wheel acceptance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#github-pages-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -950,6 +972,26 @@ They are documentation extras, never runtime dependencies.</p>
 <p>The preview script builds <code>site/dev/</code>, writes a one-entry version index and a root
 redirect. It does not commit, push or claim to execute mike deployment. Keep the
 local server bound to localhost when needed with <code>--bind 127.0.0.1</code>.</p>
+<h2 id="installed-wheel-acceptance">Installed wheel acceptance</h2>
+<p>The Linux CI matrix also installs the newly built wheel without extras into a
+fresh virtual environment and runs <code>scripts/verify_installed.py</code> with isolated
+Python imports (<code>-I</code>) outside the source root. The check rejects editable installs,
+checks package origin and <code>py.typed</code>, and exercises the installed runtime, module
+CLI, console entry point and schema command. Both clean and flagged evidence must
+retain required human review. Neither service distribution may be installed.</p>
+<p>To repeat locally after <code>uv build</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>venv<span class="w"> </span>.tmp/wheel-consumer
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--python<span class="w"> </span>.tmp/wheel-consumer/bin/python<span class="w"> </span>dist/*.whl
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>uv<span class="w"> </span>pip<span class="w"> </span>check<span class="w"> </span>--python<span class="w"> </span>.tmp/wheel-consumer/bin/python
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>.tmp/consumer-work
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">consumer_python</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/.tmp/wheel-consumer/bin/python"</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nv">verifier</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/scripts/verify_installed.py"</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>.tmp/consumer-work<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s2">"</span><span class="nv">$consumer_python</span><span class="s2">"</span><span class="w"> </span>-I<span class="w"> </span><span class="s2">"</span><span class="nv">$verifier</span><span class="s2">"</span><span class="o">)</span>
+</code></pre></div>
+<p>Use a new consumer directory for each verification. This proves the built SDK's
+installed behavior, not client/org release readiness, server authorization,
+native Windows support or production acceptance. No artifact is uploaded by this
+check and no existing GitHub release asset is replaced.</p>
 <h2 id="github-pages-deployment">GitHub Pages deployment</h2>
 <p>The SDK checks and documentation workflow tests Python 3.11–3.13 on Linux,
 builds distributions and strict docs, then deploys the <code>dev</code> channel on main.
@@ -959,14 +1001,14 @@ version snapshots on <code>gh-pages</code>; Pages uses the uploaded artifact.</p
 Override <code>SDK_DOCS_URL</code> only for another host, including its trailing slash.
 Check GitHub Actions for the actual deployment result.</p>
 <p>After explicit publication approval, the maintainer can run:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Creates gh-pages commits; pushes only with the explicit --push option.</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>mike<span class="w"> </span>deploy<span class="w"> </span>--title<span class="w"> </span><span class="s1">'dev (unreleased)'</span><span class="w"> </span>dev
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mike<span class="w"> </span>set-default<span class="w"> </span>dev
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Creates gh-pages commits; pushes only with the explicit --push option.</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>mike<span class="w"> </span>deploy<span class="w"> </span>--title<span class="w"> </span><span class="s1">'dev (unreleased)'</span><span class="w"> </span>dev
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>mike<span class="w"> </span>set-default<span class="w"> </span>dev
 </code></pre></div>
 <p>For a real tested release, substitute its actual version below; this is a
 procedure, not a claim that any release already exists:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mike<span class="w"> </span>deploy<span class="w"> </span>--update-aliases<span class="w"> </span><span class="s2">"</span><span class="nv">$RELEASE_VERSION</span><span class="s2">"</span><span class="w"> </span>stable
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>mike<span class="w"> </span>set-default<span class="w"> </span>stable
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>mike<span class="w"> </span>deploy<span class="w"> </span>--update-aliases<span class="w"> </span><span class="s2">"</span><span class="nv">$RELEASE_VERSION</span><span class="s2">"</span><span class="w"> </span>stable
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>mike<span class="w"> </span>set-default<span class="w"> </span>stable
 </code></pre></div>
 <p>Fetch an existing gh-pages branch before updating it. Never overwrite prior
 release paths. Set the Material default alias to <code>stable</code> only after that alias
