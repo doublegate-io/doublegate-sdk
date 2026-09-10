@@ -1,0 +1,27 @@
+/* Ink, paper-blue, cyan and amber encode code, evidence and caution. */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #142233;
+  --md-default-fg-color: #e1eaf3;
+  --md-default-fg-color--light: #b3c3d4;
+  --md-primary-fg-color: #203c54;
+  --md-accent-fg-color: #8cd6ed;
+  --md-typeset-a-color: #8cd6ed;
+  --md-code-bg-color: #0d1927;
+  --md-code-fg-color: #dae8f6;
+}
+body { font-family: "Segoe UI", "Helvetica Neue", sans-serif; }
+code, pre { font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace; }
+.md-typeset { font-size: .82rem; line-height: 1.65; }
+.md-typeset h1 { color: #e1eaf3; font-weight: 720; letter-spacing: -.035em; }
+.md-typeset h2 { font-weight: 650; }
+.md-header { box-shadow: none; border-bottom: 1px solid #496275; }
+.md-tabs { background: #172c40; }
+.md-typeset pre { border-left: 3px solid #78afca; }
+.md-typeset .admonition.warning { border-color: #edc088; }
+.md-typeset .doc-heading { padding-top: .6rem; border-top: 1px solid #3b5063; }
+.md-typeset .doc-signature { border-radius: 0; }
+.md-typeset p { max-width: 76ch; }
+a:focus-visible, button:focus-visible { outline: 3px solid #edc088; outline-offset: 3px; }
+.contract { border-left: 4px solid #edc088; padding: .4rem 1rem; margin: 2rem 0; font-size: 1.15rem; }
+@media (max-width: 600px) { .md-typeset { font-size: .8rem; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }

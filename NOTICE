@@ -1,0 +1,18 @@
+Doublegate SDK
+Copyright 2026 Eugene Korniichuk and the doublegate contributors
+
+Derived from client-gate/src/doublegate/sdk, its offline SDK tests, and runbook
+fixtures. Source license: Apache License 2.0 (LICENSE reproduced unchanged).
+Source authorship attribution retained from client-gate/LICENSE and pyproject.toml.
+No source-root NOTICE was present at extraction.
+
+Changes: renamed Python namespace doublegate.sdk to doublegate_sdk; added an
+independent distribution and console script, documentation, packaging checks,
+quickstart, and local versioned documentation preview. Runtime algorithms and
+manifest schema are unchanged. Finding documentation was clarified: the container is not a sanitizer.
+The original SDK module introduction was updated
+to describe standalone packaging. Tests and manual were adapted to this namespace.
+The manual derives from client-gate/docs/sdk.md, a concurrently authored local file.
+
+PROVENANCE.json records the source snapshot hashes. The SDK source was untracked;
+client-gate's recorded HEAD is context only, not a claim of committed provenance.

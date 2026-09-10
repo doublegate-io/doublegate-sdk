@@ -1,0 +1,5 @@
+include LICENSE NOTICE PROVENANCE.json README.md mkdocs.yml uv.lock
+recursive-include docs *.md *.css
+recursive-include examples *.py *.json *.txt
+recursive-include scripts *.py
+recursive-include tests *.py

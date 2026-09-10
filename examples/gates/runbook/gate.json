@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "sdk_version": "0.1",
+  "name": "runbook",
+  "version": "1.0.0",
+  "artifact_types": ["memory"],
+  "checks": [{"capability": "required-text", "text": "Owner:"}],
+  "max_input_bytes": 4096,
+  "human_review": "required",
+  "egress": [],
+  "secret_refs": []
+}

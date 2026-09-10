@@ -1,0 +1,2 @@
+Owner: Operations
+Restart the worker only after draining the queue.

@@ -1,0 +1,20 @@
+{
+  "source_repository": "https://github.com/doublegate-io/client-gate",
+  "source_head_context_only": "b164e21b9e311a4f6d3925ce5736e75958e88d91",
+  "sdk_status": "untracked source files; not attributable to HEAD",
+  "sha256": {
+    "src/doublegate/sdk/__init__.py": "ec31a249742ffa736dc52f7ccb80999e36d8474e685ea90ad1753eb1fbad7dfa",
+    "src/doublegate/sdk/manifest.py": "3480073ab5eadb94ba7abac7d9268d03955b4e9c8d7af5086b8ee7cd0b1d51e0",
+    "src/doublegate/sdk/runtime.py": "2305a3513370c3e3a51a0d11ddfe05cae585cb83d7c30c775a10b8b45cd8e71d",
+    "src/doublegate/sdk/package.py": "eeb8062163fdeaed7504770448b0ee7440c844320eb3c5f04f47f4c11a2a7f16",
+    "src/doublegate/sdk/checks.py": "b4c3a8fdbb7e15e50229be1dde19c339b8558f80f53adfc0c0d4dd5c3c884de1",
+    "src/doublegate/sdk/__main__.py": "f87e150f27177c882176c3270bb8264029c6c59295f6738199107348bc0858fb",
+    "tests/test_gate_manifest.py": "60074598cd85616e55f8eaa33209e16f7d96d24b04d0297f1b0865b2ef4edf93",
+    "tests/test_gate_lifecycle.py": "2b48424de5f4b9512536c22114a232ada9971e564582929c0705eebc1edd92d0",
+    "tests/test_gate_sdk_cli.py": "edfa73df94f1a5f27d43e7d737a56a67e6738993fa523e93c594a3544b017e46",
+    "examples/gates/runbook/pass.txt": "c1c9a4e9a0c82d03fc98799db778a815811c5d0fd281cc0302fb434d0ea4fccd",
+    "examples/gates/runbook/gate.json": "932f69e1dbf68eb581444f9a72def6922ce10405cb7b617d7639d94b5a223caf",
+    "LICENSE": "da12d0124e02c5db9a596fe3e286b66371a43cc586a8cdb47b9094d97966a3f6",
+    "docs/sdk.md": "8b216f8664a0bb6d92b419884ff59673dd93539cd4809483967ce94d827ef1c4"
+  }
+}

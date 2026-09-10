@@ -1,0 +1,62 @@
+site_name: Doublegate SDK
+site_description: Offline gate authoring. Evidence, never authority.
+site_url: !ENV [SDK_DOCS_URL, 'https://doublegate-io.github.io/doublegate-sdk/']
+repo_url: https://github.com/doublegate-io/doublegate-sdk
+repo_name: doublegate-io/doublegate-sdk
+theme:
+  name: material
+  font: false
+  palette:
+    scheme: slate
+    primary: custom
+    accent: custom
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_signature_annotations: true
+            separate_signature: true
+            members_order: source
+            show_if_no_docstring: true
+            inherited_members: false
+            filters: ["!^_"]
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+extra_css: [stylesheets/extra.css]
+extra:
+  version:
+    provider: mike
+    default: dev
+nav:
+  - Start: index.md
+  - Authoring:
+      - Offline manual: manual.md
+      - Python quickstart: quickstart.md
+      - Compatibility & versions: versions.md
+  - API reference:
+      - Overview: api/index.md
+      - Manifest: api/manifest.md
+      - Package loader: api/package.md
+      - Evaluation: api/runtime.md
+      - Evidence types: api/checks.md
+      - CLI: api/cli.md
+  - Maintainers: maintaining.md
