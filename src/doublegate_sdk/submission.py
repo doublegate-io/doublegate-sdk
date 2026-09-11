@@ -6,6 +6,15 @@ Normative sources, read at design main ``72754b68``:
   RFC 8785 JCS narrowed to a profile with no implementation choices left in it.
 * **ADR-0068 D2** — content identity is ``content_digest``, the ``sha256:``
   digest of the submitted content bytes. Many submissions share one.
+* **ADR-0068, content-digest mapping clarification 2026-09-11** —
+  ``content_digest`` is **derived**, never computed::
+
+      content_digest == "sha256:" + submission.envelope.content_hash
+
+  The producer derives it from the envelope exactly as ``make_envelope``
+  derives ``content_hash`` from the blob, "so they cannot disagree with it".
+  No producer hashes content bytes a second time to fill this member, and this
+  module deliberately offers no function that would let one.
 * **ADR-0068, derivation clarification 2026-09-11** — ``artifact_id`` is
   ``sha256`` of the submission's *own* canonical bytes and is **not a member**
   of the signed document. A verifier recomputes it from the received bytes and
@@ -38,7 +47,11 @@ __all__ = [
     "CanonicalizationRefused",
     "RouteIdMismatch",
     "canonical_bytes",
-    "content_digest",
+    "envelope_content_hash",
+    "content_digest_from_content_hash",
+    "content_digest_from_envelope",
+    "content_hash_from_content_digest",
+    "verify_content_digest",
     "submission_artifact_id",
     "verify_route_artifact_id",
 ]
@@ -52,6 +65,10 @@ ARTIFACT_ID_MISMATCH = "SUBMISSION_ARTIFACT_ID_MISMATCH"
 MAX_SAFE_INTEGER = 2 ** 53 - 1
 
 SHA256_ID = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+#: The envelope's ``content_hash`` spelling: bare, 64 lowercase hex, no prefix
+#: (ADR-0022 decision 1, untouched by ADR-0068).
+BARE_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 # §2.3 — escape ONLY these, and never anything else. Short forms where they
 # exist; lowercase ``\u00xx`` otherwise.
@@ -159,17 +176,98 @@ def canonical_bytes(doc: Mapping[str, Any]) -> bytes:
     return _object(doc, path="$").encode("utf-8")
 
 
-def content_digest(content: bytes) -> str:
-    """ADR-0068 D2 — the **content** identity: ``sha256:`` + 64 lowercase hex.
+def envelope_content_hash(blob: bytes) -> str:
+    """The **envelope** member ``content_hash``: bare 64 lowercase hex, no prefix.
 
-    This is what duplicate detection, change detection and re-fetch suppression
-    are keyed on. It is deliberately *not* unique per record: two submissions of
-    the same bytes share it, and that shared value is the relation those
-    capabilities observe.
+    This is the one byte-hashing operation the contract sanctions, and it fills
+    an *envelope* member — mirroring ``make_envelope`` deriving ``content_hash``
+    and ``size_bytes`` from the blob so they cannot disagree with it.
+
+    It is **not** the submission's ``content_digest`` and its bare return value
+    cannot be mistaken for one. To obtain the submission member, build the
+    envelope and then call :func:`content_digest_from_envelope`; ADR-0068's
+    mapping clarification forbids hashing content bytes a second time.
     """
-    if not isinstance(content, (bytes, bytearray, memoryview)):
-        raise TypeError("content_digest hashes the document bytes")
-    return "sha256:" + hashlib.sha256(bytes(content)).hexdigest()
+    if not isinstance(blob, (bytes, bytearray, memoryview)):
+        raise TypeError("envelope_content_hash hashes the content blob")
+    return hashlib.sha256(bytes(blob)).hexdigest()
+
+
+def content_digest_from_content_hash(content_hash: str) -> str:
+    """The submission member ``content_digest``, derived from bare hex.
+
+    **This is the derivation ADR-0068 mandates** for the submission's
+    ``content_digest``::
+
+        content_digest == "sha256:" + envelope.content_hash
+
+    A total function of a value already present in the same signed document.
+    Nothing is computed, so the two values cannot be signed while disagreeing.
+    """
+    if not isinstance(content_hash, str):
+        raise TypeError(
+            "content_digest is derived from the envelope's content_hash (bare "
+            "64 lowercase hex), not from content bytes")
+    if not BARE_SHA256.match(content_hash):
+        raise CanonicalizationRefused(
+            "envelope content_hash must be bare 64 lowercase hex; a 'sha256:' "
+            "prefix is wire presentation and never the stored spelling")
+    return "sha256:" + content_hash
+
+
+def content_digest_from_envelope(envelope: Mapping[str, Any]) -> str:
+    """The submission member ``content_digest``, derived from the envelope.
+
+    **This is the derivation ADR-0068 mandates** and the one a producer should
+    call: build the envelope first, then emit ``content_digest`` from it.
+    """
+    if not isinstance(envelope, Mapping):
+        raise CanonicalizationRefused("an envelope is one JSON object")
+    if "content_hash" not in envelope:
+        raise CanonicalizationRefused(
+            "envelope carries no content_hash; content_digest is derived from "
+            "it and is never computed over content bytes")
+    return content_digest_from_content_hash(envelope["content_hash"])
+
+
+def content_hash_from_content_digest(content_digest: str) -> str:
+    """Strip the wire prefix at the door; return the bare stored spelling.
+
+    Consequence 2 of the mapping clarification: the ``sha256:`` prefix is wire
+    presentation, stripped at the door and never entering the store, so the
+    existing content-keyed dedup index is unchanged. Lossless in both
+    directions with :func:`content_digest_from_content_hash`.
+    """
+    if not isinstance(content_digest, str):
+        raise TypeError("content_digest is a string")
+    if not SHA256_ID.match(content_digest):
+        raise CanonicalizationRefused(
+            "content_digest must be 'sha256:' + 64 lowercase hex")
+    return content_digest[len("sha256:"):]
+
+
+def verify_content_digest(doc: Mapping[str, Any]) -> str:
+    """Door check: an encoding check of one value, not a reconciliation of two.
+
+    Validates that the received ``content_digest`` equals ``"sha256:"`` plus the
+    received ``envelope.content_hash``, then returns the bare hex to store. A
+    document in which they differ is *malformed*, not contested, and is refused
+    with ``SUBMISSION_ENCODING_INVALID``. No content blob is read: ``content``
+    and ``encoding`` are the transport shell outside the signed document.
+    """
+    if not isinstance(doc, Mapping):
+        raise CanonicalizationRefused("a submission is one JSON object")
+    if "content_digest" not in doc:
+        raise CanonicalizationRefused("submission carries no content_digest")
+    if "envelope" not in doc:
+        raise CanonicalizationRefused("submission carries no envelope")
+    expected = content_digest_from_envelope(doc["envelope"])
+    received = doc["content_digest"]
+    if received != expected:
+        raise CanonicalizationRefused(
+            "content_digest does not equal 'sha256:' + envelope.content_hash; "
+            "the document is malformed, not contested")
+    return content_hash_from_content_digest(expected)
 
 
 def submission_artifact_id(doc: Mapping[str, Any]) -> str:

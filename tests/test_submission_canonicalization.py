@@ -16,7 +16,8 @@ from doublegate_sdk.submission import (
     CanonicalizationRefused,
     RouteIdMismatch,
     canonical_bytes,
-    content_digest,
+    content_digest_from_content_hash,
+    envelope_content_hash,
     submission_artifact_id,
     verify_route_artifact_id,
 )
@@ -116,15 +117,18 @@ def test_unsupported_type_is_refused():
 
 # --- ADR-0068 D2: content_digest is the CONTENT identity -----------------
 
-def test_content_digest_is_sha256_of_the_document_bytes():
+def test_envelope_content_hash_is_bare_sha256_of_the_blob():
     blob = b"hello world"
-    assert content_digest(blob) == "sha256:" + hashlib.sha256(blob).hexdigest()
+    assert envelope_content_hash(blob) == hashlib.sha256(blob).hexdigest()
 
 
 def test_same_bytes_always_share_one_content_digest():
     # ADR-0068 D2: many submissions may share one content_digest; that is the
-    # relation duplicate detection observes.
-    assert content_digest(b"x") == content_digest(b"x")
+    # relation duplicate detection observes. The mapping clarification adds
+    # that the value is derived from the envelope, never hashed a second time.
+    a = content_digest_from_content_hash(envelope_content_hash(b"x"))
+    b = content_digest_from_content_hash(envelope_content_hash(b"x"))
+    assert a == b
 
 
 # --- ADR-0068 clarification: artifact_id is the SUBMISSION EVENT ---------
