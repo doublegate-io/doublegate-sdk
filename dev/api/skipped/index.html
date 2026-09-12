@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://doublegate-io.github.io/doublegate-sdk/dev/api/cli/">
+        <link rel="canonical" href="https://doublegate-io.github.io/doublegate-sdk/dev/api/skipped/">
       
       
-        <link rel="prev" href="../skipped/">
+        <link rel="prev" href="../schema/">
       
       
-        <link rel="next" href="../../maintaining/">
+        <link rel="next" href="../cli/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>CLI - Doublegate SDK</title>
+        <title>Skipped reasons - Doublegate SDK</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#doublegate_sdk.__main__" class="md-skip">
+        <a href="#doublegate_sdk.skipped" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              CLI
+              Skipped reasons
             
           </span>
         </div>
@@ -760,34 +760,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../skipped/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Skipped reasons
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -805,7 +777,7 @@
   <span class="md-ellipsis">
     
   
-    CLI
+    Skipped reasons
   
 
     
@@ -823,7 +795,7 @@
   <span class="md-ellipsis">
     
   
-    CLI
+    Skipped reasons
   
 
     
@@ -847,22 +819,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#doublegate_sdk.__main__" class="md-nav__link">
+  <a href="#doublegate_sdk.skipped" class="md-nav__link">
     <span class="md-ellipsis">
       
-        __main__
+        skipped
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="__main__">
+    <nav class="md-nav" aria-label="skipped">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#doublegate_sdk.__main__.main" class="md-nav__link">
+  <a href="#doublegate_sdk.skipped.SKIPPED_REASONS" class="md-nav__link">
     <span class="md-ellipsis">
       
-        main
+        SKIPPED_REASONS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#doublegate_sdk.skipped.normalise_skipped_reason" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        normalise_skipped_reason
       
     </span>
   </a>
@@ -878,6 +861,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -942,22 +953,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#doublegate_sdk.__main__" class="md-nav__link">
+  <a href="#doublegate_sdk.skipped" class="md-nav__link">
     <span class="md-ellipsis">
       
-        __main__
+        skipped
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="__main__">
+    <nav class="md-nav" aria-label="skipped">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#doublegate_sdk.__main__.main" class="md-nav__link">
+  <a href="#doublegate_sdk.skipped.SKIPPED_REASONS" class="md-nav__link">
     <span class="md-ellipsis">
       
-        main
+        SKIPPED_REASONS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#doublegate_sdk.skipped.normalise_skipped_reason" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        normalise_skipped_reason
       
     </span>
   </a>
@@ -989,21 +1011,43 @@
   
 
 
-  <h1>CLI</h1>
+  <h1>Skipped reasons</h1>
 
 <div class="doc doc-object doc-module">
 
 
 
-<h2 id="doublegate_sdk.__main__" class="doc doc-heading">
-            <span class="doc doc-object-name doc-module-name">doublegate_sdk.__main__</span>
+<h2 id="doublegate_sdk.skipped" class="doc doc-heading">
+            <span class="doc doc-object-name doc-module-name">doublegate_sdk.skipped</span>
 
 
 </h2>
 
     <div class="doc doc-contents first">
 
-        <p>Offline authoring tools: python -m doublegate_sdk {schema,validate,evaluate}.</p>
+        <p>The reason codes a reducer may give for skipping an item.</p>
+<p><code>decision-cards.md:1046-1050</code> states the problem: a pipeline stage that skips an item
+produces silence, so a user cannot tell a skip from a failure from a no-op. The obligation
+to say why is not new — <code>05-decision-authority.md</code> §2 and §5 already require a disposition
+per decision, and a skip is a decision with no visible output. Only the vocabulary is new.</p>
+<p>The four values are derived from the skip paths that exist in <code>client-gate</code>'s integrator,
+not from a taxonomy invented here:</p>
+<ul>
+<li><code>duplicate</code> — the content is already present under another artifact in the same space,
+  so writing it would be an overwrite (<code>integrator.py:216</code>, ADR-0023 d5).</li>
+<li><code>surface_unwritable</code> — a target surface refused the write. Which exception was raised
+  is <em>detail</em>, carried alongside the code and never inside it; today <code>integrator.py:240</code>
+  interpolates the exception class name into the reason string, which makes the emittable
+  set the set of exception classes <code>OSError</code> can be. No consumer can enumerate that.</li>
+<li><code>never_promoted</code> — the artifact's history carries no promotion to materialize.</li>
+<li><code>not_served</code> — promoted, but not the served member: superseded, or the pin is on
+  another member (ADR-0035).</li>
+</ul>
+<p>There is deliberately no <code>other</code>. <code>decision-cards.md:1061-1062</code> names an <code>other</code> bucket
+that absorbs everything and tells nobody anything as a failure mode of this design, and
+<code>:1071-1072</code> gives the stop condition: if the set cannot be kept closed and meaningful,
+ship a boolean skipped flag and no reason at all. A dishonest enumeration is worse than an
+honest boolean, so the escape hatch is removal of the vocabulary, never a catch-all member.</p>
 
 
 
@@ -1022,86 +1066,135 @@
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="doublegate_sdk.skipped.SKIPPED_REASONS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">SKIPPED_REASONS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SKIPPED_REASONS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">'duplicate'</span><span class="p">,</span> <span class="s1">'surface_unwritable'</span><span class="p">,</span> <span class="s1">'never_promoted'</span><span class="p">,</span> <span class="s1">'not_served'</span><span class="p">})</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
 
 
 
 <div class="doc doc-object doc-function">
 
 
-<h3 id="doublegate_sdk.__main__.main" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">main</span>
+<h3 id="doublegate_sdk.skipped.normalise_skipped_reason" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">normalise_skipped_reason</span>
 
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">normalise_skipped_reason</span><span class="p">(</span><span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
+        <p>Return <code>reason</code> unchanged if it names one of the four skips, else raise.</p>
+<p>Unlike <code>normalise_category</code>, <code>None</code> does not pass through, and the difference is
+the contract's rather than this module's. <code>ADR-0053:320-321</code> explicitly permits a
+stage to return "no category at all", so a submitter being told nothing is a state
+the register sanctions. Nothing sanctions a reasonless skip:
+<code>decision-cards.md:1063-1065</code> says a skip must emit a receipt naming a code from the
+declared set, and lists "any silent skip" under what proves the design does not work.
+A <code>None</code> that passed through here would reconstruct that silence one layer down,
+inside a type built to end it.</p>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if <code>reason</code> is <code>None</code>, or is outside the four.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/doublegate_sdk/__main__.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-14">14</a></span>
-<span class="normal"><a href="#__codelineno-0-15">15</a></span>
-<span class="normal"><a href="#__codelineno-0-16">16</a></span>
-<span class="normal"><a href="#__codelineno-0-17">17</a></span>
-<span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span>
-<span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span>
-<span class="normal"><a href="#__codelineno-0-25">25</a></span>
-<span class="normal"><a href="#__codelineno-0-26">26</a></span>
-<span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+              <summary>Source code in <code>src/doublegate_sdk/skipped.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-40">40</a></span>
 <span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
 <span class="normal"><a href="#__codelineno-0-43">43</a></span>
-<span class="normal"><a href="#__codelineno-0-44">44</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">)</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="n">sub</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s1">'command'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="n">sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">'schema'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'emit manifest JSON Schema to stdout'</span><span class="p">)</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="n">sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">'validate'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'validate a JSON package'</span><span class="p">)</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'manifest'</span><span class="p">)</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="n">ev</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">'evaluate'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'produce evidence; never publish'</span><span class="p">)</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="n">ev</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'manifest'</span><span class="p">)</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="n">ev</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'input'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'regular UTF-8 file; no stdin or URLs'</span><span class="p">)</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="n">ev</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--artifact-type'</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">'memory'</span><span class="p">,</span> <span class="s1">'skill'</span><span class="p">,</span> <span class="s1">'script'</span><span class="p">,</span> <span class="s1">'tool'</span><span class="p">])</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s1">'schema'</span><span class="p">:</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">manifest_schema</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a>        <span class="k">return</span> <span class="mi">0</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a>        <span class="n">loaded</span> <span class="o">=</span> <span class="n">load_package</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">manifest</span><span class="p">)</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="n">package</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">package</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a>        <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">digest</span><span class="o">=</span><span class="n">loaded</span><span class="o">.</span><span class="n">digest</span><span class="p">,</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a>                        <span class="n">human_review</span><span class="o">=</span><span class="n">package</span><span class="o">.</span><span class="n">human_review</span><span class="p">)</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a>        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s1">'validate'</span><span class="p">:</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a>            <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">metadata</span> <span class="o">|</span> <span class="p">{</span><span class="s1">'valid'</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34"></a>            <span class="k">return</span> <span class="mi">0</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>            <span class="n">content</span> <span class="o">=</span> <span class="n">read_bounded</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">max_input_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>            <span class="k">raise</span> <span class="n">EvaluationError</span><span class="p">(</span><span class="s1">'invalid_utf8'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">artifact_type</span><span class="p">)</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">metadata</span> <span class="o">|</span> <span class="n">result</span><span class="o">.</span><span class="n">to_payload</span><span class="p">(),</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">flagged</span> <span class="k">else</span> <span class="mi">0</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="k">except</span> <span class="p">(</span><span class="n">ManifestError</span><span class="p">,</span> <span class="n">PackageError</span><span class="p">,</span> <span class="n">EvaluationError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">'error'</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)}),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="k">return</span> <span class="mi">2</span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span>
+<span class="normal"><a href="#__codelineno-0-65">65</a></span>
+<span class="normal"><a href="#__codelineno-0-66">66</a></span>
+<span class="normal"><a href="#__codelineno-0-67">67</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="k">def</span><span class="w"> </span><span class="nf">normalise_skipped_reason</span><span class="p">(</span><span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">    </span><span class="sd">"""Return ``reason`` unchanged if it names one of the four skips, else raise.</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">    Unlike `normalise_category`, ``None`` does not pass through, and the difference is</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">    the contract's rather than this module's. `ADR-0053:320-321` explicitly permits a</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="sd">    stage to return "no category at all", so a submitter being told nothing is a state</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">    the register sanctions. Nothing sanctions a reasonless skip:</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">    `decision-cards.md:1063-1065` says a skip must emit a receipt naming a code from the</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">    declared set, and lists "any silent skip" under what proves the design does not work.</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">    A ``None`` that passed through here would reconstruct that silence one layer down,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">    inside a type built to end it.</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">        ValueError: if ``reason`` is ``None``, or is outside the four.</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">    """</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a>            <span class="s2">"a skip must name a reason; None is the silent skip this enumeration exists "</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a>            <span class="sa">f</span><span class="s2">"to prevent. The four permitted values are </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SKIPPED_REASONS</span><span class="p">))</span><span class="si">}</span><span class="s2">."</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a>        <span class="p">)</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a>    <span class="k">if</span> <span class="n">reason</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SKIPPED_REASONS</span><span class="p">:</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a>            <span class="sa">f</span><span class="s2">"not a skipped reason: </span><span class="si">{</span><span class="n">reason</span><span class="si">!r}</span><span class="s2">. The four permitted values are "</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a>            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SKIPPED_REASONS</span><span class="p">))</span><span class="si">}</span><span class="s2">. "</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a>            <span class="s2">"Detail about this particular skip goes in a field beside the code, never "</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a>            <span class="s2">"inside it; a code with a value interpolated into it is not enumerable."</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a>        <span class="p">)</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="k">return</span> <span class="n">reason</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
