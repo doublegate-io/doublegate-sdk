@@ -58,5 +58,6 @@ nav:
       - Package loader: api/package.md
       - Evaluation: api/runtime.md
       - Evidence types: api/checks.md
+      - Response schemas: api/schema.md
       - CLI: api/cli.md
   - Maintainers: maintaining.md
