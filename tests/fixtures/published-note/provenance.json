@@ -1,0 +1,13 @@
+{
+  "python": "/home/eugene/workspace/doublegate/.tmp/judge-schema-fix/.tmp/producer-venv/bin/python",
+  "publisher_import": "/home/eugene/workspace/doublegate/.tmp/judge-schema-fix/.tmp/producer-venv/lib/python3.12/site-packages/doublegate/publish.py",
+  "publisher_sha256": "d2682878c1fb6e3158575bcf3d582f528ce26a8b3c8fa6cad416b2593f0cae23",
+  "producer_install": {
+    "url": "file:///home/eugene/workspace/doublegate/.tmp/judge-schema-fix/.tmp/producer",
+    "dir_info": {}
+  },
+  "schema_matches_prepared_producer_document": true,
+  "notes_sha256": "2038705d8c21303aebbcdb2563d645ebd6bcf01f8087105eda1e24bfebf94c28",
+  "notes_count": 3,
+  "path": "Ledger.append -> note_from_event -> JsonlSink.deliver -> UTF-8 JSONL"
+}

@@ -45,6 +45,21 @@ def test_invalid_or_privileged_manifest_is_rejected(field, value):
     assert not error.value.retryable
 
 
+def test_manifest_rejects_integral_float_without_coercion():
+    from doublegate_sdk.manifest import ManifestError, validate_manifest
+    with pytest.raises(ManifestError) as error:
+        validate_manifest(manifest() | {'max_input_bytes': 4096.0})
+    assert (error.value.path, error.value.reason) == ('/max_input_bytes', 'wrong_type')
+
+
+@pytest.mark.parametrize('items', [[False, 0], [True, 1], [1, 1.0]])
+def test_manifest_duplicate_diagnostic_keeps_baseline_precedence(items):
+    from doublegate_sdk.manifest import ManifestError, validate_manifest
+    with pytest.raises(ManifestError) as error:
+        validate_manifest(manifest() | {'artifact_types': items})
+    assert (error.value.path, error.value.reason) == ('/artifact_types', 'duplicate_item')
+
+
 def test_unknown_authority_fields_fail_without_echoing_values():
     from doublegate_sdk.manifest import ManifestError, validate_manifest
     raw = manifest() | {'override_human_pin': 'SECRET-CANARY'}
