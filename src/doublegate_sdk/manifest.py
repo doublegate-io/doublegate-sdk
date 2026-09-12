@@ -2,14 +2,15 @@
 """SDK 0.1 declarative manifest. JSON is the supported YAML subset.
 
 No imports, entrypoints, installation, grants or deployment occur during validation.
-The small validator below handles only the keywords emitted by manifest_schema();
-it is not a general JSON Schema implementation. Core remains stdlib-only.
+Manifests and response checks share a bounded stdlib schema engine.
+Manifest integer strictness and bounded diagnostics remain SDK policy.
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from typing import Any
+
+from doublegate_sdk._schema import iter_errors, _pointer
 
 
 def manifest_schema() -> dict[str, Any]:
@@ -46,37 +47,6 @@ class ManifestError(ValueError):
         super().__init__(f'{self.code} at {path or "/"}: {reason}')
 
 
-def _validate(value: Any, schema: dict[str, Any], path: str = '') -> None:
-    types = {'object': dict, 'array': list, 'string': str, 'integer': int}
-    if type(value) is not types[schema['type']]:
-        raise ManifestError(path, 'wrong_type')
-    if ('const' in schema and value != schema['const']) or ('enum' in schema and value not in schema['enum']):
-        raise ManifestError(path, 'unsupported_value')
-    if isinstance(value, dict):
-        props = schema['properties']
-        if value.keys() - props.keys():
-            raise ManifestError(path, 'unknown_field')
-        for key in schema['required']:
-            if key not in value:
-                raise ManifestError(path + '/' + key, 'required_field')
-        for key, item in value.items():
-            _validate(item, props[key], path + '/' + key)
-    elif isinstance(value, list):
-        if not schema.get('minItems', 0) <= len(value) <= schema['maxItems']:
-            raise ManifestError(path, 'array_bounds')
-        if schema.get('uniqueItems') and any(v in value[:i] for i, v in enumerate(value)):
-            raise ManifestError(path, 'duplicate_item')
-        for i, item in enumerate(value):
-            _validate(item, schema['items'], path + '/' + str(i))
-    elif isinstance(value, str):
-        if not schema.get('minLength', 0) <= len(value) <= schema.get('maxLength', 256):
-            raise ManifestError(path, 'string_bounds')
-        if 'pattern' in schema and not re.search(schema['pattern'], value):
-            raise ManifestError(path, 'invalid_format')
-    elif not schema['minimum'] <= value <= schema['maximum']:
-        raise ManifestError(path, 'integer_bounds')
-
-
 @dataclass(frozen=True, slots=True)
 class GatePackage:
     name: str
@@ -89,7 +59,18 @@ class GatePackage:
 
 def validate_manifest(value: Any) -> GatePackage:
     """Validate data before constructing an immutable declarative package."""
-    _validate(value, manifest_schema())
+    error = next(iter_errors(manifest_schema(), value, strict_integer=True,
+                             string_limit=256, python_unique=True), None)
+    if error is not None:
+        reasons = {'type': 'wrong_type', 'const': 'unsupported_value',
+                   'enum': 'unsupported_value', 'additionalProperties': 'unknown_field',
+                   'required': 'required_field', 'minItems': 'array_bounds',
+                   'maxItems': 'array_bounds', 'uniqueItems': 'duplicate_item',
+                   'minLength': 'string_bounds', 'maxLength': 'string_bounds',
+                   'pattern': 'invalid_format', 'minimum': 'integer_bounds',
+                   'maximum': 'integer_bounds'}
+        path = _pointer(error.path, error.missing) if error.missing is not None else error.path
+        raise ManifestError(path, reasons[error.keyword])
     return GatePackage(value['name'], value['version'], tuple(value['artifact_types']),
                        tuple(check['text'] for check in value['checks']),
                        value['max_input_bytes'], value['human_review'])
