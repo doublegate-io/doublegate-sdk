@@ -59,5 +59,6 @@ nav:
       - Evaluation: api/runtime.md
       - Evidence types: api/checks.md
       - Reason categories: api/reasons.md
+      - Response schemas: api/schema.md
       - CLI: api/cli.md
   - Maintainers: maintaining.md
