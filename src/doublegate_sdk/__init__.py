@@ -3,3 +3,5 @@
 
 Checks supply evidence, never publication authority. No executable plugin loader.
 """
+
+from . import knowledge_graph as knowledge_graph
