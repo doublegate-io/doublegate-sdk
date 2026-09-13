@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "doublegate-sdk"
-version = "0.1.0.dev2"
+version = "0.1.0.dev3"
 description = "Offline declarative gate authoring: evidence, never publication authority."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -17,6 +17,20 @@ classifiers = ["Development Status :: 2 - Pre-Alpha", "Programming Language :: P
 [project.optional-dependencies]
 test = ["pytest>=9.0.3,<10", "build>=1.2,<2"]
 docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5,<10", "mkdocstrings[python]>=0.27,<1", "mike>=2,<3"]
+# Telemetry is optional: the base install stays dependency-free (ADR-0010) and every
+# observability call is inert without these. `observability` records locally; adding
+# `observability-otlp` is the only thing that can send anything off the host.
+observability = [
+  "opentelemetry-api>=1.44,<2",
+  "opentelemetry-sdk>=1.44,<2",
+  # The supported stdlib logging bridge. `opentelemetry.sdk._logs.LoggingHandler` is
+  # deprecated in 1.44 in favour of this package's handler; we use the replacement.
+  "opentelemetry-instrumentation-logging>=0.65b0,<0.70",
+]
+observability-otlp = [
+  "doublegate-sdk[observability]",
+  "opentelemetry-exporter-otlp-proto-http>=1.44,<2",
+]
 
 [project.urls]
 Repository = "https://github.com/doublegate-io/doublegate-sdk"
