@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://doublegate-io.github.io/schemas/note-data.v1.json",
+  "title": "doublegate published note \u2014 data",
+  "description": "The `data` of a CloudEvents 1.0 note (`type: io.doublegate.claim.<outcome>`, `subject: <artifact_id>`, `source: urn:doublegate:<deployment>`). Closed set: a note never carries content, an excerpt, a title, a source URI or a writer (ADR-0031 \u00a72, ADR-0042).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "artifact_id": {
+      "type": "string",
+      "description": "the claim; the same id a client holds"
+    },
+    "event": {
+      "type": "string",
+      "enum": [
+        "active",
+        "content_erased",
+        "countersign",
+        "demote",
+        "expire",
+        "ingest",
+        "manual-sign",
+        "promote",
+        "ratify",
+        "record",
+        "refuse",
+        "reject",
+        "relation",
+        "scan",
+        "tip-override"
+      ]
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "admitted",
+        "countersigned",
+        "demoted",
+        "erased",
+        "expired",
+        "materialized",
+        "promoted",
+        "ratified",
+        "recorded",
+        "refused",
+        "rejected",
+        "related",
+        "scanned",
+        "signed",
+        "tip-overridden"
+      ]
+    },
+    "identity": {
+      "type": "string",
+      "description": "the signer label on the gate, e.g. org:<deployment12>"
+    },
+    "trust_class": {
+      "type": "string",
+      "enum": [
+        "T-0",
+        "T-1",
+        "T-2",
+        "T-3",
+        "T-4",
+        "T-5"
+      ]
+    },
+    "content_type": {
+      "type": "string"
+    },
+    "space": {
+      "type": "string",
+      "description": "the operator's partition \u2014 the closest thing to a domain (ADR-0042 \u00a73)"
+    },
+    "provisional": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": "string",
+      "description": "a refusal's category (scanner_finding | quorum_reject | previously_refused | \u2026), never a finding's excerpt"
+    },
+    "findings_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "k": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "ledger_event_id": {
+      "type": "string",
+      "description": "the dedupe key across redeliveries"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "why": {
+      "type": "string",
+      "description": "the CLI command that answers the next question"
+    },
+    "relation": {
+      "type": "string",
+      "enum": [
+        "contradicts",
+        "corrects",
+        "extends",
+        "restates",
+        "supersedes"
+      ]
+    },
+    "related_to": {
+      "type": "string",
+      "description": "on a relation note: the child's artifact id (the subject is the parent)"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "event",
+    "outcome",
+    "identity",
+    "ledger_event_id",
+    "summary",
+    "why"
+  ]
+}

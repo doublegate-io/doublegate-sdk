@@ -56,6 +56,32 @@ The preview script builds `site/dev/`, writes a one-entry version index and a ro
 redirect. It does not commit, push or claim to execute mike deployment. Keep the
 local server bound to localhost when needed with `--bind 127.0.0.1`.
 
+## Installed wheel acceptance
+
+The Linux CI matrix also installs the newly built wheel without extras into a
+fresh virtual environment and runs `scripts/verify_installed.py` with isolated
+Python imports (`-I`) outside the source root. The check rejects editable installs,
+checks package origin and `py.typed`, and exercises the installed runtime, module
+CLI, console entry point and schema command. Both clean and flagged evidence must
+retain required human review. Neither service distribution may be installed.
+
+To repeat locally after `uv build`:
+
+```sh
+uv venv .tmp/wheel-consumer
+uv pip install --python .tmp/wheel-consumer/bin/python dist/*.whl
+uv pip check --python .tmp/wheel-consumer/bin/python
+mkdir -p .tmp/consumer-work
+consumer_python="$PWD/.tmp/wheel-consumer/bin/python"
+verifier="$PWD/scripts/verify_installed.py"
+(cd .tmp/consumer-work && "$consumer_python" -I "$verifier")
+```
+
+Use a new consumer directory for each verification. This proves the built SDK's
+installed behavior, not client/org release readiness, server authorization,
+native Windows support or production acceptance. No artifact is uploaded by this
+check and no existing GitHub release asset is replaced.
+
 ## GitHub Pages deployment
 
 The SDK checks and documentation workflow tests Python 3.11–3.13 on Linux,

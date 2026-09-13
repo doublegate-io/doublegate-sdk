@@ -59,6 +59,9 @@ nav:
       - Package loader: api/package.md
       - Evaluation: api/runtime.md
       - Evidence types: api/checks.md
+      - Reason categories: api/reasons.md
+      - Response schemas: api/schema.md
+      - Skipped reasons: api/skipped.md
       - CLI: api/cli.md
       - Gate memory client: api/client.md
   - Maintainers: maintaining.md
