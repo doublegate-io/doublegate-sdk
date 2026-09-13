@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://doublegate-io.github.io/doublegate-sdk/dev/api/runtime/">
+        <link rel="canonical" href="https://doublegate-io.github.io/doublegate-sdk/dev/api/client/">
       
       
-        <link rel="prev" href="../package/">
+        <link rel="prev" href="../cli/">
       
       
-        <link rel="next" href="../checks/">
+        <link rel="next" href="../../maintaining/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Evaluation - Doublegate SDK</title>
+        <title>Gate memory client - Doublegate SDK</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#doublegate_sdk.runtime" class="md-skip">
+        <a href="#gate-memory-client" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Evaluation
+              Gate memory client
             
           </span>
         </div>
@@ -696,35 +696,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Evaluation
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../runtime/" class="md-nav__link">
         
   
   
@@ -740,63 +715,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#doublegate_sdk.runtime" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        runtime
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="runtime">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#doublegate_sdk.runtime.EvaluationError" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        EvaluationError
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#doublegate_sdk.runtime.evaluate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        evaluate
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -946,10 +864,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../client/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gate memory client
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -965,6 +910,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#discover-the-client-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discover the client API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-client-gate-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local client-gate connection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bounds-and-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounds and errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#explicit-transport-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit transport injection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#propose-and-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Propose and recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verified-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verified scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1021,6 +1052,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1029,41 +1062,68 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#doublegate_sdk.runtime" class="md-nav__link">
+  <a href="#discover-the-client-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        runtime
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="runtime">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#doublegate_sdk.runtime.EvaluationError" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        EvaluationError
+        Discover the client API
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#doublegate_sdk.runtime.evaluate" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#local-client-gate-connection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        evaluate
+        Local client-gate connection
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#bounds-and-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounds and errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#explicit-transport-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit transport injection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#propose-and-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Propose and recall
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verified-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verified scope
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1087,154 +1147,112 @@
   
 
 
-  <h1>Evaluation</h1>
-
-<div class="doc doc-object doc-module">
-
-
-
-<h2 id="doublegate_sdk.runtime" class="doc doc-heading">
-            <span class="doc doc-object-name doc-module-name">doublegate_sdk.runtime</span>
-
-
-</h2>
-
-    <div class="doc doc-contents first">
-
-        <p>Bounded literal checks. Results are evidence, not an admission decision.</p>
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-class">
-
-
-
-<h3 id="doublegate_sdk.runtime.EvaluationError" class="doc doc-heading">
-            <span class="doc doc-object-name doc-class-name">EvaluationError</span>
-
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="ValueError">ValueError</span></code></p>
-
-
-
-        <p>A fixed diagnostic, never containing input text.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/doublegate_sdk/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-0-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">EvaluationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">    </span><span class="sd">"""A fixed diagnostic, never containing input text."""</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-    </div>
-
-</div>
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="doublegate_sdk.runtime.evaluate" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">evaluate</span>
-
-
-</h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">evaluate</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="n">GatePackage</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">artifact_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScanResult</span>
+<h1 id="gate-memory-client">Gate memory client</h1>
+<p><code>doublegate_sdk.client</code> is an explicit, optional import using only the Python
+standard library. It adds no connection or credential discovery on import or
+construction. Offline authoring and evaluation remain unchanged.</p>
+<h2 id="discover-the-client-api">Discover the client API</h2>
+<p><code>python -m doublegate_sdk describe-client</code> emits the SDK's operations, RPC names,
+read/write classification, parameters, defaults and return annotations as JSON.
+The parameter list comes from actual Python signatures; operation mappings are
+shared with the client and transport. Tests require every public client method
+to be described. This is a Python-call description, not JSON Schema, MCP tool
+declaration or a claim that a remote gate supports every operation.</p>
+<h2 id="local-client-gate-connection">Local client-gate connection</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateClient</span><span class="p">,</span> <span class="n">UnixSocketTransport</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">GateClient</span><span class="p">(</span><span class="n">UnixSocketTransport</span><span class="p">(</span><span class="s1">'/explicit/gate/daemon.sock'</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">status</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">status</span><span class="p">()</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">inventory</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">records</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'artifact_id'</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">'state'</span><span class="p">])</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">inventory_pages</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">max_pages</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">page</span><span class="o">.</span><span class="n">complete</span><span class="p">:</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="nb">print</span><span class="p">(</span><span class="s1">'Partial coverage:'</span><span class="p">,</span> <span class="n">page</span><span class="o">.</span><span class="n">coverage_errors</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="c1"># Process each page; presence does not imply admission.</span>
 </code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Match all required strings, case-sensitively, without regex or execution.</p>
-<p>Callers supply a validated package. Human-review requirements remain metadata;
-a clean check does not satisfy them or authorize publication. No body is returned.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/doublegate_sdk/runtime.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-13">13</a></span>
-<span class="normal"><a href="#__codelineno-0-14">14</a></span>
-<span class="normal"><a href="#__codelineno-0-15">15</a></span>
-<span class="normal"><a href="#__codelineno-0-16">16</a></span>
-<span class="normal"><a href="#__codelineno-0-17">17</a></span>
-<span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span>
-<span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span>
-<span class="normal"><a href="#__codelineno-0-25">25</a></span>
-<span class="normal"><a href="#__codelineno-0-26">26</a></span>
-<span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="n">GatePackage</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">artifact_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScanResult</span><span class="p">:</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">    </span><span class="sd">"""Match all required strings, case-sensitively, without regex or execution.</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="sd">    Callers supply a validated package. Human-review requirements remain metadata;</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="sd">    a clean check does not satisfy them or authorize publication. No body is returned.</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">    """</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="k">if</span> <span class="n">artifact_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">package</span><span class="o">.</span><span class="n">artifact_types</span><span class="p">:</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="k">raise</span> <span class="n">EvaluationError</span><span class="p">(</span><span class="s1">'unsupported_artifact_type'</span><span class="p">)</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a>        <span class="k">raise</span> <span class="n">EvaluationError</span><span class="p">(</span><span class="s1">'invalid_input_type'</span><span class="p">)</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">package</span><span class="o">.</span><span class="n">max_input_bytes</span><span class="p">:</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a>        <span class="k">raise</span> <span class="n">EvaluationError</span><span class="p">(</span><span class="s1">'input_too_large'</span><span class="p">)</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a>        <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">))</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="k">except</span> <span class="ne">UnicodeEncodeError</span><span class="p">:</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a>        <span class="k">raise</span> <span class="n">EvaluationError</span><span class="p">(</span><span class="s1">'invalid_utf8'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a>    <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">package</span><span class="o">.</span><span class="n">max_input_bytes</span><span class="p">:</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a>        <span class="k">raise</span> <span class="n">EvaluationError</span><span class="p">(</span><span class="s1">'input_too_large'</span><span class="p">)</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="n">findings</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="s1">'required-text'</span><span class="p">,</span> <span class="s1">'warning'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'required_text_missing: check </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a>                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">required_text</span><span class="p">)</span> <span class="k">if</span> <span class="n">text</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">content</span><span class="p">)</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="k">return</span> <span class="n">ScanResult</span><span class="p">(</span><span class="s1">'flagged'</span> <span class="k">if</span> <span class="n">findings</span> <span class="k">else</span> <span class="s1">'clean'</span><span class="p">,</span> <span class="n">findings</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
+<p>The transport speaks the existing local Unix-socket JSON-RPC methods <code>dg.status</code>
+and <code>dg.inventory</code>, plus <code>dg.recall</code> and explicitly enabled <code>dg.ingest</code>. It is not an HTTP client, SSO adapter or new authorization
+layer. The receiving gate identifies the socket peer and enforces its permissions.
+The caller must already be authorized to access that socket. Builds that lack
+<code>dg.inventory</code> raise <code>GateError(kind='unsupported_operation', code=-32601)</code>.</p>
+<p>A relative socket path is converted to an absolute path at construction, so a
+later working-directory change cannot redirect the client to a different gate.
+This pins path resolution against cwd changes, not the socket inode or symlink
+target. Empty, byte-valued and NUL-containing paths are refused. Invalid timeout
+types and invalid UTF-8 proposal text receive explicit validation errors before I/O.</p>
+<p>Status responses preserve their service-defined shape. <code>InventoryPage</code> exposes
+records, scope, counts, paging and coverage without converting unknown states to
+approved states. Filters are the existing service parameters: state, space,
+content_type, trust_class, retrievability, source, q, sort and descending. Unknown
+parameter names are refused before transport. Filter values remain service-validated.</p>
+<h2 id="bounds-and-errors">Bounds and errors</h2>
+<p>The default timeout is one 10-second deadline shared by connection, sending and
+all response reads. A peer cannot extend it by slowly sending additional bytes.
+It bounds transport I/O, not arbitrary computation or OS scheduling latency.
+Responses are capped at 1 MiB by default, configurable through
+<code>max_response_bytes</code>; requests are capped at 1 MiB. No automatic retries occur.</p>
+<p><code>GateError.kind</code> distinguishes <code>unavailable</code>, <code>timeout</code>, <code>unsupported_transport</code>,
+<code>unsupported_operation</code>, <code>remote_error</code>, <code>invalid_response</code>, <code>request_too_large</code>,
+<code>response_too_large</code>, <code>writes_disabled</code> and <code>page_limit</code>. Remote errors retain their numeric <code>code</code>,
+not their possibly sensitive message. Applications should map server-specific
+codes explicitly; this version does not claim a universal authorization taxonomy.</p>
+<p><code>inventory_pages</code> raises <code>page_limit</code> if more data remains after the declared page
+budget. A repeated/non-progressing offset is invalid rather than an infinite loop.
+Inventory may change between requests: this API does not promise a snapshot across
+pages. Consumers requiring a snapshot must use a future service-supported revision
+contract, not assume the iterator creates one.</p>
+<h2 id="explicit-transport-injection">Explicit transport injection</h2>
+<p><code>GateClient</code> also accepts a <code>GateTransport</code> implementing
+<code>call(method, params) -&gt; dict</code>. This lets an application supply a supported service
+transport without importing an agent framework into the SDK. The provided socket
+transport itself refuses every method except the three read methods and an
+explicitly enabled proposal write. A custom injected transport owns its own
+write-enablement contract; none of these client-side flags grant server authority.</p>
+<p><code>GateTransport</code> replaces the misleading pre-release <code>ReadTransport</code> name now that
+the interface also carries explicitly enabled proposals. Only the annotation's
+name changed; <code>call(method, params)</code> is unchanged.</p>
+<p>Duplicate JSON object keys and internally contradictory inventory paging/coverage
+are rejected as <code>invalid_response</code>, not silently normalized into success.</p>
+<h2 id="propose-and-recall">Propose and recall</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">GateClient</span><span class="p">(</span><span class="n">UnixSocketTransport</span><span class="p">(</span><span class="s1">'/explicit/gate/daemon.sock'</span><span class="p">,</span> <span class="n">allow_proposals</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">proposal</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="s1">'The laboratory labels basalt specimens by collection date.'</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">content_type</span><span class="o">=</span><span class="s1">'memory'</span><span class="p">,</span> <span class="n">trust_class</span><span class="o">=</span><span class="s1">'T-4'</span><span class="p">,</span> <span class="n">source_uri</span><span class="o">=</span><span class="s1">'application://observation/123'</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">current</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">proposal</span><span class="p">[</span><span class="s1">'artifact_id'</span><span class="p">])</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">knowledge</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s1">'basalt specimens'</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
+<p>Proposal accepts text or bytes, encoded without changing the content. Required
+content type, trust classification and source URI are explicit; the receiving
+gate still validates them. The SDK never supplies writer/deployment identity.
+The returned state is the service's actual state, not an SDK claim of approval.</p>
+<p>Recall always excludes the caller's unreviewed pending echoes. It also excludes
+provisional knowledge by default. Set <code>include_provisional=True</code> explicitly when
+the application's policy permits Solo-provisional results; each hit retains its
+provisional flag, provenance and score. No score is relabelled as trust/confidence.</p>
+<p>Writes are disabled in <code>UnixSocketTransport</code> unless <code>allow_proposals=True</code> was
+provided. No proposal is automatically retried. If sending may have begun and the
+response is lost, malformed or oversized, <code>GateError.outcome_unknown</code> is true:
+the server may have retained the observation. Reconcile before resubmission;
+content duplicate detection is not an exactly-once or idempotency-key guarantee.
+The SDK does not clear findings, approve records or perform organization submission.</p>
+<h2 id="verified-scope">Verified scope</h2>
+<p>Unit tests exercise real socket response parsing, response bounds, invalid input,
+unavailable service, partial results and paging errors. A source-mode isolated
+Client Gate run returned an empty inventory, then three product-ingested fixture
+records across three pages; each status remained <code>L1_SCANNED</code>, not admitted.</p>
+<p>This is local source-mode verification on Linux/WSL. It is not installed-wheel,
+Windows, HTTP, cross-tenant, live-deployment or organization-delivery acceptance.
+The consolidated gate source used for that run contains Inventory; the maintained
+gate source may not yet expose that operation. No SDK installation was performed.</p>
+<p><code>examples/verify_memory_lifecycle.py</code> is an optional source-mode integration probe
+requiring Client Gate in addition to the SDK. It verified proposal → pending
+exclusion → duplicate recognition → product admission → recall of the same record,
+with provisional results explicitly enabled. The reviewer is <code>StubBackend</code>:
+this proves SDK/service lifecycle plumbing, not real model judgment quality.
+Two SDK clients use the same local peer; this is not a cross-principal permission test.</p>
 
 
 
