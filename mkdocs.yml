@@ -48,6 +48,7 @@ extra:
     default: dev
 nav:
   - Start: index.md
+  - Roadmap: roadmap.md
   - Authoring:
       - Offline manual: manual.md
       - Python quickstart: quickstart.md
@@ -59,4 +60,5 @@ nav:
       - Evaluation: api/runtime.md
       - Evidence types: api/checks.md
       - CLI: api/cli.md
+      - Gate memory client: api/client.md
   - Maintainers: maintaining.md

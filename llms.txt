@@ -1,0 +1,49 @@
+# DoubleGate SDK — developer map
+
+Standalone offline gate contracts plus an explicitly connected local gate client.
+A scan result, successful proposal or HTTP/RPC response is not admission authority.
+
+## Machine-readable entry points
+
+- `python -m doublegate_sdk describe-client`: actual client method signatures,
+  defaults, RPC mappings, mutation classification and transport scope. Offline.
+  Describes this SDK, not the capabilities of an arbitrary running gate.
+- `python -m doublegate_sdk schema`: declarative gate manifest JSON Schema.
+
+## Read these next
+
+- [Client operations and limits](docs/api/client.md)
+- [SDK roadmap and delivery criteria](docs/roadmap.md)
+- [Developer verification](docs/maintaining.md)
+- [Offline authoring](docs/manual.md)
+- [API module index](docs/api/index.md)
+- [Source client](src/doublegate_sdk/client.py)
+- [Client behavior tests](tests/test_memory_client.py)
+- [Optional real-gate lifecycle probe](examples/verify_memory_lifecycle.py)
+
+## One verification command
+
+Use an existing SDK development interpreter with test/docs extras:
+`python scripts/check.py`
+
+It resolves the checkout from the script, checks SDK source identity, runs tests
+and strict docs, rejects empty/skipped acceptance, and records each run separately
+under `.tmp/verification/`. It installs/publishes nothing. `--preflight` checks the
+selected environment without running tests or building docs.
+
+## Boundaries agents must preserve
+
+- Imports use `doublegate_sdk`, never `doublegate.sdk`.
+- `GateTransport` is a Python protocol, not MCP or HTTP compatibility.
+- Local socket proposal writes require explicit opt-in; server identity/permissions
+  remain authoritative. Do not put writer identity into proposal parameters.
+- Recall excludes pending echoes and provisional knowledge by default. Enabling
+  provisional results must be explicit and preserves the flag in returned data.
+- Uncertain write outcome is not permission to retry automatically.
+- Inventory scope is gate-local and coverage may be partial; never equate retained
+  records with admitted/retrievable knowledge.
+- Reuse envelope/content/submission-event identities; they are different contracts.
+- The optional lifecycle example requires Client Gate and uses a deterministic
+  reviewer. It is not live-model or organization-delivery evidence.
+- No credential discovery, installations, commits, pushes or live restarts unless
+  separately authorized. Preserve existing WIP; add a failing test before a fix.
