@@ -12,6 +12,37 @@ They are documentation extras, never runtime dependencies.
 
 ## Local verification
 
+With an existing SDK development environment, the normal source verification is:
+
+```sh
+python scripts/check.py --preflight
+python scripts/check.py
+python -m doublegate_sdk describe-client
+```
+
+Select the interpreter explicitly (for example `.venv/bin/python`). The checker
+does not install missing packages: it names missing prerequisites and exits.
+It resolves this checkout independently of the current working directory, pins
+the SDK source for test subprocesses, checks loaded SDK origins during collection
+and completion, and records test counts plus source hashes. Empty or skipped
+tests fail acceptance. Each run gets its own `.tmp/verification/run-*/` directory,
+including logs and `result.json`, so a failed run does not overwrite earlier
+passing evidence. Strict MkDocs build is part of the same command.
+
+Failed tests retain their JUnit coverage counts. Timeout reports retain partial
+stdout/stderr and mark the failed step with exit code 124. Snapshot failures are
+recorded as failures; if source identity cannot be measured, `source_unchanged`
+is null rather than a fabricated true/false assertion. These records identify
+the failure phase so the next coding session can resume without rediscovery.
+
+These checks prove source/test/documentation consistency, not wheel installation,
+cross-principal authorization, real model quality or a deployed gate lifecycle.
+The description command describes the SDK client only; remote gate capability
+discovery remains separate. Start agent-assisted work from the root `llms.txt`.
+
+The following are manual setup/build commands for maintainers with the appropriate
+installation and publication permissions; they are not run by `check.py`:
+
 ```sh
 python -m pip install '.[test,docs]'
 python -m pytest

@@ -48,6 +48,7 @@ extra:
     default: dev
 nav:
   - Start: index.md
+  - Roadmap: roadmap.md
   - Authoring:
       - Offline manual: manual.md
       - Python quickstart: quickstart.md
@@ -62,4 +63,5 @@ nav:
       - Response schemas: api/schema.md
       - Skipped reasons: api/skipped.md
       - CLI: api/cli.md
+      - Gate memory client: api/client.md
   - Maintainers: maintaining.md
