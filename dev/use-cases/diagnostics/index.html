@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://doublegate-io.github.io/doublegate-sdk/dev/maintaining/">
+        <link rel="canonical" href="https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/diagnostics/">
       
       
-        <link rel="prev" href="../api/cli/">
+        <link rel="prev" href="../correction/">
       
+      
+        <link rel="next" href="../../manual/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>Maintainers - Doublegate SDK</title>
+        <title>Diagnostics - Doublegate SDK</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -45,11 +47,11 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -72,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#building-and-publishing-documentation" class="md-skip">
+        <a href="#work-out-why-the-gate-is-not-answering" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Doublegate SDK" class="md-header__button md-logo" aria-label="Doublegate SDK" data-md-component="logo">
+    <a href="../.." title="Doublegate SDK" class="md-header__button md-logo" aria-label="Doublegate SDK" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Maintainers
+              Diagnostics
             
           </span>
         </div>
@@ -197,7 +199,7 @@
   
   
     <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -218,7 +220,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../quickstart/" class="md-tabs__link">
+        <a href="../../quickstart/" class="md-tabs__link">
           
   
   
@@ -236,11 +238,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../use-cases/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -262,7 +266,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../manual/" class="md-tabs__link">
+        <a href="../../manual/" class="md-tabs__link">
           
   
   
@@ -282,7 +286,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../versions/" class="md-tabs__link">
+      <a href="../../versions/" class="md-tabs__link">
         
   
   
@@ -301,7 +305,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../roadmap/" class="md-tabs__link">
+      <a href="../../roadmap/" class="md-tabs__link">
         
   
   
@@ -322,7 +326,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../api/" class="md-tabs__link">
+        <a href="../../api/" class="md-tabs__link">
           
   
   
@@ -340,11 +344,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../maintaining/" class="md-tabs__link">
         
   
   
@@ -379,7 +381,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Doublegate SDK" class="md-nav__button md-logo" aria-label="Doublegate SDK" data-md-component="logo">
+    <a href="../.." title="Doublegate SDK" class="md-nav__button md-logo" aria-label="Doublegate SDK" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -409,7 +411,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -496,7 +498,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../quickstart/" class="md-nav__link">
+      <a href="../../quickstart/" class="md-nav__link">
         
   
   
@@ -524,7 +526,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../agents/" class="md-nav__link">
+      <a href="../../agents/" class="md-nav__link">
         
   
   
@@ -552,7 +554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../http-interfaces/" class="md-nav__link">
+      <a href="../../http-interfaces/" class="md-nav__link">
         
   
   
@@ -584,6 +586,8 @@
       
   
   
+    
+  
   
   
     
@@ -611,20 +615,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../use-cases/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -642,13 +649,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -668,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../use-cases/memory/" class="md-nav__link">
+      <a href="../memory/" class="md-nav__link">
         
   
   
@@ -696,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../use-cases/ingestion/" class="md-nav__link">
+      <a href="../ingestion/" class="md-nav__link">
         
   
   
@@ -724,7 +731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../use-cases/checks/" class="md-nav__link">
+      <a href="../checks/" class="md-nav__link">
         
   
   
@@ -752,7 +759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../use-cases/reviewer/" class="md-nav__link">
+      <a href="../reviewer/" class="md-nav__link">
         
   
   
@@ -780,7 +787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../use-cases/provenance/" class="md-nav__link">
+      <a href="../provenance/" class="md-nav__link">
         
   
   
@@ -808,7 +815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../use-cases/correction/" class="md-nav__link">
+      <a href="../correction/" class="md-nav__link">
         
   
   
@@ -833,10 +840,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../use-cases/diagnostics/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -852,6 +886,120 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#probe-the-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe the endpoint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-real-failure-transcript" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A real failure transcript
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-each-kind-means-and-what-to-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each kind means, and what to do
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What each kind means, and what to do">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#no-server-text-ever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No server text, ever
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-statuses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit statuses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-clean-probe-does-not-prove" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a clean probe does not prove
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#completion-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completion status
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -927,7 +1075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../manual/" class="md-nav__link">
+      <a href="../../manual/" class="md-nav__link">
         
   
   
@@ -962,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../versions/" class="md-nav__link">
+      <a href="../../versions/" class="md-nav__link">
         
   
   
@@ -989,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roadmap/" class="md-nav__link">
+      <a href="../../roadmap/" class="md-nav__link">
         
   
   
@@ -1059,7 +1207,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../api/" class="md-nav__link ">
+            <a href="../../api/" class="md-nav__link ">
               
   
   
@@ -1103,7 +1251,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/authoring/" class="md-nav__link">
+      <a href="../../api/authoring/" class="md-nav__link">
         
   
   
@@ -1131,7 +1279,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/client/" class="md-nav__link">
+      <a href="../../api/client/" class="md-nav__link">
         
   
   
@@ -1159,7 +1307,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/manifest/" class="md-nav__link">
+      <a href="../../api/manifest/" class="md-nav__link">
         
   
   
@@ -1187,7 +1335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/package/" class="md-nav__link">
+      <a href="../../api/package/" class="md-nav__link">
         
   
   
@@ -1215,7 +1363,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/runtime/" class="md-nav__link">
+      <a href="../../api/runtime/" class="md-nav__link">
         
   
   
@@ -1243,7 +1391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/checks/" class="md-nav__link">
+      <a href="../../api/checks/" class="md-nav__link">
         
   
   
@@ -1271,7 +1419,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/reasons/" class="md-nav__link">
+      <a href="../../api/reasons/" class="md-nav__link">
         
   
   
@@ -1299,7 +1447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/schema/" class="md-nav__link">
+      <a href="../../api/schema/" class="md-nav__link">
         
   
   
@@ -1327,7 +1475,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/skipped/" class="md-nav__link">
+      <a href="../../api/skipped/" class="md-nav__link">
         
   
   
@@ -1355,7 +1503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/cli/" class="md-nav__link">
+      <a href="../../api/cli/" class="md-nav__link">
         
   
   
@@ -1387,37 +1535,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Maintainers
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../maintaining/" class="md-nav__link">
         
   
   
@@ -1433,81 +1554,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#tool-choice" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tool choice
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-verification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local verification
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installed-wheel-acceptance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installed wheel acceptance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#github-pages-deployment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GitHub Pages deployment
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#provenance-and-licensing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Provenance and licensing
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1539,10 +1585,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tool-choice" class="md-nav__link">
+  <a href="#before-you-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tool choice
+        Before you start
       
     </span>
   </a>
@@ -1550,10 +1596,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#local-verification" class="md-nav__link">
+  <a href="#probe-the-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Local verification
+        Probe the endpoint
       
     </span>
   </a>
@@ -1561,10 +1607,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installed-wheel-acceptance" class="md-nav__link">
+  <a href="#a-real-failure-transcript" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installed wheel acceptance
+        A real failure transcript
       
     </span>
   </a>
@@ -1572,10 +1618,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#github-pages-deployment" class="md-nav__link">
+  <a href="#what-each-kind-means-and-what-to-do" class="md-nav__link">
     <span class="md-ellipsis">
       
-        GitHub Pages deployment
+        What each kind means, and what to do
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What each kind means, and what to do">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#no-server-text-ever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No server text, ever
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-statuses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit statuses
       
     </span>
   </a>
@@ -1583,10 +1657,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#provenance-and-licensing" class="md-nav__link">
+  <a href="#what-a-clean-probe-does-not-prove" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Provenance and licensing
+        What a clean probe does not prove
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#completion-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completion status
       
     </span>
   </a>
@@ -1613,98 +1698,188 @@
   
 
 
-<h1 id="building-and-publishing-documentation">Building and publishing documentation</h1>
-<h2 id="tool-choice">Tool choice</h2>
-<p><a href="https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/">Material for MkDocs</a>
-provides accessible navigation, dark mode, search and native mike version selection.
-<a href="https://mkdocstrings.github.io/python/">mkdocstrings-python</a> collects Python source
-with Griffe and renders signatures, annotations, source and per-member anchors.
-<a href="https://github.com/jimporter/mike">mike</a> retains built version snapshots in a Git
-branch. Together these provide a Javadoc-like API index with a Python-native build.
-They are documentation extras, never runtime dependencies.</p>
-<h2 id="local-verification">Local verification</h2>
-<p>With an existing SDK development environment, the normal source verification is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>scripts/check.py<span class="w"> </span>--preflight
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>scripts/check.py
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>python<span class="w"> </span>-m<span class="w"> </span>doublegate_sdk<span class="w"> </span>describe-client
+<h1 id="work-out-why-the-gate-is-not-answering">Work out why the gate is not answering</h1>
+<p>An integration that worked yesterday is failing, and you need to know whether the
+endpoint is wrong, the gate is down, the credential was rejected, or the call is
+simply not served by that build. The starter app negotiates with the endpoint the
+way the SDK does and maps whatever failed onto a fixed error kind with a fixed next
+step.</p>
+<div class="admonition warning">
+<p class="admonition-title">There is no instrumentation behind this</p>
+<p>This app collects no metrics, emits no traces, reads no server logs and hooks
+nothing inside the SDK. It reports the results of calls it makes itself, in
+this process, and nothing else. If you came looking for SDK telemetry, that is
+not what this is — building a probe that <em>looked</em> like observability would
+misrepresent what the SDK publishes.</p>
+</div>
+<h2 id="before-you-start">Before you start</h2>
+<p>An endpoint you already have. All commands run <strong>from the repository root</strong>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">DOUBLEGATE_ENDPOINT</span><span class="o">=</span><span class="s2">"https://gate.your-deployment.example/mcp"</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">DOUBLEGATE_TOKEN</span><span class="o">=</span><span class="s2">"…"</span><span class="w">          </span><span class="c1"># only if your deployment requires one</span>
 </code></pre></div>
-<p>Select the interpreter explicitly (for example <code>.venv/bin/python</code>). The checker
-does not install missing packages: it names missing prerequisites and exits.
-It resolves this checkout independently of the current working directory, pins
-the SDK source for test subprocesses, checks loaded SDK origins during collection
-and completion, and records test counts plus source hashes. Empty or skipped
-tests fail acceptance. Each run gets its own <code>.tmp/verification/run-*/</code> directory,
-including logs and <code>result.json</code>, so a failed run does not overwrite earlier
-passing evidence. Strict MkDocs build is part of the same command.</p>
-<p>Failed tests retain their JUnit coverage counts. Timeout reports retain partial
-stdout/stderr and mark the failed step with exit code 124. Snapshot failures are
-recorded as failures; if source identity cannot be measured, <code>source_unchanged</code>
-is null rather than a fabricated true/false assertion. These records identify
-the failure phase so the next coding session can resume without rediscovery.</p>
-<p>These checks prove source/test/documentation consistency, not wheel installation,
-cross-principal authorization, real model quality or a deployed gate lifecycle.
-The description command describes the SDK client only; remote gate capability
-discovery remains separate. Start agent-assisted work from the root <code>llms.txt</code>.</p>
-<p>The following are manual setup/build commands for maintainers with the appropriate
-installation and publication permissions; they are not run by <code>check.py</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'.[test,docs]'</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>-m<span class="w"> </span>pytest
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>python<span class="w"> </span>-m<span class="w"> </span>build
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>python<span class="w"> </span>scripts/preview_docs.py
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8000</span><span class="w"> </span>--directory<span class="w"> </span>site
+<p>The credential is read from <code>DOUBLEGATE_TOKEN</code> only — never an argument, never
+printed. The app reports it as <code>token supplied: True</code> or <code>False</code> and nothing more.
+That matters here specifically: a diagnostic tool is exactly the thing people paste
+into a ticket.</p>
+<div class="admonition note">
+<p class="admonition-title">Which interpreter, and which source</p>
+<p><code>python</code> means the interpreter of the environment where you installed this SDK.
+From a source checkout, use that checkout's interpreter (for example
+<code>.venv/bin/python</code>) so the <code>doublegate_sdk</code> you import is the revision you are
+reading. Confirm with <code>python -c "import doublegate_sdk;
+print(doublegate_sdk.__file__)"</code>.</p>
+</div>
+<h2 id="probe-the-endpoint">Probe the endpoint</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="gp">$ </span>python<span class="w"> </span>examples/starters/diagnostics.py<span class="w"> </span>probe
 </code></pre></div>
-<p>The preview script builds <code>site/dev/</code>, writes a one-entry version index and a root
-redirect. It does not commit, push or claim to execute mike deployment. Keep the
-local server bound to localhost when needed with <code>--bind 127.0.0.1</code>.</p>
-<h2 id="installed-wheel-acceptance">Installed wheel acceptance</h2>
-<p>The Linux CI matrix also installs the newly built wheel without extras into a
-fresh virtual environment and runs <code>scripts/verify_installed.py</code> with isolated
-Python imports (<code>-I</code>) outside the source root. The check rejects editable installs,
-checks package origin and <code>py.typed</code>, and exercises the installed runtime, module
-CLI, console entry point and schema command. Both clean and flagged evidence must
-retain required human review. Neither service distribution may be installed.</p>
-<p>To repeat locally after <code>uv build</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>venv<span class="w"> </span>.tmp/wheel-consumer
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--python<span class="w"> </span>.tmp/wheel-consumer/bin/python<span class="w"> </span>dist/*.whl
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>uv<span class="w"> </span>pip<span class="w"> </span>check<span class="w"> </span>--python<span class="w"> </span>.tmp/wheel-consumer/bin/python
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>.tmp/consumer-work
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">consumer_python</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/.tmp/wheel-consumer/bin/python"</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nv">verifier</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/scripts/verify_installed.py"</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>.tmp/consumer-work<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s2">"</span><span class="nv">$consumer_python</span><span class="s2">"</span><span class="w"> </span>-I<span class="w"> </span><span class="s2">"</span><span class="nv">$verifier</span><span class="s2">"</span><span class="o">)</span>
+<p>Everything is a read; the client is opened with <code>allow_writes=False</code>. Two steps run
+by default — <code>server/discover</code> and <code>tools/list</code> — because those are the negotiation
+methods the maintained server answers. The SDK does not send <code>initialize</code>: that is
+refused unless an operator turned on a legacy flag.</p>
+<p><code>tools:</code> is the catalog <strong>that server actually lists</strong>, in its own order. Compare
+it against the call you were trying to make; a missing tool explains an
+<code>unsupported_operation</code> without any further digging.</p>
+<p>Add reads when you want to test past negotiation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="gp">$ </span>python<span class="w"> </span>examples/starters/diagnostics.py<span class="w"> </span>probe<span class="w"> </span>--query<span class="w"> </span><span class="s2">"specimen labelling"</span><span class="w"> </span>--limit<span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="gp">$ </span>python<span class="w"> </span>examples/starters/diagnostics.py<span class="w"> </span>probe<span class="w"> </span>--artifact-id<span class="w"> </span>sha256:…
 </code></pre></div>
-<p>Use a new consumer directory for each verification. This proves the built SDK's
-installed behavior, not client/org release readiness, server authorization,
-native Windows support or production acceptance. No artifact is uploaded by this
-check and no existing GitHub release asset is replaced.</p>
-<h2 id="github-pages-deployment">GitHub Pages deployment</h2>
-<p>The SDK checks and documentation workflow tests Python 3.11–3.13 on Linux,
-builds distributions and strict docs, then deploys the <code>dev</code> channel on main.
-Actions are pinned to commit SHAs. Pull requests cannot deploy. Mike retains
-version snapshots on <code>gh-pages</code>; Pages uses the uploaded artifact.</p>
-<p>The canonical site root is https://doublegate-io.github.io/doublegate-sdk/.
-Override <code>SDK_DOCS_URL</code> only for another host, including its trailing slash.
-Check GitHub Actions for the actual deployment result.</p>
-<p>After explicit publication approval, the maintainer can run:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Creates gh-pages commits; pushes only with the explicit --push option.</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>mike<span class="w"> </span>deploy<span class="w"> </span>--title<span class="w"> </span><span class="s1">'dev (unreleased)'</span><span class="w"> </span>dev
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>mike<span class="w"> </span>set-default<span class="w"> </span>dev
+<p>The app prints <code>failed steps: N</code> and exits <code>3</code> if any step failed, so this drops
+into a health check without output parsing.</p>
+<h2 id="a-real-failure-transcript">A real failure transcript</h2>
+<p>Against a port with nothing listening:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="gp">$ </span>python<span class="w"> </span>examples/starters/diagnostics.py<span class="w"> </span>--allow-insecure-loopback<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span>--endpoint<span class="w"> </span>http://127.0.0.1:44995/mcp<span class="w"> </span>probe
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">discover: gate_error kind=unavailable code=None</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="go">discover: next step — no usable connection to that host and port; confirm the gate is running and the endpoint is the MCP URL, not the daemon administration URL</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="go">tools: gate_error kind=unavailable code=None</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="go">tools: next step — no usable connection to that host and port; confirm the gate is running and the endpoint is the MCP URL, not the daemon administration URL</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="go">endpoint: http://127.0.0.1:44995/mcp</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="go">token supplied: False</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="go">failed steps: 2</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="go">exit=3</span>
 </code></pre></div>
-<p>For a real tested release, substitute its actual version below; this is a
-procedure, not a claim that any release already exists:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>mike<span class="w"> </span>deploy<span class="w"> </span>--update-aliases<span class="w"> </span><span class="s2">"</span><span class="nv">$RELEASE_VERSION</span><span class="s2">"</span><span class="w"> </span>stable
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mike<span class="w"> </span>set-default<span class="w"> </span>stable
-</code></pre></div>
-<p>Fetch an existing gh-pages branch before updating it. Never overwrite prior
-release paths. Set the Material default alias to <code>stable</code> only after that alias
-exists. Release snapshots are maintainer-owned; CI updates only <code>dev</code>. No PyPI upload
-or automatic stable release is configured.</p>
-<h2 id="provenance-and-licensing">Provenance and licensing</h2>
-<p>The root LICENSE is byte-for-byte Apache-2.0 from client-gate, including Eugene
-Korniichuk and contributor attribution. NOTICE describes adaptations. The source
-SDK was untracked; PROVENANCE.json hashes identify it without pretending its HEAD
-contains those files. There is no missing-license blocker. The public repository contains a fresh standalone history, not client-gate history.
-No PyPI release is implied.</p>
+<p>That is actual output, not an illustration.</p>
+<h2 id="what-each-kind-means-and-what-to-do">What each kind means, and what to do</h2>
+<p>The app maps the SDK's own error kinds. The next-step text is fixed for each kind —
+literal strings chosen in advance, never assembled from a response:</p>
+<table>
+<thead>
+<tr>
+<th><code>kind</code></th>
+<th>What it tells you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unavailable</code></td>
+<td>no usable connection; wrong host/port, or the gate is not running</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>the deadline passed with no complete answer</td>
+</tr>
+<tr>
+<td><code>unauthorized</code> (401)</td>
+<td>the endpoint rejected the credential</td>
+</tr>
+<tr>
+<td><code>forbidden</code> (403)</td>
+<td>credential accepted, this call not permitted</td>
+</tr>
+<tr>
+<td><code>redirect_refused</code></td>
+<td>the endpoint redirected; the SDK will not carry your token to another host</td>
+</tr>
+<tr>
+<td><code>unsupported_operation</code></td>
+<td>this build does not serve that call, or the id is unknown</td>
+</tr>
+<tr>
+<td><code>invalid_response</code></td>
+<td>the answer was not one this client will guess at — often a URL that is not a gate</td>
+</tr>
+<tr>
+<td><code>remote_error</code></td>
+<td>the gate failed and did not explain it to clients</td>
+</tr>
+<tr>
+<td><code>request_too_large</code> / <code>response_too_large</code></td>
+<td>a configured bound was exceeded</td>
+</tr>
+<tr>
+<td><code>writes_disabled</code></td>
+<td>a write was attempted on a read-only client</td>
+</tr>
+<tr>
+<td><code>tool_error</code></td>
+<td>the gate ran the call and reported a failure</td>
+</tr>
+</tbody>
+</table>
+<p>Two of those are worth calling out. <code>unavailable</code> is very often the
+<strong>administration URL used in place of the MCP URL</strong> — both are HTTP, and they serve
+different operations. And <code>invalid_response</code> usually means the URL reaches
+something that is not a gate at all.</p>
+<p>An error kind this app does not recognise prints <code>unrecognized error kind for this
+SDK revision</code> and asks you to report the kind. It does not pick the nearest
+familiar message.</p>
+<h3 id="no-server-text-ever">No server text, ever</h3>
+<p>The app prints <code>kind</code> and <code>code</code>, never the server's message. That is the SDK's
+deliberate design — remote error text carries internals and a client log is the
+wrong place for it — and this app does not work around it. Callers branch on
+<code>kind</code>; nobody parses English.</p>
+<h2 id="exit-statuses">Exit statuses</h2>
+<table>
+<thead>
+<tr>
+<th>Exit</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>every step attempted succeeded</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>a local refusal: no endpoint given</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>argparse usage error</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td>at least one step failed; each is reported with its next step</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-a-clean-probe-does-not-prove">What a clean probe does not prove</h2>
+<p>A successful probe means the endpoint speaks the protocol and answered. It does not
+mean your credential was verified.</p>
+<div class="admonition warning">
+<p class="admonition-title">Current authentication gap</p>
+<p>On the maintained client tier, <code>POST /mcp</code> is dispatched <strong>before</strong> the
+console's authentication check; only <code>/api/*</code> routes enforce the console bearer
+token, and loopback is the credential on that tier. So a probe that succeeds
+without a token is not evidence of a misconfiguration you can fix from here —
+on that tier it is expected. Equally, a probe that succeeds <em>with</em> a token does
+not show the token was checked. The SDK's own 401/403 handling is proved
+against scripted responders. Closing the server-side gap is the service's work.
+See <a href="../../api/client/">client reference</a> and the <a href="../../roadmap/">roadmap</a>.</p>
+</div>
+<p>For a gate on this host, <code>--allow-insecure-loopback</code> permits plain <code>http://</code>; it
+refuses any non-loopback host, so it cannot send a credential unencrypted to a
+remote endpoint.</p>
+<h2 id="completion-status">Completion status</h2>
+<p>App and tests are complete and pass. The tests are <strong>unit tests</strong> with an injected
+client double: they prove the probe reads only, makes no reads unless asked, maps
+each error kind to its fixed next step, reports an unknown kind without guessing,
+and reports only the <em>presence</em> of a credential. They open no socket. The failure
+transcript above was produced by running the app against a genuinely closed local
+port. Real-service acceptance for this SDK is recorded separately in
+<a href="../../api/client/">the client reference</a> and was not re-run for these starters.</p>
 
 
 
@@ -1760,10 +1935,10 @@ No PyPI release is implied.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "dev", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "content.code.copy", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "dev", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

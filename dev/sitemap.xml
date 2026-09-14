@@ -2,66 +2,110 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/agents/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/http-interfaces/</loc>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/maintaining/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/manual/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/quickstart/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/roadmap/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/versions/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/authoring/</loc>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/checks/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/cli/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/client/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/manifest/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/package/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/reasons/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/runtime/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/schema/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
     </url>
     <url>
          <loc>https://doublegate-io.github.io/doublegate-sdk/dev/api/skipped/</loc>
-         <lastmod>2026-09-13</lastmod>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/checks/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/correction/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/diagnostics/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/ingestion/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/memory/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/provenance/</loc>
+         <lastmod>2026-09-14</lastmod>
+    </url>
+    <url>
+         <loc>https://doublegate-io.github.io/doublegate-sdk/dev/use-cases/reviewer/</loc>
+         <lastmod>2026-09-14</lastmod>
     </url>
 </urlset>
