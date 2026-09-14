@@ -48,20 +48,33 @@ extra:
     default: dev
 nav:
   - Start: index.md
+  - Get started:
+      - Python application: quickstart.md
+      - Agent integration (MCP): agents.md
+      - HTTP endpoints and migration: http-interfaces.md
+  - Starter apps:
+      - Choose a use case: use-cases/index.md
+      - Assistant memory: use-cases/memory.md
+      - Document ingestion: use-cases/ingestion.md
+      - Deterministic checks: use-cases/checks.md
+      - Reviewer preparation: use-cases/reviewer.md
+      - Provenance: use-cases/provenance.md
+      - Correction preparation: use-cases/correction.md
+      - Diagnostics: use-cases/diagnostics.md
+  - Custom checks:
+      - Author a deterministic check: manual.md
+  - Compatibility & versions: versions.md
   - Roadmap: roadmap.md
-  - Authoring:
-      - Offline manual: manual.md
-      - Python quickstart: quickstart.md
-      - Compatibility & versions: versions.md
   - API reference:
       - Overview: api/index.md
+      - Check a file against a manifest: api/authoring.md
+      - Gate memory client: api/client.md
       - Manifest: api/manifest.md
-      - Package loader: api/package.md
+      - Load a check manifest: api/package.md
       - Evaluation: api/runtime.md
       - Evidence types: api/checks.md
       - Reason categories: api/reasons.md
       - Response schemas: api/schema.md
       - Skipped reasons: api/skipped.md
       - CLI: api/cli.md
-      - Gate memory client: api/client.md
   - Maintainers: maintaining.md

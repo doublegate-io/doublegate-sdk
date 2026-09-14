@@ -4,7 +4,7 @@
 
 | Domain | Current value | Meaning |
 | --- | --- | --- |
-| Python distribution | `0.1.0.dev0` | Unreleased development snapshot of `doublegate-sdk`. |
+| Python distribution | `0.1.0.dev3` | Unreleased development snapshot of `doublegate-sdk`. |
 | Manifest `schema_version` | `"0.1"` | Exact JSON shape accepted by the validator. |
 | Manifest `sdk_version` | `"0.1"` | Exact declarative capability contract; not a PyPI version constraint. |
 | Gate author's `version` | e.g. `"1.0.0"` | User-owned gate metadata, not an SDK release. |

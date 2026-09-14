@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1",
+  "sdk_version": "0.1",
+  "name": "release-note",
+  "version": "1.0.0",
+  "artifact_types": ["memory"],
+  "checks": [
+    {"capability": "required-text", "text": "Owner:"},
+    {"capability": "required-text", "text": "Rollback:"}
+  ],
+  "max_input_bytes": 4096,
+  "human_review": "required",
+  "egress": [],
+  "secret_refs": []
+}
