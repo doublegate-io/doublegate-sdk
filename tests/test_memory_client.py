@@ -1,280 +1,545 @@
-"""SDK client contracts; test doubles here are transport fixtures."""
+"""Scripted-responder tests for the HTTP/MCP gate transport.
+
+Every test runs against a real loopback HTTP server speaking real bytes, not a
+fake transport object. The responder is scripted so the parsing, the bounds and
+the error mapping are exercised on the wire.
+"""
 import json
-import socket
 import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from doublegate_sdk.client import GateClient, GateError, InventoryPage, UnixSocketTransport
+from doublegate_sdk.client import GateClient, GateError, HttpMcpTransport
 
 
-def page(offset=0, more=False, complete=True):
-    return {'page': [{'artifact_id': 'record-a', 'state': 'FUTURE_STATE'}],
-            'total': 2 if more else 1, 'limit': 1, 'offset': offset,
-            'has_more': more, 'next_offset': offset + 1 if more else None,
-            'coverage': {'complete': complete, 'errors': [] if complete else ['active unavailable']},
-            'scope': {'gate_local': True}, 'counts': {}}
+def _mcp_ok(payload, request_id=1):
+    return {'jsonrpc': '2.0', 'id': request_id,
+            'result': {'content': [{'type': 'text', 'text': json.dumps(payload)}],
+                       'structuredContent': payload, 'isError': False,
+                       'resultType': 'complete'}}
 
 
-class Transport:
-    def __init__(self, result): self.result, self.calls = result, []
-    def call(self, method, params):
-        self.calls.append((method, params))
-        return self.result
+class _Script:
+    """One scripted HTTP/MCP responder; records what the SDK actually sent."""
+
+    def __init__(self, reply, *, status=200, content_type='application/json'):
+        self.reply, self.status, self.content_type = reply, status, content_type
+        self.requests = []
+        self.headers = []
+        self.paths = []
 
 
-def test_client_is_lazy_and_status_preserves_response():
-    transport = Transport({'state': 'L1B_FLAGGED'})
-    client = GateClient(transport)
-    assert not transport.calls
-    assert client.status('abc')['state'] == 'L1B_FLAGGED'
-    assert transport.calls == [('dg.status', {'artifact_id': 'abc'})]
+def _serve(script):
+    class Handler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def log_message(self, *args):
+            pass
+
+        def do_GET(self):
+            self.send_response(405)
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+
+        def do_POST(self):
+            length = int(self.headers.get('Content-Length') or 0)
+            raw = self.rfile.read(length)
+            script.paths.append(self.path)
+            script.headers.append(dict(self.headers))
+            try:
+                script.requests.append(json.loads(raw))
+            except ValueError:
+                script.requests.append(raw)
+            reply = script.reply
+            if callable(reply):
+                reply = reply(script.requests[-1])
+            body = reply if isinstance(reply, bytes) else json.dumps(reply).encode()
+            self.send_response(script.status)
+            self.send_header('Content-Type', script.content_type)
+            self.send_header('Content-Length', str(len(body)))
+            if script.status in (301, 302, 307, 308):
+                self.send_header('Location', 'https://elsewhere.example/mcp')
+            self.end_headers()
+            self.wfile.write(body)
+
+    httpd = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+    httpd.daemon_threads = True
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    return httpd, thread
 
 
-def test_inventory_keeps_unknown_states_and_partial_coverage():
-    transport = Transport(page(complete=False))
-    result = GateClient(transport).inventory(limit=1, state=['FUTURE_STATE'])
-    assert isinstance(result, InventoryPage)
-    assert result.records[0]['state'] == 'FUTURE_STATE'
-    assert result.complete is False
-    assert result.coverage_errors == ('active unavailable',)
-    assert transport.calls[0] == ('dg.inventory', {'limit': 1, 'offset': 0, 'state': ['FUTURE_STATE']})
+@pytest.fixture
+def responder():
+    started = []
 
+    def start(reply, *, status=200, content_type='application/json'):
+        script = _Script(reply, status=status, content_type=content_type)
+        httpd, thread = _serve(script)
+        started.append((httpd, thread))
+        script.endpoint = f'http://127.0.0.1:{httpd.server_address[1]}/mcp'
+        return script
 
-@pytest.mark.parametrize('limit,offset', [(0, 0), (True, 0), (1, -1), (1, False)])
-def test_invalid_pagination_never_calls_transport(limit, offset):
-    transport = Transport(page())
-    with pytest.raises(ValueError): GateClient(transport).inventory(limit=limit, offset=offset)
-    assert not transport.calls
-
-
-def test_no_unrecognized_inventory_parameter_forwarding():
-    transport = Transport(page())
-    with pytest.raises(ValueError): GateClient(transport).inventory(principal='admin')
-    assert not transport.calls
-
-
-def test_non_progressing_page_fails_not_loops():
-    transport = Transport(page(more=True))
-    pages = GateClient(transport).inventory_pages(limit=1, max_pages=3)
-    next(pages)
-    with pytest.raises(GateError, match='invalid_response'): next(pages)
-
-
-def test_page_budget_exhaustion_is_explicit():
-    pages = GateClient(Transport(page(more=True))).inventory_pages(limit=1, max_pages=1)
-    next(pages)
-    with pytest.raises(GateError, match='page_limit'): next(pages)
-
-
-def exchange(tmp_path, responder, max_bytes=65536, operation=None, allow_proposals=False):
-    path = tmp_path / 'rpc.sock'
-    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    server.bind(str(path)); server.listen(1)
-    errors = []
-    def serve():
-        try:
-            connection, _ = server.accept()
-            with connection:
-                request = json.loads(connection.makefile('rb').readline())
-                connection.sendall(responder(request))
-        except Exception as exc: errors.append(exc)
-        finally: server.close()
-    thread = threading.Thread(target=serve, daemon=True); thread.start()
-    try:
-        options = {'allow_proposals': True} if allow_proposals else {}
-        client = GateClient(UnixSocketTransport(path, timeout=2, max_response_bytes=max_bytes, **options))
-        return operation(client) if operation else client.status()
-    finally:
-        thread.join(timeout=3)
+    yield start
+    for httpd, thread in started:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=10)
         assert not thread.is_alive()
-        assert not errors
 
 
-def test_actual_socket_response(tmp_path):
-    result = exchange(tmp_path, lambda r: json.dumps({'jsonrpc': '2.0', 'id': r['id'], 'result': {'role': 'client'}}).encode()+b'\n')
-    assert result == {'role': 'client'}
+def _transport(script, **kwargs):
+    kwargs.setdefault('allow_insecure_loopback', True)
+    return HttpMcpTransport(script.endpoint, **kwargs)
 
 
-def test_unsupported_operation_is_not_empty_success(tmp_path):
-    def respond(r):
-        return json.dumps({'jsonrpc': '2.0', 'id': r['id'], 'error': {'code': -32601, 'message': 'secret-text'}}).encode()+b'\n'
-    with pytest.raises(GateError) as err: exchange(tmp_path, respond)
-    assert err.value.kind == 'unsupported_operation'
-    assert err.value.code == -32601
-    assert 'secret-text' not in str(err.value)
+# ---- endpoint policy -------------------------------------------------------
+
+def test_https_is_the_default_and_plain_http_is_refused():
+    with pytest.raises(ValueError):
+        HttpMcpTransport('http://gate.example/mcp')
 
 
-@pytest.mark.parametrize('response', [b'garbage\n', b'{"jsonrpc":"2.0","id":999,"result":{}}\n', b'{"jsonrpc":"2.0","id":1,"result":[],"error":{}}\n'])
-def test_malformed_response_refused(tmp_path, response):
-    with pytest.raises(GateError, match='invalid_response'): exchange(tmp_path, lambda _: response)
+def test_plain_http_is_refused_even_on_loopback_without_the_opt_in():
+    with pytest.raises(ValueError):
+        HttpMcpTransport('http://127.0.0.1:8480/mcp')
 
 
-def test_oversized_response_refused(tmp_path):
-    with pytest.raises(GateError, match='response_too_large'):
-        exchange(tmp_path, lambda _: b'x'*100+b'\n', max_bytes=32)
+def test_the_loopback_opt_in_does_not_open_remote_plain_http():
+    with pytest.raises(ValueError):
+        HttpMcpTransport('http://gate.example/mcp', allow_insecure_loopback=True)
 
 
-def test_unavailable_does_not_return_empty(tmp_path):
-    with pytest.raises(GateError, match='unavailable'):
-        GateClient(UnixSocketTransport(tmp_path/'absent')).status()
+def test_https_remote_endpoint_is_accepted_without_connecting():
+    transport = HttpMcpTransport('https://gate.example/mcp', token='t')
+    assert transport.endpoint == 'https://gate.example/mcp'
 
 
-def test_propose_preserves_bytes_and_never_supplies_writer_identity():
-    import base64
-    transport = Transport({'artifact_id': 'a', 'state': 'L1B_FLAGGED'})
-    result = GateClient(transport).propose(b'raw\x00\xff', content_type='imported_document',
-                                         trust_class='T-4', source_uri='fixture://bytes')
-    method, params = transport.calls[0]
-    assert method == 'dg.ingest'
-    assert base64.b64decode(params['content']) == b'raw\x00\xff'
-    assert params['encoding'] == 'base64'
-    assert 'writer_identity' not in params and 'deployment_id' not in params
-    assert result['state'] == 'L1B_FLAGGED'
+def test_a_non_http_scheme_is_refused():
+    for url in ('unix:///run/gate.sock', 'ftp://gate.example/mcp', '/mcp', ''):
+        with pytest.raises(ValueError):
+            HttpMcpTransport(url, allow_insecure_loopback=True)
 
 
-def test_proposal_transport_requires_explicit_opt_in(tmp_path):
-    client = GateClient(UnixSocketTransport(tmp_path/'absent'))
-    with pytest.raises(GateError, match='writes_disabled'):
-        client.propose('new fact', content_type='memory', trust_class='T-4', source_uri='fixture://x')
+def test_construction_makes_no_connection(responder):
+    script = responder(_mcp_ok({}))
+    _transport(script)
+    assert script.requests == []
 
 
-def test_recall_excludes_pending_and_provisional_by_default():
-    transport = Transport({'hits': [], 'paths': {'keyword': True}})
-    assert GateClient(transport).recall('knowledge')['hits'] == []
-    assert transport.calls == [('dg.recall', {'query': 'knowledge', 'k': 10,
-                                            'include_own_pending': False, 'include_provisional': False})]
+# ---- the wire ---------------------------------------------------------------
+
+def test_status_sends_a_tools_call_for_the_real_tool(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'ACTIVE'}))
+    client = GateClient(_transport(script))
+    result = client.status('sha256:' + 'a' * 64)
+    assert result['state'] == 'ACTIVE'
+    sent = script.requests[0]
+    assert sent['jsonrpc'] == '2.0' and sent['method'] == 'tools/call'
+    assert sent['params']['name'] == 'doublegate.status'
+    assert sent['params']['arguments'] == {'artifact_id': 'sha256:' + 'a' * 64}
+    assert script.paths == ['/mcp']
 
 
-def test_recall_options_are_explicit():
-    transport = Transport({'hits': [{'artifact_id': 'a', 'provisional': True}], 'paths': {}})
-    result = GateClient(transport).recall('knowledge', limit=2, spaces=['team'], include_provisional=True)
-    assert result['hits'][0]['provisional'] is True
-    assert transport.calls[0][1]['spaces'] == ['team']
+def test_the_token_is_sent_as_a_bearer_header(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'b' * 64, 'state': 'ACTIVE'}))
+    client = GateClient(_transport(script, token='shh'))
+    client.status('sha256:' + 'b' * 64)
+    assert script.headers[0]['Authorization'] == 'Bearer shh'
 
 
-def test_lost_proposal_response_has_unknown_outcome_without_retry(tmp_path):
-    with pytest.raises(GateError) as error:
-        exchange(tmp_path, lambda request: b'', allow_proposals=True,
-                 operation=lambda client: client.propose('new fact', content_type='memory',
-                                                         trust_class='T-4', source_uri='fixture://x'))
-    assert error.value.outcome_unknown is True
+def test_no_authorization_header_without_a_token(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'c' * 64, 'state': 'ACTIVE'}))
+    GateClient(_transport(script)).status('sha256:' + 'c' * 64)
+    assert 'Authorization' not in script.headers[0]
 
 
-def test_successful_proposal_uses_real_socket(tmp_path):
-    result = exchange(tmp_path, lambda r: json.dumps({'jsonrpc': '2.0', 'id': r['id'],
-                      'result': {'artifact_id': 'a', 'state': 'L1_SCANNED'}}).encode()+b'\n',
-                      allow_proposals=True, operation=lambda c: c.propose('fact', content_type='memory',
-                      trust_class='T-4', source_uri='fixture://x'))
-    assert result['artifact_id'] == 'a'
+def test_the_token_never_appears_in_an_error(responder):
+    script = responder({'jsonrpc': '2.0', 'id': 1,
+                        'error': {'code': -32603, 'message': 'internal'}})
+    client = GateClient(_transport(script, token='super-secret-value'))
+    with pytest.raises(GateError) as caught:
+        client.status('sha256:' + 'd' * 64)
+    assert 'super-secret-value' not in repr(caught.value)
+    assert 'internal' not in repr(caught.value)
 
 
-@pytest.mark.parametrize('query,limit', [('', 1), ('q', True), ('q', 0)])
-def test_invalid_recall_never_calls_transport(query, limit):
-    transport = Transport({'hits': []})
-    with pytest.raises(ValueError): GateClient(transport).recall(query, limit=limit)
-    assert not transport.calls
+def test_structured_content_is_required(responder):
+    script = responder({'jsonrpc': '2.0', 'id': 1,
+                        'result': {'content': [{'type': 'text', 'text': '{}'}]}})
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + 'e' * 64)
+    assert caught.value.kind == 'invalid_response'
 
 
-@pytest.mark.parametrize('timeout', [None, '10', []])
-def test_invalid_timeout_has_a_consistent_validation_error(tmp_path, timeout):
-    with pytest.raises(ValueError, match='timeout'):
-        UnixSocketTransport(tmp_path/'unused', timeout=timeout)
+def test_a_tool_level_error_flag_is_not_read_as_success(responder):
+    script = responder({'jsonrpc': '2.0', 'id': 1,
+                        'result': {'structuredContent': {'state': 'ACTIVE'}, 'isError': True}})
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + 'f' * 64)
+    assert caught.value.kind == 'tool_error'
 
 
-@pytest.mark.parametrize('path', ['', b'byte-path'])
-def test_invalid_socket_path_is_refused_at_construction(path):
-    with pytest.raises(ValueError, match='path'):
-        UnixSocketTransport(path)
+def test_a_mismatched_response_id_is_refused(responder):
+    script = responder(_mcp_ok({'state': 'ACTIVE'}, request_id=99))
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + '1' * 64)
+    assert caught.value.kind == 'invalid_response'
 
 
-def test_invalid_text_does_not_reach_transport():
-    transport = Transport({})
-    with pytest.raises(ValueError, match='invalid_utf8'):
-        GateClient(transport).propose('private-prefix\ud800', content_type='memory',
-                                     trust_class='T-4', source_uri='fixture://invalid')
-    assert not transport.calls
+# ---- error mapping ----------------------------------------------------------
 
-
-def test_relative_socket_destination_does_not_change_with_cwd(tmp_path, monkeypatch):
-    stop = threading.Event()
-    threads, servers = [], []
-    for label in ('original', 'other'):
-        folder = tmp_path/label; folder.mkdir()
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        server.bind(str(folder/'rpc.sock')); server.listen(1); server.settimeout(.1)
-        servers.append(server)
-        def respond(listener=server, value=label):
-            while not stop.is_set():
-                try:
-                    connection, _ = listener.accept()
-                except TimeoutError:
-                    continue
-                with connection:
-                    connection.makefile('rb').readline()
-                    connection.sendall(json.dumps({'jsonrpc': '2.0', 'id': 1,
-                                                   'result': {'destination': value}}).encode()+b'\n')
-                return
-        thread = threading.Thread(target=respond, daemon=True); thread.start(); threads.append(thread)
-    try:
-        monkeypatch.chdir(tmp_path/'original')
-        client = GateClient(UnixSocketTransport('rpc.sock'))
-        monkeypatch.chdir(tmp_path/'other')
-        assert client.status()['destination'] == 'original'
-    finally:
-        stop.set()
-        for thread in threads:
-            thread.join(3)
-            assert not thread.is_alive()
-        for server in servers: server.close()
-
-
-def test_duplicate_response_keys_are_not_silently_overwritten(tmp_path):
-    raw = b'{"jsonrpc":"2.0","id":999,"id":1,"result":{}}\n'
-    with pytest.raises(GateError, match='invalid_response'):
-        exchange(tmp_path, lambda _: raw)
-
-
-@pytest.mark.parametrize('changes', [
-    {'total': 2},
-    {'total': 1, 'has_more': True, 'next_offset': 1},
-    {'coverage': {'complete': True, 'errors': ['unavailable']}},
+@pytest.mark.parametrize('code,kind', [
+    (-32601, 'unsupported_operation'),
+    (-32602, 'unsupported_operation'),
+    (-32000, 'remote_error'),
+    (-32002, 'remote_error'),
 ])
-def test_contradictory_inventory_coverage_is_rejected(changes):
-    data = page()
-    data.update(changes)
-    with pytest.raises(GateError, match='invalid_response'):
-        GateClient(Transport(data)).inventory(limit=1)
+def test_jsonrpc_error_codes_map_to_stable_kinds(responder, code, kind):
+    script = responder({'jsonrpc': '2.0', 'id': 1,
+                        'error': {'code': code, 'message': 'leaky internal detail'}})
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + '2' * 64)
+    assert caught.value.kind == kind and caught.value.code == code
 
 
-@pytest.mark.parametrize('writing', [False, True])
-def test_slow_response_cannot_reset_request_deadline(tmp_path, writing):
-    path = tmp_path / 'slow.sock'
-    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    server.bind(str(path)); server.listen(1); server.settimeout(3)
-    stop = threading.Event()
-    def slow_peer():
-        try:
-            connection, _ = server.accept()
-            with connection:
-                connection.makefile('rb').readline()
-                for _ in range(60):
-                    if stop.wait(.01): return
-                    connection.sendall(b' ')
-                connection.sendall(b'{"jsonrpc":"2.0","id":1,"result":{"artifact_id":"a","state":"L1_SCANNED"}}\n')
-        except (BrokenPipeError, ConnectionResetError):
-            pass  # Expected when the tested client expires its deadline.
-        finally:
-            server.close()
-    thread = threading.Thread(target=slow_peer, daemon=True); thread.start()
-    client = GateClient(UnixSocketTransport(path, timeout=.15, allow_proposals=writing))
-    try:
-        with pytest.raises(GateError, match='timeout') as error:
-            if writing:
-                client.propose('fact', content_type='memory', trust_class='T-4', source_uri='fixture://slow')
-            else:
-                client.status()
-        assert error.value.outcome_unknown is writing
-    finally:
-        stop.set(); thread.join(4)
-        assert not thread.is_alive()
+def test_unauthorized_http_status_is_its_own_kind(responder):
+    script = responder({'error': 'console token required'}, status=401)
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + '3' * 64)
+    assert caught.value.kind == 'unauthorized' and caught.value.code == 401
+
+
+def test_forbidden_http_status_is_its_own_kind(responder):
+    script = responder({'error': 'origin refused'}, status=403)
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + '4' * 64)
+    assert caught.value.kind == 'forbidden' and caught.value.code == 403
+
+
+def test_a_redirect_is_refused_and_not_followed(responder):
+    script = responder({'moved': True}, status=307)
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + '5' * 64)
+    assert caught.value.kind == 'redirect_refused'
+    assert len(script.requests) == 1
+
+
+def test_a_non_json_body_is_an_invalid_response(responder):
+    script = responder(b'<html>not json</html>', content_type='text/html')
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).status('sha256:' + '6' * 64)
+    assert caught.value.kind == 'invalid_response'
+
+
+def _closed_port():
+    """An ephemeral port that was bound and released: connect() is refused
+    promptly, where a reserved low port can simply hang."""
+    import socket as _socket
+    with _socket.socket() as probe:
+        probe.bind(('127.0.0.1', 0))
+        return probe.getsockname()[1]
+
+
+def test_an_unreachable_endpoint_is_unavailable():
+    transport = HttpMcpTransport(f'http://127.0.0.1:{_closed_port()}/mcp',
+                                 allow_insecure_loopback=True, timeout=5.0)
+    with pytest.raises(GateError) as caught:
+        GateClient(transport).status('sha256:' + '7' * 64)
+    assert caught.value.kind == 'unavailable'
+
+
+def test_reads_never_report_an_unknown_outcome():
+    transport = HttpMcpTransport(f'http://127.0.0.1:{_closed_port()}/mcp',
+                                 allow_insecure_loopback=True, timeout=5.0)
+    with pytest.raises(GateError) as caught:
+        GateClient(transport).status('sha256:' + '8' * 64)
+    assert caught.value.outcome_unknown is False
+
+
+# ---- bounds -----------------------------------------------------------------
+
+def test_an_oversized_response_is_refused(responder):
+    script = responder(_mcp_ok({'artifact_id': 'x', 'state': 'A' * 5000}))
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script, max_response_bytes=256)).status('sha256:' + '9' * 64)
+    assert caught.value.kind == 'response_too_large'
+
+
+def test_an_oversized_request_is_refused_before_sending(responder):
+    script = responder(_mcp_ok({'results': [], 'paths': []}))
+    client = GateClient(_transport(script, max_request_bytes=64, allow_writes=True))
+    with pytest.raises(GateError) as caught:
+        client.recall('q' * 500)
+    assert caught.value.kind == 'request_too_large'
+    assert script.requests == []
+
+
+def test_the_request_and_response_budgets_are_separate(responder):
+    """A small response cap must not trip the request guard first."""
+    script = responder(_mcp_ok({'artifact_id': 'x', 'state': 'A' * 5000}))
+    transport = _transport(script, max_response_bytes=256)
+    assert transport.max_request_bytes != 256
+    with pytest.raises(GateError) as caught:
+        GateClient(transport).status('sha256:' + 'a' * 64)
+    assert caught.value.kind == 'response_too_large'
+    assert len(script.requests) == 1
+
+
+@pytest.mark.parametrize('bad', [0, -1, float('inf'), float('nan'), 'ten', None])
+def test_invalid_timeouts_are_refused(bad):
+    with pytest.raises(ValueError):
+        HttpMcpTransport('https://gate.example/mcp', timeout=bad)
+
+
+@pytest.mark.parametrize('bad', [0, -1, 1.5, 'big', None])
+def test_invalid_byte_caps_are_refused(bad):
+    with pytest.raises(ValueError):
+        HttpMcpTransport('https://gate.example/mcp', max_response_bytes=bad)
+    with pytest.raises(ValueError):
+        HttpMcpTransport('https://gate.example/mcp', max_request_bytes=bad)
+
+
+# ---- writes are opt-in ------------------------------------------------------
+
+def test_proposals_are_refused_without_the_opt_in(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'L1_SCANNED'}))
+    client = GateClient(_transport(script))
+    with pytest.raises(GateError) as caught:
+        client.propose('text', content_type='memory', source_uri='fixture://x')
+    assert caught.value.kind == 'writes_disabled'
+    assert script.requests == []
+
+
+def test_a_proposal_sends_text_not_base64(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'L1_SCANNED'}))
+    client = GateClient(_transport(script, allow_writes=True))
+    client.propose('hello gate', content_type='memory', source_uri='fixture://x')
+    arguments = script.requests[0]['params']['arguments']
+    assert arguments['content'] == 'hello gate'
+    assert 'encoding' not in arguments
+    assert script.requests[0]['params']['name'] == 'doublegate.remember'
+
+
+def test_a_proposal_never_sends_writer_identity(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'L1_SCANNED'}))
+    client = GateClient(_transport(script, allow_writes=True))
+    client.propose('hello', content_type='memory', source_uri='fixture://x')
+    arguments = script.requests[0]['params']['arguments']
+    assert 'writer_identity' not in arguments and 'deployment_id' not in arguments
+
+
+def test_non_utf8_bytes_are_refused_rather_than_re_encoded(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'L1_SCANNED'}))
+    client = GateClient(_transport(script, allow_writes=True))
+    with pytest.raises(ValueError):
+        client.propose(b'\xff\xfe binary', content_type='memory', source_uri='fixture://x')
+    assert script.requests == []
+
+
+def test_utf8_bytes_are_accepted_and_decoded(responder):
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'L1_SCANNED'}))
+    client = GateClient(_transport(script, allow_writes=True))
+    client.propose('café'.encode(), content_type='memory', source_uri='fixture://x')
+    assert script.requests[0]['params']['arguments']['content'] == 'café'
+
+
+def test_a_write_whose_outcome_is_unknown_says_so(responder):
+    script = responder(b'truncated', content_type='application/json')
+    client = GateClient(_transport(script, allow_writes=True))
+    with pytest.raises(GateError) as caught:
+        client.propose('hello', content_type='memory', source_uri='fixture://x')
+    assert caught.value.outcome_unknown is True
+
+
+def test_a_proposal_without_an_artifact_id_is_an_unknown_outcome(responder):
+    script = responder(_mcp_ok({'state': 'L1_SCANNED'}))
+    client = GateClient(_transport(script, allow_writes=True))
+    with pytest.raises(GateError) as caught:
+        client.propose('hello', content_type='memory', source_uri='fixture://x')
+    assert caught.value.kind == 'invalid_response' and caught.value.outcome_unknown is True
+
+
+def test_the_transport_itself_refuses_a_write_tool_when_reads_only(responder):
+    """Defence in depth: not only the client method, the transport too."""
+    script = responder(_mcp_ok({}))
+    transport = _transport(script)
+    with pytest.raises(GateError) as caught:
+        transport.call('doublegate.remember', {'content': 'x', 'content_type': 'm',
+                                               'source_uri': 'fixture://x'})
+    assert caught.value.kind == 'writes_disabled'
+
+
+def test_the_transport_refuses_a_tool_outside_the_known_catalog(responder):
+    script = responder(_mcp_ok({}))
+    with pytest.raises(ValueError):
+        _transport(script).call('doublegate.delete', {})
+
+
+# ---- argument validation ----------------------------------------------------
+
+def test_status_requires_an_artifact_id():
+    transport = HttpMcpTransport('https://gate.example/mcp')
+    for bad in (None, '', 5):
+        with pytest.raises((ValueError, TypeError)):
+            GateClient(transport).status(bad)
+
+
+def test_recall_validates_its_arguments():
+    client = GateClient(HttpMcpTransport('https://gate.example/mcp'))
+    for bad in ('', '   ', 5, None):
+        with pytest.raises(ValueError):
+            client.recall(bad)
+    with pytest.raises(ValueError):
+        client.recall('q', limit=0)
+    with pytest.raises(ValueError):
+        client.recall('q', spaces=[])
+    with pytest.raises(ValueError):
+        client.recall('q', include_provisional='yes')
+
+
+def test_recall_maps_onto_the_real_tool_and_bounds_the_hits(responder):
+    script = responder(_mcp_ok({'results': [{'artifact_id': 'sha256:' + 'a' * 64}],
+                                'paths': []}))
+    page = GateClient(_transport(script)).recall('basalt', limit=5)
+    assert len(page['results']) == 1
+    arguments = script.requests[0]['params']['arguments']
+    assert script.requests[0]['params']['name'] == 'doublegate.recall'
+    assert arguments['k'] == 5 and arguments['include_own_pending'] is False
+
+
+def test_recall_refuses_more_hits_than_it_asked_for(responder):
+    script = responder(_mcp_ok({'results': [{'artifact_id': 'a'}, {'artifact_id': 'b'}],
+                                'paths': []}))
+    with pytest.raises(GateError) as caught:
+        GateClient(_transport(script)).recall('basalt', limit=1)
+    assert caught.value.kind == 'invalid_response'
+
+
+def test_pending_is_metadata_only_and_bounded(responder):
+    script = responder(_mcp_ok({'pending': [{'artifact_id': 'sha256:' + 'a' * 64,
+                                             'state': 'L1_SCANNED'}]}))
+    rows = GateClient(_transport(script)).pending(limit=10)
+    assert rows['pending'][0]['state'] == 'L1_SCANNED'
+    assert script.requests[0]['params']['name'] == 'doublegate.pending'
+
+
+# ---- the removed surface ----------------------------------------------------
+
+def test_there_is_no_inventory_on_the_public_client():
+    """The maintained client tier serves no inventory tool; the SDK must not
+    invent one, nor keep a method that could only ever fail."""
+    assert not hasattr(GateClient, 'inventory')
+    assert not hasattr(GateClient, 'inventory_pages')
+
+
+def test_there_is_no_unix_socket_transport():
+    import doublegate_sdk.client as module
+    assert not hasattr(module, 'UnixSocketTransport')
+
+
+def test_the_client_module_does_not_import_socket_support():
+    import doublegate_sdk.client as module
+    source = open(module.__file__, encoding='utf-8').read()
+    assert 'AF_UNIX' not in source
+
+
+# ---- protocol negotiation ---------------------------------------------------
+
+def test_discover_reports_the_servers_protocol_versions(responder):
+    script = responder({'jsonrpc': '2.0', 'id': 1,
+                        'result': {'protocolVersions': ['2026-07-28'],
+                                   'serverInfo': {'name': 'doublegate', 'version': '0.1.0'},
+                                   'capabilities': {'tools': {}}}})
+    info = _transport(script).discover()
+    assert info['protocolVersions'] == ['2026-07-28']
+    assert script.requests[0]['method'] == 'server/discover'
+
+
+def test_tool_names_come_from_the_server_not_from_a_guess(responder):
+    script = responder({'jsonrpc': '2.0', 'id': 1,
+                        'result': {'tools': [{'name': 'doublegate.status'},
+                                             {'name': 'doublegate.recall'}]}})
+    names = _transport(script).tool_names()
+    assert names == ('doublegate.status', 'doublegate.recall')
+    assert script.requests[0]['method'] == 'tools/list'
+
+
+def test_the_sdk_never_claims_session_or_streaming_support():
+    from doublegate_sdk.client import describe_client
+    description = describe_client()
+    assert description['mcp']['streaming'] is False
+    assert description['mcp']['sessions'] is False
+    assert description['mcp']['subset'] == 'stateless-json-request-response'
+
+
+def test_no_session_header_is_sent(responder):
+    script = responder(_mcp_ok({'artifact_id': 'x', 'state': 'ACTIVE'}))
+    GateClient(_transport(script)).status('sha256:' + 'a' * 64)
+    assert 'Mcp-Session-Id' not in script.headers[0]
+
+
+def test_the_accept_header_asks_for_json_only(responder):
+    script = responder(_mcp_ok({'artifact_id': 'x', 'state': 'ACTIVE'}))
+    GateClient(_transport(script)).status('sha256:' + 'a' * 64)
+    assert script.headers[0]['Accept'] == 'application/json'
+
+
+# ---- the one-call entry point ----------------------------------------------
+
+def test_connect_returns_a_usable_client_without_assembling_a_transport(responder):
+    from doublegate_sdk.client import connect
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'ACTIVE'}))
+    client = connect(script.endpoint, allow_insecure_loopback=True)
+    assert isinstance(client, GateClient)
+    assert client.status('sha256:' + 'a' * 64)['state'] == 'ACTIVE'
+
+
+def test_connect_makes_no_connection_of_its_own(responder):
+    from doublegate_sdk.client import connect
+    script = responder(_mcp_ok({}))
+    connect(script.endpoint, allow_insecure_loopback=True)
+    assert script.requests == []
+
+
+def test_connect_passes_the_token_through(responder):
+    from doublegate_sdk.client import connect
+    script = responder(_mcp_ok({'artifact_id': 'x', 'state': 'ACTIVE'}))
+    connect(script.endpoint, token='shh', allow_insecure_loopback=True).status('sha256:' + 'a' * 64)
+    assert script.headers[0]['Authorization'] == 'Bearer shh'
+
+
+def test_connect_keeps_writes_off_by_default(responder):
+    from doublegate_sdk.client import connect
+    script = responder(_mcp_ok({'artifact_id': 'x', 'state': 'L1_SCANNED'}))
+    client = connect(script.endpoint, allow_insecure_loopback=True)
+    with pytest.raises(GateError) as caught:
+        client.propose('x', content_type='memory', source_uri='fixture://x')
+    assert caught.value.kind == 'writes_disabled'
+
+
+def test_connect_honours_the_write_opt_in(responder):
+    from doublegate_sdk.client import connect
+    script = responder(_mcp_ok({'artifact_id': 'sha256:' + 'a' * 64, 'state': 'L1_SCANNED'}))
+    client = connect(script.endpoint, allow_insecure_loopback=True, allow_writes=True)
+    assert client.propose('x', content_type='memory', source_uri='fixture://x')['state']
+
+
+def test_connect_refuses_remote_plain_http():
+    from doublegate_sdk.client import connect
+    with pytest.raises(ValueError):
+        connect('http://gate.example/mcp')
+
+
+def test_connect_exposes_the_transport_for_negotiation(responder):
+    from doublegate_sdk.client import connect
+    script = responder({'jsonrpc': '2.0', 'id': 1,
+                        'result': {'tools': [{'name': 'doublegate.status'}]}})
+    client = connect(script.endpoint, allow_insecure_loopback=True)
+    assert client.transport.tool_names() == ('doublegate.status',)
+
+
+def test_the_package_exports_the_entry_point():
+    import doublegate_sdk
+    assert doublegate_sdk.connect is not None

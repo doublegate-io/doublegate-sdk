@@ -36,9 +36,13 @@ def manifest_schema() -> dict[str, Any]:
             'additionalProperties': False, 'required': list(properties), 'properties': properties}
 
 
-class ManifestError(ValueError):
+from doublegate_sdk.errors import DoublegateError
+
+
+class ManifestError(DoublegateError, ValueError):
     """Bounded diagnostic: never echo manifest values or unknown property names."""
     code = 'invalid_manifest'
+    kind = 'invalid_manifest'
     retryable = False
 
     def __init__(self, path: str, reason: str):

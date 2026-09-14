@@ -6,9 +6,10 @@ import argparse
 import json
 import sys
 
-from doublegate_sdk.manifest import ManifestError, manifest_schema
-from doublegate_sdk.package import PackageError, load_package, read_bounded
-from doublegate_sdk.runtime import EvaluationError, evaluate
+from doublegate_sdk.authoring import evaluate_file
+from doublegate_sdk.errors import DoublegateError
+from doublegate_sdk.manifest import manifest_schema
+from doublegate_sdk.package import load_package
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -30,21 +31,17 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(manifest_schema(), indent=2, sort_keys=True))
         return 0
     try:
-        loaded = load_package(args.manifest)
-        package = loaded.package
-        metadata = dict(name=package.name, version=package.version, digest=loaded.digest,
-                        human_review=package.human_review)
         if args.command == 'validate':
-            print(json.dumps(metadata | {'valid': True}, sort_keys=True))
+            loaded = load_package(args.manifest)
+            package = loaded.package
+            print(json.dumps({'name': package.name, 'version': package.version,
+                              'digest': loaded.digest, 'human_review': package.human_review,
+                              'valid': True}, sort_keys=True))
             return 0
-        try:
-            content = read_bounded(args.input, package.max_input_bytes).decode('utf-8')
-        except UnicodeDecodeError:
-            raise EvaluationError('invalid_utf8') from None
-        result = evaluate(package, content, args.artifact_type)
-        print(json.dumps(metadata | result.to_payload(), sort_keys=True))
-        return 1 if result.flagged else 0
-    except (ManifestError, PackageError, EvaluationError) as error:
+        evaluation = evaluate_file(args.manifest, args.input, artifact_type=args.artifact_type)
+        print(json.dumps(evaluation.to_payload(), sort_keys=True))
+        return 1 if evaluation.flagged else 0
+    except DoublegateError as error:
         print(json.dumps({'error': str(error)}), file=sys.stderr)
         return 2
 

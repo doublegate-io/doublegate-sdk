@@ -1,25 +1,54 @@
 # DoubleGate SDK — developer map
 
-Standalone offline gate contracts plus an explicitly connected local gate client.
-A scan result, successful proposal or HTTP/RPC response is not admission authority.
+Two jobs: connect an application or agent to a gate over HTTP/MCP, and author the
+declarative manifest a gate applies. A scan result, a successful proposal or any
+HTTP/MCP response is not admission authority.
 
 ## Machine-readable entry points
 
 - `python -m doublegate_sdk describe-client`: actual client method signatures,
-  defaults, RPC mappings, mutation classification and transport scope. Offline.
+  defaults, the MCP tool each operation calls, mutation classification, the MCP
+  subset supported and the operations explicitly *not* supported. Offline.
   Describes this SDK, not the capabilities of an arbitrary running gate.
 - `python -m doublegate_sdk schema`: declarative gate manifest JSON Schema.
+
+## The two entry points
+
+- `doublegate_sdk.connect(endpoint, token=...)` — the gate client. Resolved
+  lazily; importing the package opens nothing.
+- `doublegate_sdk.evaluate_file(manifest, content, artifact_type=...)` — the
+  offline check. Composes `load_package` + `read_bounded` + `evaluate`, which
+  all remain public for callers the composition does not fit.
 
 ## Read these next
 
 - [Client operations and limits](docs/api/client.md)
+- [Starter apps, seven runnable workflows](docs/use-cases/index.md)
 - [SDK roadmap and delivery criteria](docs/roadmap.md)
 - [Developer verification](docs/maintaining.md)
 - [Offline authoring](docs/manual.md)
 - [API module index](docs/api/index.md)
 - [Source client](src/doublegate_sdk/client.py)
 - [Client behavior tests](tests/test_memory_client.py)
-- [Optional real-gate lifecycle probe](examples/verify_memory_lifecycle.py)
+- [Optional real-gate HTTP/MCP probe](examples/verify_memory_lifecycle.py)
+
+## Starters, and which reach a network
+
+`examples/starters/`. Offline: `checks.py`, `reviewer.py`. Offline unless
+`--endpoint` is passed: `correction.py`. Require a real gate: `memory.py`,
+`ingestion.py`, `provenance.py`, `diagnostics.py`. Only `memory.py remember`
+and `ingestion.py submit` write; every other subcommand opens a client with
+`allow_writes=False`. No starter starts a gate or falls back to a fake server.
+
+## The transport, exactly
+
+- The public surface is `POST /mcp` (ADR-0050): one JSON-RPC message in, one JSON
+  object out. Stateless — **no SSE, no `Mcp-Session-Id`**. Negotiation is
+  `server/discover` and `tools/list`; `initialize` is not sent.
+- HTTPS by default. Plain HTTP requires `allow_insecure_loopback=True` *and* a
+  loopback host; a remote plain-HTTP endpoint is refused.
+- A success is unwrapped from `result.structuredContent`. A missing structured
+  half, or `isError`, is a failure — never guessed at from the text block.
 
 ## One verification command
 
@@ -34,16 +63,27 @@ selected environment without running tests or building docs.
 ## Boundaries agents must preserve
 
 - Imports use `doublegate_sdk`, never `doublegate.sdk`.
-- `GateTransport` is a Python protocol, not MCP or HTTP compatibility.
-- Local socket proposal writes require explicit opt-in; server identity/permissions
-  remain authoritative. Do not put writer identity into proposal parameters.
+- `GateTransport` is a Python protocol (`call(tool, arguments) -> dict`). It is not
+  a general MCP framework and claims no streaming or session support.
+- Do not add a tool the maintained client tier does not serve. There is **no
+  inventory tool**, and `doublegate.status` requires an artifact id. An absent
+  capability is reported as unsupported, never emulated.
+- `propose` sends UTF-8 text. Non-UTF-8 bytes are refused; the service's
+  `remember` schema has no `encoding` field, so base64 would be stored as literal
+  text. Never put writer identity into proposal arguments — the service derives it
+  from the connection and refuses a request carrying it.
+- Proposal writes require explicit opt-in at the transport. Server-side identity
+  and permissions remain authoritative; no client flag grants server authority.
 - Recall excludes pending echoes and provisional knowledge by default. Enabling
   provisional results must be explicit and preserves the flag in returned data.
-- Uncertain write outcome is not permission to retry automatically.
-- Inventory scope is gate-local and coverage may be partial; never equate retained
-  records with admitted/retrievable knowledge.
+- Uncertain write outcome (`GateError.outcome_unknown`) is not permission to retry
+  automatically. Nothing in this client retries, and redirects are never followed.
+- Remote error text is withheld; the numeric code is kept. Do not log server prose.
+- On the maintained client tier, `POST /mcp` is mounted **keyless** on loopback —
+  only `/api/*` enforces the console bearer token. Do not describe the MCP client
+  as authenticated merely because it can send an `Authorization` header.
 - Reuse envelope/content/submission-event identities; they are different contracts.
-- The optional lifecycle example requires Client Gate and uses a deterministic
+- The optional real-gate probe requires Client Gate and uses a deterministic
   reviewer. It is not live-model or organization-delivery evidence.
 - No credential discovery, installations, commits, pushes or live restarts unless
   separately authorized. Preserve existing WIP; add a failing test before a fix.

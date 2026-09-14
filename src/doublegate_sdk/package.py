@@ -18,8 +18,14 @@ from doublegate_sdk.manifest import GatePackage, validate_manifest
 MAX_MANIFEST_BYTES = 65536
 
 
-class PackageError(ValueError):
+from doublegate_sdk.errors import DoublegateError
+
+
+class PackageError(DoublegateError, ValueError):
     """Fixed diagnostic without paths, keys or content."""
+    @property
+    def kind(self):
+        return str(self.args[0]) if self.args else 'invalid_package'
 
 
 def read_bounded(path: str | Path, limit: int) -> bytes:

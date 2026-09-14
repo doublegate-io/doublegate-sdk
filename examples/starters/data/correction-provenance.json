@@ -1,0 +1,8 @@
+{
+  "note": "Provenance an operator records locally about an artifact it wants corrected. Never sent anywhere by the starter; it is evidence for the human who will carry the correction.",
+  "source_uri": "application://examples/starters/correction",
+  "observed_state": "held",
+  "observed_by": "operations-oncall",
+  "observed_at": "2026-09-12T09:15:00Z",
+  "basis": "The admitted note names the wrong rollback tag; the deployed tag was 2026.09.1."
+}

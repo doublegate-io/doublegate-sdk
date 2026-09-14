@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local reviewer-adapter input (caller-owned, not a product contract)",
+  "description": "The shape THIS application hands to a reviewer adapter it has not been able to build, because the SDK publishes no reviewer stage. Every enumerated value below is copied from a closed vocabulary the SDK does publish; nothing here is a gate-side schema, and no gate validates it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact_type", "content_digest", "deterministic_outcome", "human_review", "excerpt_policy"],
+  "properties": {
+    "artifact_type": {"type": "string", "enum": ["memory", "skill", "script", "tool"]},
+    "content_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "deterministic_outcome": {"type": "string", "enum": ["clean", "flagged"]},
+    "human_review": {"type": "string", "enum": ["inherit", "required"]},
+    "excerpt_policy": {"type": "string", "const": "withheld"},
+    "findings": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "severity", "detail"],
+        "properties": {
+          "kind": {"type": "string", "minLength": 1, "maxLength": 64},
+          "severity": {"type": "string", "enum": ["warning", "error"]},
+          "detail": {"type": "string", "minLength": 1, "maxLength": 256},
+          "start": {"type": "integer", "minimum": 0},
+          "end": {"type": "integer", "minimum": 0},
+          "excerpt": {"type": "string", "maxLength": 0}
+        }
+      }
+    }
+  }
+}
