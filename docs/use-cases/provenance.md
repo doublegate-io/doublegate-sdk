@@ -98,11 +98,117 @@ instead of resolving it by guessing.
 
 There is no unknown-outcome exit here, because nothing in this app writes.
 
+## Doing it in your own code
+
+An explanation view is a read and a render, and the render is yours. The read is
+one call:
+
+```python
+import os
+from doublegate_sdk import connect
+from doublegate_sdk.client import GateError
+
+reader = connect("https://gate.your-deployment.example/mcp",
+                 token=os.environ.get("DOUBLEGATE_TOKEN"),
+                 timeout=15.0)          # allow_writes defaults to False
+
+answer = reader.why(artifact_id)
+events = answer["events"]               # guaranteed to be a list, or the SDK raises
+```
+
+`why` validates exactly two things and then hands you the service's payload:
+the answer must be an object, and `events` must be a **list**. Anything else
+raises `GateError('invalid_response')`. So `answer["events"]` is safe to index;
+what is *inside* each event is the service's, not the SDK's.
+
+| Member | Guaranteed? | Notes |
+|---|---|---|
+| `events` | yes, as a list | may be empty; an empty ledger is a real answer |
+| `artifact_id` | no | present on the maintained tier; read with `.get` |
+
+On the maintained client tier each event carries `event_id`, `type`, `identity`,
+`ts`, `payload` and `sig`. **Do not assume them.** Read what is there:
+
+```python
+for event in events:
+    kind = event.get("type")
+    when = event.get("ts")
+    signature = event.get("sig")     # None means this build did not send one
+```
+
+`.get` returning `None` means the field was absent, not empty. A build that
+sends fewer fields should be reported, never filled in with a default someone
+downstream might trust.
+
+**What next.** Nothing here changes anything — this is the audit read. If the
+history explains a state you want changed, see
+[Correction preparation](correction.md), which is honest about the fact that
+this SDK cannot withdraw an artifact.
+
+### The importable recipe
+
+[`examples/recipes/gate_operations.py`](https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/gate_operations.py)
+gives you the read and a presence report over what came back:
+
+```python
+from recipes.gate_operations import artifact_history, event_field_coverage
+
+events = artifact_history(reader, artifact_id)
+coverage = event_field_coverage(events)
+```
+
+`coverage` is a plain dict. Against a build that sends only three of the six
+documented keys, it reads:
+
+```python
+{'event_count': 2,
+ 'event_types': ['proposed', 'scanned'],
+ 'present': ['event_id', 'ts', 'type'],
+ 'absent': ['identity', 'payload', 'sig']}
+```
+
+`absent` is compared against `WHY_EVENT_KEYS`, which is a baseline for reporting
+and **not** a requirement — nothing raises because a key is missing. On an empty
+history, `event_count` is `0`, `present` is `[]`, and `absent` lists all six.
+No placeholder event is invented for it.
+
+### Position and history together
+
+```python
+from recipes.gate_operations import read_only_snapshot
+
+snapshot = read_only_snapshot(reader, artifact_id)
+snapshot["status"]["state"]     # or snapshot["status"]["failed"] if that call failed
+snapshot["complete"]            # True only when both calls answered
+snapshot["mutated"]             # always False
+```
+
+Both calls are attempted even when the first fails, so one unreachable call does
+not hide the other's answer. A failed call contributes a `failed` payload with
+`kind`, `code`, `outcome_unknown` and `endpoint_reached` instead of raising.
+
+### The unknown-id ambiguity, in code
+
+```python
+try:
+    events = artifact_history(reader, artifact_id)
+except GateError as error:
+    if error.kind == "unsupported_operation":
+        # Two readings, both genuinely possible from JSON-RPC -32602: this build
+        # does not serve `why`, or it does not know this artifact id.
+        ...
+```
+
+The SDK maps `-32601` and `-32602` to `unsupported_operation`, and the server
+answers both an unknown tool and an unknown artifact with `-32602`. Report the
+ambiguity; do not resolve it by guessing.
+
 ## What this does not establish
 
 Reading an audit trail is not verifying its signatures. The app prints `sig` values
 when they are present; it does not check them. Signature verification is not on
-this client surface.
+this client surface — and neither `artifact_history` nor `event_field_coverage`
+checks a signature either.
 
 !!! warning "Current authentication gap"
     On the maintained client tier, `POST /mcp` is dispatched before the console's

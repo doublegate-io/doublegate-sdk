@@ -122,6 +122,96 @@ wrong place for it — and this app does not work around it. Callers branch on
 | `2` | argparse usage error |
 | `3` | at least one step failed; each is reported with its next step |
 
+## Doing it in your own code
+
+A health check inside your own service does not want a subprocess. The two
+negotiation reads are available directly on the transport:
+
+```python
+import os
+from doublegate_sdk import connect
+from doublegate_sdk.client import GateError
+
+reader = connect("https://gate.your-deployment.example/mcp",
+                 token=os.environ.get("DOUBLEGATE_TOKEN"),
+                 timeout=15.0)          # allow_writes defaults to False
+
+catalog = reader.transport.tool_names()     # the tools THIS server lists, its own order
+info = reader.transport.discover()          # protocol versions, server info, capabilities
+```
+
+`discover` and `tool_names` live on `HttpMcpTransport`, reached through the
+client's `transport` property — they are protocol negotiation, not tool calls,
+which is why they are not methods on `GateClient`. `tool_names` returns a tuple
+of names and raises `invalid_response` if the server's list is not well-formed.
+`discover` returns the server's `server/discover` result as-is.
+
+Both are reads. Neither depends on `allow_writes`, and neither sends
+`initialize` — the maintained server refuses that unless an operator turned on a
+legacy flag.
+
+**What next.** Compare `catalog` against the call that was failing. A tool
+missing from that tuple explains an `unsupported_operation` with no further
+digging; a tool that *is* listed points the investigation at the call's
+arguments or the artifact id instead.
+
+### What the SDK's own description says, offline
+
+```python
+from doublegate_sdk.client import describe_client
+
+description = describe_client()
+description["operations"]               # this SDK's calls and the tool behind each
+description["mcp"]["tools"]             # the tool catalog this client tier knows
+description["unsupported_operations"]   # e.g. inventory, whole-gate status
+description["automatic_retries"]        # False
+description["follows_redirects"]        # False
+```
+
+This opens nothing and contacts nothing. It describes **this SDK's contract**,
+not a remote gate's capabilities — which is the distinction its `scope` member
+states explicitly (`'sdk-contract-not-server-capabilities'`). Use it to answer
+"can this client even make that call", and `tool_names()` to answer "does that
+deployment serve it".
+
+### The importable recipe
+
+```python
+from recipes.gate_operations import server_catalog, call_or_failure
+
+catalog, failure = call_or_failure(server_catalog, reader)
+if failure is None:
+    catalog["tools"]        # list of tool names, the server's own order
+    catalog["discover"]     # the server/discover result
+else:
+    failure.kind, failure.code, failure.endpoint_reached
+```
+
+`server_catalog` performs both negotiation reads. It raises `TypeError` if you
+hand it a client over a caller-supplied transport that offers neither — the
+`GateTransport` protocol declares only `call`, so negotiation is not something
+every transport has, and reporting its absence as a gate failure would be wrong.
+
+### Mapping the failure
+
+```python
+NOT_REACHED = {"unavailable", "timeout", "redirect_refused"}
+
+try:
+    reader.transport.discover()
+except GateError as error:
+    reached = error.kind not in NOT_REACHED   # an `unauthorized` IS the gate answering
+```
+
+`GateCallFailure.endpoint_reached` in the recipe module is exactly that
+comparison. The distinction matters in a diagnostic: "the gate refused you" and
+"nothing answered on that port" lead to different next steps, and both are
+failures.
+
+The kind-to-next-step table above is the mapping to reuse. Keep the next-step
+text fixed per kind, as the starter does — never assembled from a response,
+because the SDK withholds server error text on purpose.
+
 ## What a clean probe does not prove
 
 A successful probe means the endpoint speaks the protocol and answered. It does not

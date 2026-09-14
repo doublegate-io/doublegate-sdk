@@ -110,6 +110,148 @@ clean failure, because it cannot tell how far the request got. So a failed
 `remember` will often exit `4` where a failed read of the same endpoint exits `3`.
 That asymmetry is intentional, not a bug in the app.
 
+## Doing it in your own code
+
+The starter is a CLI because a two-session story needs two processes. Your
+application already has its own state and its own main loop, so what it needs is
+the three calls, not the wrapper.
+
+Build the client once. `connect` opens nothing — the first request happens on
+the first method call:
+
+```python
+import os
+from doublegate_sdk import connect
+
+endpoint = "https://gate.your-deployment.example/mcp"
+token = os.environ.get("DOUBLEGATE_TOKEN")
+
+writer = connect(endpoint, token=token, allow_writes=True, timeout=15.0)
+reader = connect(endpoint, token=token, timeout=15.0)   # allow_writes defaults to False
+```
+
+`allow_writes` defaults to `False`, and that default is load-bearing: with it
+off the transport refuses a write-annotated tool itself, so a read-only client
+cannot be talked into writing. Two clients cost nothing — neither one holds a
+connection — and the read paths below then carry that guarantee.
+
+### Propose, and keep the id
+
+```python
+answer = writer.propose("The laboratory labels basalt specimens by collection date.",
+                        content_type="memory",
+                        source_uri="application://laboratory/observation/123",
+                        trust_class="T-4")
+artifact_id = answer["artifact_id"]
+state = answer["state"]
+```
+
+`propose` returns a dict. Two members are guaranteed — the SDK raises
+`invalid_response` without them:
+
+| Field | Meaning |
+|---|---|
+| `artifact_id` | the **only** durable reference to this submission |
+| `state` | the gate's answer *to the submission* — not admission, not a review verdict |
+
+Writer identity is never sent: the service derives it from the connection and
+refuses a request that carries it. `content` is text; `bytes` are accepted only
+when they decode as UTF-8.
+
+**What next.** Persist `artifact_id` wherever you keep application state, before
+you do anything else. Without it there is no way to look the submission up
+again, and nothing else in the answer will find it for you.
+
+### Check where it stands
+
+```python
+position = reader.status(artifact_id)
+position["state"]                 # always present
+position.get("quorum")            # present only if this build sends it
+```
+
+`status` guarantees `state` and nothing else. `sub_level`, `quorum` and
+`blocking` appear when the build sends them. Use `.get` or a membership test —
+a build that omits a field means it did not send one, not that the value is
+empty.
+
+### Read served knowledge
+
+```python
+answers = reader.recall("How are basalt specimens labelled?", limit=5)
+hits = answers["results"]         # a list, length <= limit; the SDK enforces that
+```
+
+An empty list straight after your own write is the expected answer, not a
+failure. The SDK asks with `include_own_pending=False`, so you cannot read back
+your own unreviewed proposal and mistake it for served knowledge.
+
+### Failures, and the one you must not retry
+
+```python
+from doublegate_sdk.client import GateError
+
+try:
+    answer = writer.propose(text, content_type="memory", source_uri=uri)
+except GateError as error:
+    if error.outcome_unknown:
+        ...   # the write MAY have landed. Reconcile with pending(); do not resend.
+    else:
+        ...   # branch on error.kind; error.code carries the numeric status
+```
+
+`GateError` carries three things and no server text: `kind` (a stable string),
+`code` (the numeric status or JSON-RPC code, or `None`) and `outcome_unknown`.
+Remote error *messages* are withheld deliberately — they carry internals, and a
+client log is the wrong place for them.
+
+`outcome_unknown` is the one that changes what you may do. The SDK sets it
+conservatively: once it has begun sending a write, a connection failure is
+reported as unknown rather than as a clean failure, because it cannot tell how
+far the request got. Never retry on it.
+
+### The importable recipe
+
+[`examples/recipes/gate_operations.py`](https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/gate_operations.py)
+packages the above as named functions. Every one takes the client as its first
+argument and none of them calls `connect`, so a recipe can never reach an
+endpoint you did not hand it:
+
+```python
+from recipes.gate_operations import observe, artifact_position, recall_answers
+
+observed = observe(writer, "The laboratory labels basalt specimens by collection date.",
+                   source_uri="application://laboratory/observation/123",
+                   trust_class="T-4")
+observed.artifact_id     # persist this
+observed.state           # the gate's answer to the submission
+observed.response        # the untouched response dict
+
+position = artifact_position(reader, observed.artifact_id)
+position["present_optional_fields"]     # e.g. ['quorum'] — which fields this build sent
+
+hits = recall_answers(reader, "How are basalt specimens labelled?", limit=5)
+```
+
+`observe` raises `GateError` unchanged and attempts exactly one request. If you
+would rather branch on a value than wrap every call in `try`:
+
+```python
+from recipes.gate_operations import call_or_failure
+
+hits, failure = call_or_failure(recall_answers, reader, "labelling")
+if failure is not None:
+    failure.kind, failure.code, failure.outcome_unknown, failure.endpoint_reached
+```
+
+`endpoint_reached` is the narrower claim: `unavailable`, `timeout` and
+`redirect_refused` mean the gate was never reached, while an `unauthorized`
+answer means it answered — with a refusal.
+
+`waiting_for_review(reader, limit=...)` returns the `pending` metadata list.
+That is what to call after an `outcome_unknown` write, before you decide
+anything.
+
 ## What this does not establish
 
 The app talks to whatever endpoint you name, and supplying `DOUBLEGATE_TOKEN`
