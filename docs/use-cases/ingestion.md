@@ -110,6 +110,119 @@ run the command again — and that is how you get the same document filed twice.
 SDK does not retry writes and neither does this app. Check `pending` first, then
 decide. The app's message says exactly that.
 
+## Doing it in your own code
+
+A connector is a loop over files, and the loop belongs in your code, not in a
+CLI you shell out to. The SDK part is one call.
+
+```python
+import os
+from pathlib import Path
+from doublegate_sdk import connect
+from doublegate_sdk.client import GateError
+
+writer = connect("https://gate.your-deployment.example/mcp",
+                 token=os.environ.get("DOUBLEGATE_TOKEN"),
+                 allow_writes=True, timeout=15.0)
+
+path = Path("notes/specimen-labelling.md").resolve()
+answer = writer.propose(path.read_text(encoding="utf-8"),
+                        content_type="memory",
+                        source_uri=path.as_uri())
+```
+
+`propose` guarantees `artifact_id` and `state` in the response; the SDK raises
+`invalid_response` without them. A build may also send `findings_count` and
+`duplicate` — read those with `.get`, because a build that omits them sent
+nothing, and a default would be an invention:
+
+```python
+answer["artifact_id"]          # the only durable reference to this submission
+answer["state"]                # the gate's answer to the submission, not admission
+answer.get("findings_count")   # None when this build does not send it
+answer.get("duplicate")
+```
+
+The gate scans the content before answering. A findings *count* is what the
+writer learns; finding text is for the operator's review.
+
+**What next.** Record `artifact_id` against the file you sent, so a later run
+can ask `status` instead of submitting the same document again.
+
+### Refuse unusable input before you send it
+
+`propose` accepts `str`, and accepts `bytes` only when they decode as UTF-8 —
+it raises `ValueError` otherwise. Doing the check yourself first gets you a
+message that names the real problem rather than a `request_too_large` from the
+transport:
+
+```python
+raw = path.read_bytes()
+if len(raw) > 512_000:
+    raise ValueError(f"document is {len(raw)} bytes; too large to submit whole")
+try:
+    text = raw.decode("utf-8")
+except UnicodeDecodeError:
+    raise ValueError("document is not valid UTF-8 text; this surface stores no binary")
+if not text.strip():
+    raise ValueError("document is empty or whitespace-only; propose requires content")
+```
+
+### The importable recipe
+
+[`examples/recipes/gate_operations.py`](https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/gate_operations.py)
+has that as one function. It takes the client you built — it never calls
+`connect` — and raises `ValueError` locally, before any request is built, for
+all three refusals:
+
+```python
+from recipes.gate_operations import observe_file, waiting_for_review
+
+observed = observe_file(writer, "notes/specimen-labelling.md")
+observed.artifact_id, observed.state
+```
+
+`source_uri` defaults to the file's own resolved `file://` URI, so the record
+points at something real. Override it when the file is a local copy of something
+with a better identity:
+
+```python
+observed = observe_file(writer, "export.txt",
+                        source_uri="https://wiki.internal.example/pages/specimen-labelling")
+```
+
+Supply a URI that is true. It is the provenance a later reader will rely on.
+
+### The failure you must not retry
+
+```python
+try:
+    observed = observe_file(writer, path)
+except GateError as error:
+    if error.outcome_unknown:
+        # The write may already have landed. Check what is waiting first.
+        waiting = waiting_for_review(reader, limit=100)
+        ...    # decide from `waiting`; do not resend
+    else:
+        ...    # branch on error.kind
+except ValueError:
+    ...        # a local refusal: nothing was sent
+```
+
+This is the exit-`4` case from the table above, in Python. The reflex on a
+timeout is to run it again, and that is how the same document gets filed twice.
+Neither the SDK nor these recipes retry a write; `waiting_for_review` returns
+the `pending` metadata list — ids, types, states, ages, finding counts, never
+content — which is what you reconcile against.
+
+The `reader` above is a second client built with the default
+`allow_writes=False`, so the reconciliation path cannot write:
+
+```python
+reader = connect("https://gate.your-deployment.example/mcp",
+                 token=os.environ.get("DOUBLEGATE_TOKEN"), timeout=15.0)
+```
+
 ## What this does not establish
 
 Sending `DOUBLEGATE_TOKEN` means the SDK sets a bearer header. It does not mean

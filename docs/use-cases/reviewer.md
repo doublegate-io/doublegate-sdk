@@ -117,6 +117,85 @@ reason is the silent skip that vocabulary exists to end. Running both is how you
 find out that a verdict which *validates* would still be rejected by the SDK's
 own normaliser.
 
+## Doing it in your own code
+
+There is nothing to call that submits a verdict, so what follows is
+**preparation only**: the validators the SDK does publish, applied to a contract
+your application owns.
+
+### Derive real evidence for a reviewer input
+
+```python
+from doublegate_sdk import evaluate_file
+from doublegate_sdk.submission import (content_digest_from_content_hash,
+                                       envelope_content_hash)
+
+evaluation = evaluate_file("gates/release.gate.json", "docs/release/2026.09.md",
+                           artifact_type="memory")
+
+reviewer_input = {
+    "artifact_type": evaluation.artifact_type,
+    "content_digest": content_digest_from_content_hash(
+        envelope_content_hash(open("docs/release/2026.09.md", "rb").read())),
+    "deterministic_outcome": evaluation.outcome,     # 'clean' or 'flagged'
+    "human_review": evaluation.human_review,         # still outstanding
+    "excerpt_policy": "withheld",
+    "findings": [finding.to_dict() for finding in evaluation.findings],
+}
+```
+
+`content_digest` is derived by hashing the bytes **once** into the envelope
+spelling and then prefixing. The SDK's submission profile forbids hashing
+content twice to fill that member, which is why the two calls are chained rather
+than `envelope_content_hash` being called again.
+
+`excerpt_policy` is a constant, not a choice: findings from the bundled
+evaluator carry fixed diagnostics and an empty `excerpt`, so the body never
+travels with the input.
+
+### Validate a verdict against the SDK's closed vocabularies
+
+```python
+from doublegate_sdk.reasons import CATEGORIES, normalise_category
+from doublegate_sdk.schema import check_response
+from doublegate_sdk.skipped import SKIPPED_REASONS, normalise_skipped_reason
+from doublegate_sdk.vocabulary import BLOCKERS, normalise_blockers
+
+violations = check_response(output_schema, verdict)   # () when the shape is valid
+
+category = normalise_category(verdict["category"])            # one of CATEGORIES
+blockers = normalise_blockers(verdict["blockers"])            # a tuple from BLOCKERS
+skipped = normalise_skipped_reason(verdict["skipped_reason"]) # one of SKIPPED_REASONS
+```
+
+`check_response` returns a tuple of violation strings — empty means valid — and
+never raises for a merely invalid payload. The three normalisers raise
+`ValueError` or `TypeError` instead, and that difference is the point of running
+both: a schema `enum` will happily accept `null` for `skipped_reason`, while
+`normalise_skipped_reason` refuses `None` outright, because a skip that names no
+reason is the silent skip the vocabulary exists to end.
+
+`CATEGORIES`, `BLOCKERS` and `SKIPPED_REASONS` are frozensets you can read
+directly — use them to build your own schema `enum`s rather than copying the
+values by hand, so a future addition reaches your contract automatically.
+
+**What next.** Nothing remote. There is no call that carries this verdict to a
+gate, and no admission follows from it. Keep the exchange in your own tests so
+that when a reviewer stage ships you are adapting working code.
+
+### Confirm the gap against your installed package
+
+```python
+from doublegate_sdk.client import describe_client
+
+description = describe_client()
+sorted(description["operations"])   # ['pending', 'propose', 'recall', 'status', 'why']
+description["mcp"]["tools"]         # nine tools; none carries a reviewer verdict
+```
+
+Those five operations are the entire Python client surface in this build. Read
+them yourself instead of taking this page's word for it.
+
 ## Exit statuses
 
 | Status | Meaning |
