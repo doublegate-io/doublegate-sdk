@@ -1444,6 +1444,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cli-starter-or-direct-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI starter, or direct Python?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-importable-recipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#running-the-starters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1545,6 +1567,73 @@ application with its own guide and tests, not a framework or a substitute gate.<
 <p>The first two run entirely offline against the installed SDK, so they are the
 ones to start with if you do not have an endpoint yet. Correction is offline
 unless you pass <code>--endpoint</code>.</p>
+<h2 id="cli-starter-or-direct-python">CLI starter, or direct Python?</h2>
+<p>Both, and they are not alternatives. Every guide has a <strong>Doing it in your own
+code</strong> section showing the same workflow as plain calls on the SDK's public API,
+with the actual response fields and what to do next.</p>
+<table>
+<thead>
+<tr>
+<th>You want</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>To see the workflow run end to end, now</td>
+<td>the starter CLI — <code>--help</code> on each</td>
+</tr>
+<tr>
+<td>To wire it into your own application</td>
+<td>the Python section of that guide</td>
+</tr>
+<tr>
+<td>Importable functions you can call directly</td>
+<td><code>examples/recipes/</code></td>
+</tr>
+</tbody>
+</table>
+<p>The starters stay exactly as they are: they are the runnable reference, and they
+own their own argument parsing, exit codes and printing. The Python sections are
+what you copy into an application, where argparse and <code>print</code> are not what you
+want.</p>
+<h2 id="the-importable-recipes">The importable recipes</h2>
+<p><a href="https://github.com/doublegate-io/doublegate-sdk/tree/main/examples/recipes"><code>examples/recipes/</code></a>
+holds two small modules of named functions:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Covers</th>
+<th>Needs a gate?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/offline_checks.py"><code>offline_checks.py</code></a></td>
+<td><code>evaluate_file</code>, many files, error kinds as data</td>
+<td>No</td>
+</tr>
+<tr>
+<td><a href="https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/gate_operations.py"><code>gate_operations.py</code></a></td>
+<td>propose, status, why, recall, pending, negotiation</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Three rules hold across both, and they are what makes them safe to copy:</p>
+<ul>
+<li><strong>They take the client; they never build one.</strong> No recipe calls <code>connect</code>,
+  reads an environment variable or holds a connection, so importing one cannot
+  open anything and a recipe cannot reach an endpoint you did not hand it.</li>
+<li><strong>They return values.</strong> Nothing prints, nothing calls <code>sys.exit</code>. Rendering is
+  yours.</li>
+<li><strong>They never retry a write.</strong> A write whose outcome is unknown is reported as
+  such and handed back — resending it without an idempotency contract is how the
+  same observation gets filed twice.</li>
+</ul>
+<p>They are examples, not a framework: no base classes, no configuration, no
+registry. Copy the function you need into your own code and delete the rest.</p>
 <h2 id="running-the-starters">Running the starters</h2>
 <p>Use the SDK revision containing these apps and an existing compatible Python
 environment. Run commands from the repository root. Each guide gives exact
@@ -1559,6 +1648,13 @@ unit tests use injected clients and do not prove deployment authorization or mod
 quality. Run the network starter against your selected gate for service acceptance.
 The reviewer and correction starters explicitly stop short of unsupported server
 operations; they must not be used as evidence that review or withdrawal occurred.</p>
+<p>The recipes are covered by <code>tests/test_api_recipes.py</code>, and that suite is split
+deliberately. The offline half runs the <strong>real SDK against the real fixture
+data</strong> — the outcomes, findings and manifest digest asserted there are what your
+installed package produces. The gate half builds a real <code>GateClient</code> over a
+scripted in-process transport: it exercises the SDK's own response validation on
+real dicts, but it opens <strong>no socket</strong> and proves nothing about any deployment —
+not authorization, not admission, not a service's field set.</p>
 <p>For connection setup see <a href="../quickstart/">Python quickstart</a>, and for agent-host
 tools without Python see <a href="../agents/">MCP integration</a>.</p>
 

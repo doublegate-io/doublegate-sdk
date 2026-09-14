@@ -790,6 +790,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#propose-and-keep-the-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Propose, and keep the id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-where-it-stands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check where it stands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-served-knowledge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read served knowledge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failures-and-the-one-you-must-not-retry_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failures, and the one you must not retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-this-does-not-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1623,6 +1695,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#propose-and-keep-the-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Propose, and keep the id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-where-it-stands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check where it stands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-served-knowledge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read served knowledge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failures-and-the-one-you-must-not-retry_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failures, and the one you must not retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-this-does-not-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1769,6 +1913,127 @@ write, a connection failure is reported as <code>outcome_unknown</code> rather t
 clean failure, because it cannot tell how far the request got. So a failed
 <code>remember</code> will often exit <code>4</code> where a failed read of the same endpoint exits <code>3</code>.
 That asymmetry is intentional, not a bug in the app.</p>
+<h2 id="doing-it-in-your-own-code">Doing it in your own code</h2>
+<p>The starter is a CLI because a two-session story needs two processes. Your
+application already has its own state and its own main loop, so what it needs is
+the three calls, not the wrapper.</p>
+<p>Build the client once. <code>connect</code> opens nothing — the first request happens on
+the first method call:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">connect</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">endpoint</span> <span class="o">=</span> <span class="s2">"https://gate.your-deployment.example/mcp"</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DOUBLEGATE_TOKEN"</span><span class="p">)</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">writer</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">allow_writes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>   <span class="c1"># allow_writes defaults to False</span>
+</code></pre></div>
+<p><code>allow_writes</code> defaults to <code>False</code>, and that default is load-bearing: with it
+off the transport refuses a write-annotated tool itself, so a read-only client
+cannot be talked into writing. Two clients cost nothing — neither one holds a
+connection — and the read paths below then carry that guarantee.</p>
+<h3 id="propose-and-keep-the-id">Propose, and keep the id</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">answer</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="s2">"The laboratory labels basalt specimens by collection date."</span><span class="p">,</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>                        <span class="n">content_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>                        <span class="n">source_uri</span><span class="o">=</span><span class="s2">"application://laboratory/observation/123"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>                        <span class="n">trust_class</span><span class="o">=</span><span class="s2">"T-4"</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">artifact_id</span> <span class="o">=</span> <span class="n">answer</span><span class="p">[</span><span class="s2">"artifact_id"</span><span class="p">]</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">state</span> <span class="o">=</span> <span class="n">answer</span><span class="p">[</span><span class="s2">"state"</span><span class="p">]</span>
+</code></pre></div>
+<p><code>propose</code> returns a dict. Two members are guaranteed — the SDK raises
+<code>invalid_response</code> without them:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>artifact_id</code></td>
+<td>the <strong>only</strong> durable reference to this submission</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>the gate's answer <em>to the submission</em> — not admission, not a review verdict</td>
+</tr>
+</tbody>
+</table>
+<p>Writer identity is never sent: the service derives it from the connection and
+refuses a request that carries it. <code>content</code> is text; <code>bytes</code> are accepted only
+when they decode as UTF-8.</p>
+<p><strong>What next.</strong> Persist <code>artifact_id</code> wherever you keep application state, before
+you do anything else. Without it there is no way to look the submission up
+again, and nothing else in the answer will find it for you.</p>
+<h3 id="check-where-it-stands">Check where it stands</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">position</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">artifact_id</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">position</span><span class="p">[</span><span class="s2">"state"</span><span class="p">]</span>                 <span class="c1"># always present</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"quorum"</span><span class="p">)</span>            <span class="c1"># present only if this build sends it</span>
+</code></pre></div>
+<p><code>status</code> guarantees <code>state</code> and nothing else. <code>sub_level</code>, <code>quorum</code> and
+<code>blocking</code> appear when the build sends them. Use <code>.get</code> or a membership test —
+a build that omits a field means it did not send one, not that the value is
+empty.</p>
+<h3 id="read-served-knowledge">Read served knowledge</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">answers</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">"How are basalt specimens labelled?"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">hits</span> <span class="o">=</span> <span class="n">answers</span><span class="p">[</span><span class="s2">"results"</span><span class="p">]</span>         <span class="c1"># a list, length &lt;= limit; the SDK enforces that</span>
+</code></pre></div>
+<p>An empty list straight after your own write is the expected answer, not a
+failure. The SDK asks with <code>include_own_pending=False</code>, so you cannot read back
+your own unreviewed proposal and mistake it for served knowledge.</p>
+<h3 id="failures-and-the-one-you-must-not-retry_1">Failures, and the one you must not retry</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateError</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">answer</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">,</span> <span class="n">source_uri</span><span class="o">=</span><span class="n">uri</span><span class="p">)</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">except</span> <span class="n">GateError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">outcome_unknown</span><span class="p">:</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="o">...</span>   <span class="c1"># the write MAY have landed. Reconcile with pending(); do not resend.</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="o">...</span>   <span class="c1"># branch on error.kind; error.code carries the numeric status</span>
+</code></pre></div>
+<p><code>GateError</code> carries three things and no server text: <code>kind</code> (a stable string),
+<code>code</code> (the numeric status or JSON-RPC code, or <code>None</code>) and <code>outcome_unknown</code>.
+Remote error <em>messages</em> are withheld deliberately — they carry internals, and a
+client log is the wrong place for them.</p>
+<p><code>outcome_unknown</code> is the one that changes what you may do. The SDK sets it
+conservatively: once it has begun sending a write, a connection failure is
+reported as unknown rather than as a clean failure, because it cannot tell how
+far the request got. Never retry on it.</p>
+<h3 id="the-importable-recipe">The importable recipe</h3>
+<p><a href="https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/gate_operations.py"><code>examples/recipes/gate_operations.py</code></a>
+packages the above as named functions. Every one takes the client as its first
+argument and none of them calls <code>connect</code>, so a recipe can never reach an
+endpoint you did not hand it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.gate_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">observe</span><span class="p">,</span> <span class="n">artifact_position</span><span class="p">,</span> <span class="n">recall_answers</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">observed</span> <span class="o">=</span> <span class="n">observe</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="s2">"The laboratory labels basalt specimens by collection date."</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>                   <span class="n">source_uri</span><span class="o">=</span><span class="s2">"application://laboratory/observation/123"</span><span class="p">,</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>                   <span class="n">trust_class</span><span class="o">=</span><span class="s2">"T-4"</span><span class="p">)</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">observed</span><span class="o">.</span><span class="n">artifact_id</span>     <span class="c1"># persist this</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">observed</span><span class="o">.</span><span class="n">state</span>           <span class="c1"># the gate's answer to the submission</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">observed</span><span class="o">.</span><span class="n">response</span>        <span class="c1"># the untouched response dict</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">position</span> <span class="o">=</span> <span class="n">artifact_position</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">observed</span><span class="o">.</span><span class="n">artifact_id</span><span class="p">)</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="n">position</span><span class="p">[</span><span class="s2">"present_optional_fields"</span><span class="p">]</span>     <span class="c1"># e.g. ['quorum'] — which fields this build sent</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="n">hits</span> <span class="o">=</span> <span class="n">recall_answers</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="s2">"How are basalt specimens labelled?"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
+<p><code>observe</code> raises <code>GateError</code> unchanged and attempts exactly one request. If you
+would rather branch on a value than wrap every call in <code>try</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.gate_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_or_failure</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">hits</span><span class="p">,</span> <span class="n">failure</span> <span class="o">=</span> <span class="n">call_or_failure</span><span class="p">(</span><span class="n">recall_answers</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="s2">"labelling"</span><span class="p">)</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">if</span> <span class="n">failure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">failure</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">failure</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">failure</span><span class="o">.</span><span class="n">outcome_unknown</span><span class="p">,</span> <span class="n">failure</span><span class="o">.</span><span class="n">endpoint_reached</span>
+</code></pre></div>
+<p><code>endpoint_reached</code> is the narrower claim: <code>unavailable</code>, <code>timeout</code> and
+<code>redirect_refused</code> mean the gate was never reached, while an <code>unauthorized</code>
+answer means it answered — with a refusal.</p>
+<p><code>waiting_for_review(reader, limit=...)</code> returns the <code>pending</code> metadata list.
+That is what to call after an <code>outcome_unknown</code> write, before you decide
+anything.</p>
 <h2 id="what-this-does-not-establish">What this does not establish</h2>
 <p>The app talks to whatever endpoint you name, and supplying <code>DOUBLEGATE_TOKEN</code>
 means the SDK sends a bearer header — it does not mean the receiver checks it.</p>

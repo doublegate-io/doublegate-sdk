@@ -975,6 +975,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-sdks-own-description-says-offline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the SDK's own description says, offline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping-the-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapping the failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-a-clean-probe-does-not-prove" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1657,6 +1707,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-sdks-own-description-says-offline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the SDK's own description says, offline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mapping-the-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapping the failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-a-clean-probe-does-not-prove" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1855,6 +1955,76 @@ wrong place for it — and this app does not work around it. Callers branch on
 </tr>
 </tbody>
 </table>
+<h2 id="doing-it-in-your-own-code">Doing it in your own code</h2>
+<p>A health check inside your own service does not want a subprocess. The two
+negotiation reads are available directly on the transport:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">connect</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateError</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s2">"https://gate.your-deployment.example/mcp"</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>                 <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DOUBLEGATE_TOKEN"</span><span class="p">),</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>                 <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>          <span class="c1"># allow_writes defaults to False</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">catalog</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">tool_names</span><span class="p">()</span>     <span class="c1"># the tools THIS server lists, its own order</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">info</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">discover</span><span class="p">()</span>          <span class="c1"># protocol versions, server info, capabilities</span>
+</code></pre></div>
+<p><code>discover</code> and <code>tool_names</code> live on <code>HttpMcpTransport</code>, reached through the
+client's <code>transport</code> property — they are protocol negotiation, not tool calls,
+which is why they are not methods on <code>GateClient</code>. <code>tool_names</code> returns a tuple
+of names and raises <code>invalid_response</code> if the server's list is not well-formed.
+<code>discover</code> returns the server's <code>server/discover</code> result as-is.</p>
+<p>Both are reads. Neither depends on <code>allow_writes</code>, and neither sends
+<code>initialize</code> — the maintained server refuses that unless an operator turned on a
+legacy flag.</p>
+<p><strong>What next.</strong> Compare <code>catalog</code> against the call that was failing. A tool
+missing from that tuple explains an <code>unsupported_operation</code> with no further
+digging; a tool that <em>is</em> listed points the investigation at the call's
+arguments or the artifact id instead.</p>
+<h3 id="what-the-sdks-own-description-says-offline">What the SDK's own description says, offline</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">describe_client</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">description</span> <span class="o">=</span> <span class="n">describe_client</span><span class="p">()</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">description</span><span class="p">[</span><span class="s2">"operations"</span><span class="p">]</span>               <span class="c1"># this SDK's calls and the tool behind each</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">description</span><span class="p">[</span><span class="s2">"mcp"</span><span class="p">][</span><span class="s2">"tools"</span><span class="p">]</span>             <span class="c1"># the tool catalog this client tier knows</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">description</span><span class="p">[</span><span class="s2">"unsupported_operations"</span><span class="p">]</span>   <span class="c1"># e.g. inventory, whole-gate status</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">description</span><span class="p">[</span><span class="s2">"automatic_retries"</span><span class="p">]</span>        <span class="c1"># False</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">description</span><span class="p">[</span><span class="s2">"follows_redirects"</span><span class="p">]</span>        <span class="c1"># False</span>
+</code></pre></div>
+<p>This opens nothing and contacts nothing. It describes <strong>this SDK's contract</strong>,
+not a remote gate's capabilities — which is the distinction its <code>scope</code> member
+states explicitly (<code>'sdk-contract-not-server-capabilities'</code>). Use it to answer
+"can this client even make that call", and <code>tool_names()</code> to answer "does that
+deployment serve it".</p>
+<h3 id="the-importable-recipe">The importable recipe</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.gate_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">server_catalog</span><span class="p">,</span> <span class="n">call_or_failure</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">catalog</span><span class="p">,</span> <span class="n">failure</span> <span class="o">=</span> <span class="n">call_or_failure</span><span class="p">(</span><span class="n">server_catalog</span><span class="p">,</span> <span class="n">reader</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">if</span> <span class="n">failure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">catalog</span><span class="p">[</span><span class="s2">"tools"</span><span class="p">]</span>        <span class="c1"># list of tool names, the server's own order</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">catalog</span><span class="p">[</span><span class="s2">"discover"</span><span class="p">]</span>     <span class="c1"># the server/discover result</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">failure</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">failure</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">failure</span><span class="o">.</span><span class="n">endpoint_reached</span>
+</code></pre></div>
+<p><code>server_catalog</code> performs both negotiation reads. It raises <code>TypeError</code> if you
+hand it a client over a caller-supplied transport that offers neither — the
+<code>GateTransport</code> protocol declares only <code>call</code>, so negotiation is not something
+every transport has, and reporting its absence as a gate failure would be wrong.</p>
+<h3 id="mapping-the-failure">Mapping the failure</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">NOT_REACHED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"unavailable"</span><span class="p">,</span> <span class="s2">"timeout"</span><span class="p">,</span> <span class="s2">"redirect_refused"</span><span class="p">}</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">reader</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">discover</span><span class="p">()</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">except</span> <span class="n">GateError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">reached</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NOT_REACHED</span>   <span class="c1"># an `unauthorized` IS the gate answering</span>
+</code></pre></div>
+<p><code>GateCallFailure.endpoint_reached</code> in the recipe module is exactly that
+comparison. The distinction matters in a diagnostic: "the gate refused you" and
+"nothing answered on that port" lead to different next steps, and both are
+failures.</p>
+<p>The kind-to-next-step table above is the mapping to reuse. Keep the next-step
+text fixed per kind, as the starter does — never assembled from a response,
+because the SDK withholds server error text on purpose.</p>
 <h2 id="what-a-clean-probe-does-not-prove">What a clean probe does not prove</h2>
 <p>A successful probe means the endpoint speaks the protocol and answered. It does not
 mean your credential was verified.</p>

@@ -902,6 +902,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#position-and-history-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Position and history together
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-unknown-id-ambiguity-in-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The unknown-id ambiguity, in code
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-this-does-not-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1623,6 +1673,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#position-and-history-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Position and history together
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-unknown-id-ambiguity-in-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The unknown-id ambiguity, in code
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-this-does-not-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1756,10 +1856,106 @@ instead of resolving it by guessing.</p>
 </tbody>
 </table>
 <p>There is no unknown-outcome exit here, because nothing in this app writes.</p>
+<h2 id="doing-it-in-your-own-code">Doing it in your own code</h2>
+<p>An explanation view is a read and a render, and the render is yours. The read is
+one call:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">connect</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateError</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s2">"https://gate.your-deployment.example/mcp"</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>                 <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DOUBLEGATE_TOKEN"</span><span class="p">),</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>                 <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>          <span class="c1"># allow_writes defaults to False</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">answer</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">why</span><span class="p">(</span><span class="n">artifact_id</span><span class="p">)</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">events</span> <span class="o">=</span> <span class="n">answer</span><span class="p">[</span><span class="s2">"events"</span><span class="p">]</span>               <span class="c1"># guaranteed to be a list, or the SDK raises</span>
+</code></pre></div>
+<p><code>why</code> validates exactly two things and then hands you the service's payload:
+the answer must be an object, and <code>events</code> must be a <strong>list</strong>. Anything else
+raises <code>GateError('invalid_response')</code>. So <code>answer["events"]</code> is safe to index;
+what is <em>inside</em> each event is the service's, not the SDK's.</p>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Guaranteed?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>events</code></td>
+<td>yes, as a list</td>
+<td>may be empty; an empty ledger is a real answer</td>
+</tr>
+<tr>
+<td><code>artifact_id</code></td>
+<td>no</td>
+<td>present on the maintained tier; read with <code>.get</code></td>
+</tr>
+</tbody>
+</table>
+<p>On the maintained client tier each event carries <code>event_id</code>, <code>type</code>, <code>identity</code>,
+<code>ts</code>, <code>payload</code> and <code>sig</code>. <strong>Do not assume them.</strong> Read what is there:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">kind</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">when</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ts"</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">signature</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sig"</span><span class="p">)</span>     <span class="c1"># None means this build did not send one</span>
+</code></pre></div>
+<p><code>.get</code> returning <code>None</code> means the field was absent, not empty. A build that
+sends fewer fields should be reported, never filled in with a default someone
+downstream might trust.</p>
+<p><strong>What next.</strong> Nothing here changes anything — this is the audit read. If the
+history explains a state you want changed, see
+<a href="../correction/">Correction preparation</a>, which is honest about the fact that
+this SDK cannot withdraw an artifact.</p>
+<h3 id="the-importable-recipe">The importable recipe</h3>
+<p><a href="https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/gate_operations.py"><code>examples/recipes/gate_operations.py</code></a>
+gives you the read and a presence report over what came back:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.gate_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">artifact_history</span><span class="p">,</span> <span class="n">event_field_coverage</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">events</span> <span class="o">=</span> <span class="n">artifact_history</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">artifact_id</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">coverage</span> <span class="o">=</span> <span class="n">event_field_coverage</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+</code></pre></div>
+<p><code>coverage</code> is a plain dict. Against a build that sends only three of the six
+documented keys, it reads:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span><span class="s1">'event_count'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a> <span class="s1">'event_types'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'proposed'</span><span class="p">,</span> <span class="s1">'scanned'</span><span class="p">],</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a> <span class="s1">'present'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'event_id'</span><span class="p">,</span> <span class="s1">'ts'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">],</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a> <span class="s1">'absent'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'identity'</span><span class="p">,</span> <span class="s1">'payload'</span><span class="p">,</span> <span class="s1">'sig'</span><span class="p">]}</span>
+</code></pre></div>
+<p><code>absent</code> is compared against <code>WHY_EVENT_KEYS</code>, which is a baseline for reporting
+and <strong>not</strong> a requirement — nothing raises because a key is missing. On an empty
+history, <code>event_count</code> is <code>0</code>, <code>present</code> is <code>[]</code>, and <code>absent</code> lists all six.
+No placeholder event is invented for it.</p>
+<h3 id="position-and-history-together">Position and history together</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.gate_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_only_snapshot</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">snapshot</span> <span class="o">=</span> <span class="n">read_only_snapshot</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">artifact_id</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">snapshot</span><span class="p">[</span><span class="s2">"status"</span><span class="p">][</span><span class="s2">"state"</span><span class="p">]</span>     <span class="c1"># or snapshot["status"]["failed"] if that call failed</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">snapshot</span><span class="p">[</span><span class="s2">"complete"</span><span class="p">]</span>            <span class="c1"># True only when both calls answered</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">snapshot</span><span class="p">[</span><span class="s2">"mutated"</span><span class="p">]</span>             <span class="c1"># always False</span>
+</code></pre></div>
+<p>Both calls are attempted even when the first fails, so one unreachable call does
+not hide the other's answer. A failed call contributes a <code>failed</code> payload with
+<code>kind</code>, <code>code</code>, <code>outcome_unknown</code> and <code>endpoint_reached</code> instead of raising.</p>
+<h3 id="the-unknown-id-ambiguity-in-code">The unknown-id ambiguity, in code</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">events</span> <span class="o">=</span> <span class="n">artifact_history</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">artifact_id</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">except</span> <span class="n">GateError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">"unsupported_operation"</span><span class="p">:</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="c1"># Two readings, both genuinely possible from JSON-RPC -32602: this build</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="c1"># does not serve `why`, or it does not know this artifact id.</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="o">...</span>
+</code></pre></div>
+<p>The SDK maps <code>-32601</code> and <code>-32602</code> to <code>unsupported_operation</code>, and the server
+answers both an unknown tool and an unknown artifact with <code>-32602</code>. Report the
+ambiguity; do not resolve it by guessing.</p>
 <h2 id="what-this-does-not-establish">What this does not establish</h2>
 <p>Reading an audit trail is not verifying its signatures. The app prints <code>sig</code> values
 when they are present; it does not check them. Signature verification is not on
-this client surface.</p>
+this client surface — and neither <code>artifact_history</code> nor <code>event_field_coverage</code>
+checks a signature either.</p>
 <div class="admonition warning">
 <p class="admonition-title">Current authentication gap</p>
 <p>On the maintained client tier, <code>POST /mcp</code> is dispatched before the console's

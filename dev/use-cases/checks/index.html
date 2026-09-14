@@ -843,6 +843,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#handling-the-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handling the failures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1598,6 +1626,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#handling-the-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handling the failures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1741,15 +1797,155 @@ is declarative data: nothing in it can open a connection or name a credential.</
 <a href="../../api/manifest/">Manifest</a>; for the underlying calls, see
 <a href="../../api/package/">Load a check manifest</a> and <a href="../../api/runtime/">Evaluation</a>.</p>
 <h2 id="doing-it-in-your-own-code">Doing it in your own code</h2>
+<p>The starter above is a CLI. The same work in Python is one call:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_file</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">evaluation</span> <span class="o">=</span> <span class="n">evaluate_file</span><span class="p">(</span><span class="s2">"gates/release.gate.json"</span><span class="p">,</span> <span class="s2">"docs/release/2026.09.md"</span><span class="p">,</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>                           <span class="n">artifact_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">if</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">flagged</span><span class="p">:</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="k">for</span> <span class="n">finding</span> <span class="ow">in</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">finding</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">finding</span><span class="o">.</span><span class="n">detail</span><span class="p">)</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"review still required:"</span><span class="p">,</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">human_review</span><span class="p">)</span>
 </code></pre></div>
+<p><code>evaluate_file</code> returns a frozen <code>FileEvaluation</code>. These are its fields, all of
+them, with the values a real run against the bundled fixtures produces:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Value for <code>release-note.flagged.md</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>outcome</code></td>
+<td><code>str</code></td>
+<td><code>'flagged'</code> (the other value is <code>'clean'</code>)</td>
+</tr>
+<tr>
+<td><code>findings</code></td>
+<td><code>tuple[Finding, ...]</code></td>
+<td>one <code>required-text</code> finding</td>
+</tr>
+<tr>
+<td><code>gate_name</code></td>
+<td><code>str</code></td>
+<td><code>'release-note'</code></td>
+</tr>
+<tr>
+<td><code>gate_version</code></td>
+<td><code>str</code></td>
+<td><code>'1.0.0'</code></td>
+</tr>
+<tr>
+<td><code>artifact_type</code></td>
+<td><code>str</code></td>
+<td><code>'memory'</code></td>
+</tr>
+<tr>
+<td><code>human_review</code></td>
+<td><code>str</code></td>
+<td><code>'required'</code></td>
+</tr>
+<tr>
+<td><code>manifest_digest</code></td>
+<td><code>str</code></td>
+<td><code>'cfd60e994148aa5537f7203e49d9570cab83b6df142a8efa727028426156a7bf'</code></td>
+</tr>
+</tbody>
+</table>
+<p>Plus <code>.flagged</code> (a property, <code>outcome == 'flagged'</code>) and <code>.to_payload()</code> (the
+JSON-ready dict the starter prints). <code>manifest_digest</code> identifies the
+<strong>manifest</strong>, so every file evaluated against one manifest carries the same
+digest.</p>
+<p>Each <code>Finding</code> carries <code>kind</code>, <code>severity</code>, <code>detail</code>, <code>start</code>, <code>end</code> and
+<code>excerpt</code> — and <code>excerpt</code> is always <code>''</code> from the bundled evaluator, so findings
+are safe to log:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">for</span> <span class="n">finding</span> <span class="ow">in</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">finding</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">finding</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span> <span class="n">finding</span><span class="o">.</span><span class="n">detail</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># required-text warning required_text_missing: check 1</span>
+</code></pre></div>
+<p><strong>What next.</strong> Nothing, remotely — this is offline evidence. <code>human_review</code>
+still says <code>required</code>, and that obligation is yours to route to a person. If you
+want the content in a gate, that is a separate <code>propose</code> call; see
+<a href="../ingestion/">Ingestion</a>.</p>
+<h3 id="handling-the-failures">Handling the failures</h3>
+<p>Everything the SDK refuses arrives as a <code>DoublegateError</code> subclass with a fixed
+<code>kind</code>. Catch the base class and read <code>kind</code>; do not parse the message.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoublegateError</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">evaluation</span> <span class="o">=</span> <span class="n">evaluate_file</span><span class="p">(</span><span class="n">manifest_path</span><span class="p">,</span> <span class="n">content_path</span><span class="p">,</span> <span class="n">artifact_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">except</span> <span class="n">DoublegateError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">kind</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">kind</span>        <span class="c1"># 'unreadable_file', 'invalid_utf8', 'input_too_large', …</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><code>kind</code></th>
+<th>Raised by</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unsafe_path</code>, <code>not_regular_file</code>, <code>unreadable_file</code></td>
+<td><code>PackageError</code></td>
+<td>the manifest or content path</td>
+</tr>
+<tr>
+<td><code>invalid_json</code>, <code>duplicate_json_key</code></td>
+<td><code>PackageError</code></td>
+<td>the manifest document</td>
+</tr>
+<tr>
+<td><code>file_too_large</code></td>
+<td><code>PackageError</code></td>
+<td>the <strong>manifest</strong> over 65,536 bytes</td>
+</tr>
+<tr>
+<td><code>input_too_large</code></td>
+<td><code>EvaluationError</code></td>
+<td>the <strong>content</strong> over the manifest's <code>max_input_bytes</code></td>
+</tr>
+<tr>
+<td><code>invalid_utf8</code></td>
+<td><code>EvaluationError</code></td>
+<td>the content is not UTF-8</td>
+</tr>
+<tr>
+<td><code>unsupported_artifact_type</code></td>
+<td><code>EvaluationError</code></td>
+<td>the manifest does not declare that type</td>
+</tr>
+</tbody>
+</table>
+<p><code>file_too_large</code> and <code>input_too_large</code> are different bounds on different files.
+Mixing them up is the most common misreading of a check failure.</p>
+<h3 id="the-importable-recipe">The importable recipe</h3>
+<p><a href="https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/offline_checks.py"><code>examples/recipes/offline_checks.py</code></a>
+is the same logic as small named functions that return values instead of
+printing, so you can call them from your own code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.offline_checks</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_many_files</span><span class="p">,</span> <span class="n">summarize_checks</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">results</span> <span class="o">=</span> <span class="n">check_many_files</span><span class="p">(</span><span class="s2">"gates/release.gate.json"</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>                           <span class="p">[</span><span class="s2">"docs/release/2026.09.md"</span><span class="p">,</span> <span class="s2">"docs/release/2026.10.md"</span><span class="p">],</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>                           <span class="n">artifact_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">)</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">summary</span> <span class="o">=</span> <span class="n">summarize_checks</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+<p><code>check_many_files</code> never stops at the first bad file: a path the SDK refuses
+comes back as a <code>CheckedFile</code> with <code>status='unevaluated'</code> and the SDK's <code>kind</code>
+under <code>error_kind</code>. <code>summarize_checks</code> returns exactly this, for the bundled
+fixtures:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span><span class="s1">'counts'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'clean'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'flagged'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'unevaluated'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a> <span class="s1">'total'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a> <span class="s1">'human_review'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'required'</span><span class="p">],</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a> <span class="s1">'is_admission_decision'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a> <span class="s1">'human_review_satisfied'</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+</code></pre></div>
+<p>The last two members are constants. They are emitted anyway so nothing
+downstream has to infer admission from an outcome string.</p>
+<p><code>blocking_findings(evaluation, severities=...)</code> filters findings to the
+severities <em>you</em> treat as blocking. The default is <code>{'error'}</code>, and the bundled
+manifest emits <code>warning</code> — so the default returns <code>()</code> for it. Whether a warning
+should fail your pipeline is a policy decision the SDK does not make for you.</p>
 <p>To apply one already-loaded manifest to many bodies, skip <code>evaluate_file</code> and
 use <code>load_package</code> + <code>evaluate</code> directly — the composition exists for
 convenience, not as a gate around the lower-level calls.</p>

@@ -930,6 +930,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inspect-where-the-artifact-stands_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inspect where the artifact stands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-the-local-correction-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build the local correction request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-deliberately-absent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is deliberately absent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#if-a-new-observation-is-the-right-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        If a new observation is the right answer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#if-you-need-this-today" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1612,6 +1673,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inspect-where-the-artifact-stands_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inspect where the artifact stands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-the-local-correction-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build the local correction request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-deliberately-absent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is deliberately absent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#if-a-new-observation-is-the-right-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        If a new observation is the right answer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#if-you-need-this-today" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1806,6 +1928,96 @@ newly matching string.</p>
 <p>Exit <code>2</code> is shared with argparse's own usage errors, so distinguish them by the
 output: a failed inspection prints the JSON report, a usage error prints usage
 text.</p>
+<h2 id="doing-it-in-your-own-code">Doing it in your own code</h2>
+<p>Everything available here is <strong>preparation</strong>. There is no Python call that
+withdraws, retracts, deletes or replaces an admitted artifact, and nothing below
+invents one.</p>
+<h3 id="inspect-where-the-artifact-stands_1">Inspect where the artifact stands</h3>
+<p>This is a read, and the only thing a correction workflow can do remotely:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">connect</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s2">"https://gate.your-deployment.example/mcp"</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>                 <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DOUBLEGATE_TOKEN"</span><span class="p">),</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>                 <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>          <span class="c1"># allow_writes defaults to False</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">position</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">artifact_id</span><span class="p">)</span>   <span class="c1"># {'state': ..., possibly sub_level/quorum/blocking}</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">history</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">why</span><span class="p">(</span><span class="n">artifact_id</span><span class="p">)</span>       <span class="c1"># {'events': [...]}</span>
+</code></pre></div>
+<p>Leave <code>allow_writes</code> at its default. That is load-bearing rather than
+decorative: with writes off, the transport refuses a write-annotated tool
+itself, so this path cannot be talked into calling <code>hide</code> by code that reaches
+past your own logic.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.gate_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_only_snapshot</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">snapshot</span> <span class="o">=</span> <span class="n">read_only_snapshot</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">artifact_id</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">snapshot</span><span class="p">[</span><span class="s2">"mutated"</span><span class="p">]</span>        <span class="c1"># always False</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">snapshot</span><span class="p">[</span><span class="s2">"complete"</span><span class="p">]</span>       <span class="c1"># True only when both status and why answered</span>
+</code></pre></div>
+<p><strong>What next.</strong> Capture <code>snapshot</code> as the record of the artifact's position at the
+time you raised the correction. It is evidence for whoever holds correction
+authority — it is not a correction.</p>
+<h3 id="build-the-local-correction-request">Build the local correction request</h3>
+<p>The request is a document <em>you</em> own. The SDK contributes canonicalization, so
+two operators preparing the same correction derive the same id and an edited one
+derives a different id:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.reasons</span><span class="w"> </span><span class="kn">import</span> <span class="n">CATEGORIES</span><span class="p">,</span> <span class="n">normalise_category</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.submission</span><span class="w"> </span><span class="kn">import</span> <span class="n">canonical_bytes</span><span class="p">,</span> <span class="n">submission_artifact_id</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">document</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">"kind"</span><span class="p">:</span> <span class="s2">"local-correction-request"</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="s2">"target_artifact_id"</span><span class="p">:</span> <span class="n">artifact_id</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="s2">"proposed_body"</span><span class="p">:</span> <span class="n">corrected_text</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="s2">"provenance"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"observed_state"</span><span class="p">:</span> <span class="n">position</span><span class="p">[</span><span class="s2">"state"</span><span class="p">],</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>                   <span class="s2">"observed_by"</span><span class="p">:</span> <span class="s2">"operations-oncall"</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>                   <span class="s2">"observed_at"</span><span class="p">:</span> <span class="s2">"2026-09-12T09:15:00Z"</span><span class="p">},</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="s2">"reason_category"</span><span class="p">:</span> <span class="n">normalise_category</span><span class="p">(</span><span class="s2">"quality"</span><span class="p">),</span>   <span class="c1"># one of CATEGORIES, or raises</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="s2">"carried_by"</span><span class="p">:</span> <span class="s2">"human"</span><span class="p">,</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="s2">"remote_effect"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="p">}</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="n">request_id</span> <span class="o">=</span> <span class="n">submission_artifact_id</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>   <span class="c1"># 'sha256:…', derived from the canonical bytes</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="n">payload</span> <span class="o">=</span> <span class="n">canonical_bytes</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>             <span class="c1"># the one byte string this document has</span>
+</code></pre></div>
+<p><code>normalise_category</code> accepts only the five values <code>doublegate_sdk.reasons</code>
+closes (<code>CATEGORIES</code> is the frozenset) and raises otherwise, so a typo does not
+silently become a new category. The member names above — <code>kind</code>,
+<code>target_artifact_id</code>, <code>carried_by</code> — are this workflow's own; the SDK publishes
+no correction-request schema.</p>
+<div class="admonition warning">
+<p class="admonition-title"><code>request_id</code> is local and confers nothing</p>
+<p>It identifies <strong>this document</strong>. It is not gate-issued, it is not an artifact
+id, and sending it nowhere is the only thing you can do with it — there is no
+endpoint that accepts it.</p>
+</div>
+<h3 id="what-is-deliberately-absent">What is deliberately absent</h3>
+<p>There is no <code>withdraw</code>, <code>retract</code>, <code>delete</code> or <code>supersede</code> on <code>GateClient</code>. You
+can confirm that offline against the package you have, rather than trusting this
+page:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">describe_client</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">description</span> <span class="o">=</span> <span class="n">describe_client</span><span class="p">()</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="nb">sorted</span><span class="p">(</span><span class="n">description</span><span class="p">[</span><span class="s2">"operations"</span><span class="p">])</span>    <span class="c1"># ['pending', 'propose', 'recall', 'status', 'why']</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">description</span><span class="p">[</span><span class="s2">"mcp"</span><span class="p">][</span><span class="s2">"tools"</span><span class="p">]</span>          <span class="c1"># the nine client-tier tools; none removes an artifact</span>
+</code></pre></div>
+<p>Those five operations are the whole Python surface. <code>rank</code>, <code>hide</code> and <code>ban</code> are
+served tools with no <code>GateClient</code> method, and none of them is a correction —
+<code>hide</code> changes visibility while the artifact, its content and its ledger stay
+exactly where they were.</p>
+<h3 id="if-a-new-observation-is-the-right-answer">If a new observation is the right answer</h3>
+<p>That is a <code>propose</code>, and it creates a <strong>new</strong> artifact. Naming the original in
+<code>derives_from</code> records the lineage; it does not retract anything:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">writer</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s2">"https://gate.your-deployment.example/mcp"</span><span class="p">,</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>                 <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DOUBLEGATE_TOKEN"</span><span class="p">),</span> <span class="n">allow_writes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">answer</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="n">corrected_text</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>                        <span class="n">source_uri</span><span class="o">=</span><span class="s2">"application://corrections/2026-09-12"</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>                        <span class="n">derives_from</span><span class="o">=</span><span class="p">[</span><span class="n">artifact_id</span><span class="p">])</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="n">answer</span><span class="p">[</span><span class="s2">"artifact_id"</span><span class="p">]</span>    <span class="c1"># a new id; the original is untouched</span>
+</code></pre></div>
+<p>Do not wire this into an automated "correction" step. A new submission and a
+correction are different things, and conflating them in code is how an operator
+ends up believing a record was fixed when a second record was merely added
+beside it.</p>
 <h2 id="if-you-need-this-today">If you need this today</h2>
 <p>Until the product publishes a correction path, the workable route is procedural,
 not programmatic:</p>

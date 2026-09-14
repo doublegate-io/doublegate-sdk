@@ -835,6 +835,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#refuse-unusable-input-before-you-send-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refuse unusable input before you send it
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-failure-you-must-not-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The failure you must not retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-this-does-not-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1657,6 +1707,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#refuse-unusable-input-before-you-send-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refuse unusable input before you send it
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-importable-recipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The importable recipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-failure-you-must-not-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The failure you must not retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-this-does-not-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1823,6 +1923,91 @@ it is the file you sent.</p>
 run the command again — and that is how you get the same document filed twice. The
 SDK does not retry writes and neither does this app. Check <code>pending</code> first, then
 decide. The app's message says exactly that.</p>
+<h2 id="doing-it-in-your-own-code">Doing it in your own code</h2>
+<p>A connector is a loop over files, and the loop belongs in your code, not in a
+CLI you shell out to. The SDK part is one call.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">connect</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateError</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">writer</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s2">"https://gate.your-deployment.example/mcp"</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>                 <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DOUBLEGATE_TOKEN"</span><span class="p">),</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>                 <span class="n">allow_writes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"notes/specimen-labelling.md"</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="n">answer</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">propose</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">),</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>                        <span class="n">content_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">,</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>                        <span class="n">source_uri</span><span class="o">=</span><span class="n">path</span><span class="o">.</span><span class="n">as_uri</span><span class="p">())</span>
+</code></pre></div>
+<p><code>propose</code> guarantees <code>artifact_id</code> and <code>state</code> in the response; the SDK raises
+<code>invalid_response</code> without them. A build may also send <code>findings_count</code> and
+<code>duplicate</code> — read those with <code>.get</code>, because a build that omits them sent
+nothing, and a default would be an invention:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">answer</span><span class="p">[</span><span class="s2">"artifact_id"</span><span class="p">]</span>          <span class="c1"># the only durable reference to this submission</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">answer</span><span class="p">[</span><span class="s2">"state"</span><span class="p">]</span>                <span class="c1"># the gate's answer to the submission, not admission</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"findings_count"</span><span class="p">)</span>   <span class="c1"># None when this build does not send it</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"duplicate"</span><span class="p">)</span>
+</code></pre></div>
+<p>The gate scans the content before answering. A findings <em>count</em> is what the
+writer learns; finding text is for the operator's review.</p>
+<p><strong>What next.</strong> Record <code>artifact_id</code> against the file you sent, so a later run
+can ask <code>status</code> instead of submitting the same document again.</p>
+<h3 id="refuse-unusable-input-before-you-send-it">Refuse unusable input before you send it</h3>
+<p><code>propose</code> accepts <code>str</code>, and accepts <code>bytes</code> only when they decode as UTF-8 —
+it raises <code>ValueError</code> otherwise. Doing the check yourself first gets you a
+message that names the real problem rather than a <code>request_too_large</code> from the
+transport:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">raw</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">512_000</span><span class="p">:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"document is </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes; too large to submit whole"</span><span class="p">)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"document is not valid UTF-8 text; this surface stores no binary"</span><span class="p">)</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"document is empty or whitespace-only; propose requires content"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="the-importable-recipe">The importable recipe</h3>
+<p><a href="https://github.com/doublegate-io/doublegate-sdk/blob/main/examples/recipes/gate_operations.py"><code>examples/recipes/gate_operations.py</code></a>
+has that as one function. It takes the client you built — it never calls
+<code>connect</code> — and raises <code>ValueError</code> locally, before any request is built, for
+all three refusals:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">recipes.gate_operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">observe_file</span><span class="p">,</span> <span class="n">waiting_for_review</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">observed</span> <span class="o">=</span> <span class="n">observe_file</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="s2">"notes/specimen-labelling.md"</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">observed</span><span class="o">.</span><span class="n">artifact_id</span><span class="p">,</span> <span class="n">observed</span><span class="o">.</span><span class="n">state</span>
+</code></pre></div>
+<p><code>source_uri</code> defaults to the file's own resolved <code>file://</code> URI, so the record
+points at something real. Override it when the file is a local copy of something
+with a better identity:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">observed</span> <span class="o">=</span> <span class="n">observe_file</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="s2">"export.txt"</span><span class="p">,</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>                        <span class="n">source_uri</span><span class="o">=</span><span class="s2">"https://wiki.internal.example/pages/specimen-labelling"</span><span class="p">)</span>
+</code></pre></div>
+<p>Supply a URI that is true. It is the provenance a later reader will rely on.</p>
+<h3 id="the-failure-you-must-not-retry">The failure you must not retry</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">observed</span> <span class="o">=</span> <span class="n">observe_file</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">except</span> <span class="n">GateError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">outcome_unknown</span><span class="p">:</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>        <span class="c1"># The write may already have landed. Check what is waiting first.</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="n">waiting</span> <span class="o">=</span> <span class="n">waiting_for_review</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="o">...</span>    <span class="c1"># decide from `waiting`; do not resend</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>        <span class="o">...</span>    <span class="c1"># branch on error.kind</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    <span class="o">...</span>        <span class="c1"># a local refusal: nothing was sent</span>
+</code></pre></div>
+<p>This is the exit-<code>4</code> case from the table above, in Python. The reflex on a
+timeout is to run it again, and that is how the same document gets filed twice.
+Neither the SDK nor these recipes retry a write; <code>waiting_for_review</code> returns
+the <code>pending</code> metadata list — ids, types, states, ages, finding counts, never
+content — which is what you reconcile against.</p>
+<p>The <code>reader</code> above is a second client built with the default
+<code>allow_writes=False</code>, so the reconciliation path cannot write:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s2">"https://gate.your-deployment.example/mcp"</span><span class="p">,</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>                 <span class="n">token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"DOUBLEGATE_TOKEN"</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="what-this-does-not-establish">What this does not establish</h2>
 <p>Sending <code>DOUBLEGATE_TOKEN</code> means the SDK sets a bearer header. It does not mean
 the receiving endpoint verifies it.</p>

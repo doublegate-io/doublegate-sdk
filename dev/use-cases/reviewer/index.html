@@ -863,6 +863,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#derive-real-evidence-for-a-reviewer-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive real evidence for a reviewer input
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-a-verdict-against-the-sdks-closed-vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validate a verdict against the SDK's closed vocabularies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confirm-the-gap-against-your-installed-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confirm the gap against your installed package
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exit-statuses" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1601,6 +1651,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#doing-it-in-your-own-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doing it in your own code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Doing it in your own code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#derive-real-evidence-for-a-reviewer-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Derive real evidence for a reviewer input
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-a-verdict-against-the-sdks-closed-vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validate a verdict against the SDK's closed vocabularies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confirm-the-gap-against-your-installed-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confirm the gap against your installed package
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exit-statuses" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1764,6 +1864,68 @@ usefully: a schema <code>enum</code> will happily accept <code>null</code> for <
 reason is the silent skip that vocabulary exists to end. Running both is how you
 find out that a verdict which <em>validates</em> would still be rejected by the SDK's
 own normaliser.</p>
+<h2 id="doing-it-in-your-own-code">Doing it in your own code</h2>
+<p>There is nothing to call that submits a verdict, so what follows is
+<strong>preparation only</strong>: the validators the SDK does publish, applied to a contract
+your application owns.</p>
+<h3 id="derive-real-evidence-for-a-reviewer-input">Derive real evidence for a reviewer input</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_file</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.submission</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">content_digest_from_content_hash</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>                                       <span class="n">envelope_content_hash</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">evaluation</span> <span class="o">=</span> <span class="n">evaluate_file</span><span class="p">(</span><span class="s2">"gates/release.gate.json"</span><span class="p">,</span> <span class="s2">"docs/release/2026.09.md"</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                           <span class="n">artifact_type</span><span class="o">=</span><span class="s2">"memory"</span><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">reviewer_input</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="s2">"artifact_type"</span><span class="p">:</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">artifact_type</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="s2">"content_digest"</span><span class="p">:</span> <span class="n">content_digest_from_content_hash</span><span class="p">(</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">envelope_content_hash</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">"docs/release/2026.09.md"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())),</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="s2">"deterministic_outcome"</span><span class="p">:</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">outcome</span><span class="p">,</span>     <span class="c1"># 'clean' or 'flagged'</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="s2">"human_review"</span><span class="p">:</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">human_review</span><span class="p">,</span>         <span class="c1"># still outstanding</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="s2">"excerpt_policy"</span><span class="p">:</span> <span class="s2">"withheld"</span><span class="p">,</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="s2">"findings"</span><span class="p">:</span> <span class="p">[</span><span class="n">finding</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">finding</span> <span class="ow">in</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">findings</span><span class="p">],</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>content_digest</code> is derived by hashing the bytes <strong>once</strong> into the envelope
+spelling and then prefixing. The SDK's submission profile forbids hashing
+content twice to fill that member, which is why the two calls are chained rather
+than <code>envelope_content_hash</code> being called again.</p>
+<p><code>excerpt_policy</code> is a constant, not a choice: findings from the bundled
+evaluator carry fixed diagnostics and an empty <code>excerpt</code>, so the body never
+travels with the input.</p>
+<h3 id="validate-a-verdict-against-the-sdks-closed-vocabularies">Validate a verdict against the SDK's closed vocabularies</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.reasons</span><span class="w"> </span><span class="kn">import</span> <span class="n">CATEGORIES</span><span class="p">,</span> <span class="n">normalise_category</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_response</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.skipped</span><span class="w"> </span><span class="kn">import</span> <span class="n">SKIPPED_REASONS</span><span class="p">,</span> <span class="n">normalise_skipped_reason</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.vocabulary</span><span class="w"> </span><span class="kn">import</span> <span class="n">BLOCKERS</span><span class="p">,</span> <span class="n">normalise_blockers</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">violations</span> <span class="o">=</span> <span class="n">check_response</span><span class="p">(</span><span class="n">output_schema</span><span class="p">,</span> <span class="n">verdict</span><span class="p">)</span>   <span class="c1"># () when the shape is valid</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">category</span> <span class="o">=</span> <span class="n">normalise_category</span><span class="p">(</span><span class="n">verdict</span><span class="p">[</span><span class="s2">"category"</span><span class="p">])</span>            <span class="c1"># one of CATEGORIES</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">blockers</span> <span class="o">=</span> <span class="n">normalise_blockers</span><span class="p">(</span><span class="n">verdict</span><span class="p">[</span><span class="s2">"blockers"</span><span class="p">])</span>            <span class="c1"># a tuple from BLOCKERS</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">skipped</span> <span class="o">=</span> <span class="n">normalise_skipped_reason</span><span class="p">(</span><span class="n">verdict</span><span class="p">[</span><span class="s2">"skipped_reason"</span><span class="p">])</span> <span class="c1"># one of SKIPPED_REASONS</span>
+</code></pre></div>
+<p><code>check_response</code> returns a tuple of violation strings — empty means valid — and
+never raises for a merely invalid payload. The three normalisers raise
+<code>ValueError</code> or <code>TypeError</code> instead, and that difference is the point of running
+both: a schema <code>enum</code> will happily accept <code>null</code> for <code>skipped_reason</code>, while
+<code>normalise_skipped_reason</code> refuses <code>None</code> outright, because a skip that names no
+reason is the silent skip the vocabulary exists to end.</p>
+<p><code>CATEGORIES</code>, <code>BLOCKERS</code> and <code>SKIPPED_REASONS</code> are frozensets you can read
+directly — use them to build your own schema <code>enum</code>s rather than copying the
+values by hand, so a future addition reaches your contract automatically.</p>
+<p><strong>What next.</strong> Nothing remote. There is no call that carries this verdict to a
+gate, and no admission follows from it. Keep the exchange in your own tests so
+that when a reviewer stage ships you are adapting working code.</p>
+<h3 id="confirm-the-gap-against-your-installed-package">Confirm the gap against your installed package</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">doublegate_sdk.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">describe_client</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">description</span> <span class="o">=</span> <span class="n">describe_client</span><span class="p">()</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="nb">sorted</span><span class="p">(</span><span class="n">description</span><span class="p">[</span><span class="s2">"operations"</span><span class="p">])</span>   <span class="c1"># ['pending', 'propose', 'recall', 'status', 'why']</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">description</span><span class="p">[</span><span class="s2">"mcp"</span><span class="p">][</span><span class="s2">"tools"</span><span class="p">]</span>         <span class="c1"># nine tools; none carries a reviewer verdict</span>
+</code></pre></div>
+<p>Those five operations are the entire Python client surface in this build. Read
+them yourself instead of taking this page's word for it.</p>
 <h2 id="exit-statuses">Exit statuses</h2>
 <table>
 <thead>
