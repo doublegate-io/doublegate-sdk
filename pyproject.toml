@@ -15,6 +15,7 @@ dependencies = []
 classifiers = ["Development Status :: 2 - Pre-Alpha", "Programming Language :: Python :: 3", "Operating System :: POSIX"]
 
 [project.optional-dependencies]
+identity = ["PyJWT[crypto]==2.13.0", "cryptography==50.0.1"]
 test = ["pytest>=9.0.3,<10", "build>=1.2,<2"]
 docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5,<10", "mkdocstrings[python]>=0.27,<1", "mike>=2,<3"]
 
