@@ -1,4 +1,4 @@
-"""The curation client: what the operator does (ADR-0068 d2, d3).
+"""The curation client: what the operator does (ADR-0074 d2, d3).
 
 Every decision here is the human's own signature: the transport must be
 curation-scoped and the client carries a ``ProofProvider`` that mints one
@@ -51,7 +51,7 @@ class CurationClient:
             raise GateError('invalid_response')
         return result
 
-    # ---- decisions (ADR-0067: approval is a sign, veto is a demote) ----
+    # ---- decisions (ADR-0073: approval is a sign, veto is a demote) ----
 
     def sign(self, artifact_id: str, decision: str, *, note: str = '', promote: bool = False) -> dict[str, Any]:
         if decision not in DECISIONS:
@@ -81,7 +81,7 @@ class CurationClient:
         return self._call('dg.reject', params)
 
     def veto(self, artifact_id: str, reason: str) -> dict[str, Any]:
-        """The human veto of an admitted row: ``dg.demote`` (ADR-0067). Ends the
+        """The human veto of an admitted row: ``dg.demote`` (ADR-0073). Ends the
         claim; keeps the content."""
         return self._call('dg.demote', {'artifact_id': _text(artifact_id, 'artifact_id'), 'reason': _text(reason, 'reason')})
 
@@ -108,7 +108,7 @@ class CurationClient:
         return self._call('dg.grade_pending', {'limit': int(limit)})
 
     def settle_pending(self) -> dict[str, Any]:
-        """Promote what quorum already settled; a row under an open human objection stays (ADR-0066)."""
+        """Promote what quorum already settled; a row under an open human objection stays (ADR-0072)."""
         return self._call('dg.settle_pending', {})
 
     def semantic_review(self, artifact_id: str, *, settle: bool = False) -> dict[str, Any]:

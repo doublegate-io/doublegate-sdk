@@ -1,4 +1,4 @@
-"""One error base, one gate vocabulary (ADR-0068 d5).
+"""One error base, one gate vocabulary (ADR-0074 d5).
 
 ``DoublegateError`` is the base every SDK failure shares, so a caller can catch
 the SDK without swallowing unrelated application exceptions. ``GateError`` is

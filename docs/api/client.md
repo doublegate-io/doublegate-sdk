@@ -3,7 +3,7 @@
 `doublegate_sdk` connects to a gate only when you construct a transport and
 call a method. Nothing is discovered from the environment; no credential is
 read on import; nothing retries on its own. Two clients share one transport
-layer and one operation table ([ADR-0068](https://github.com/doublegate-io/design/blob/main/docs/adr/ADR-0068-the-sdks-two-clients.md)):
+layer and one operation table ([ADR-0074](https://github.com/doublegate-io/design/blob/main/docs/adr/ADR-0074-the-sdks-two-clients.md)):
 
 | client | who | what it can do | what it can never do |
 | --- | --- | --- | --- |
@@ -106,7 +106,7 @@ if agent.present():
   superseded and hidden rows only on explicit request, each hit keeping its
   flags. No score is relabelled as trust.
 * `annotate`, `raise_objection`, `resolve`, `retract_comment` are remarks on
-  the record (ADR-0066). Only a *human's* objection holds a promotion; an
+  the record (ADR-0072). Only a *human's* objection holds a promotion; an
   agent's is a remark the reviewer will see.
 * `rank` and `hide` weight a row for an audience; the gate refuses them on the
   caller's own rows (I2).

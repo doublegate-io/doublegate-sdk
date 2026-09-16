@@ -13,7 +13,7 @@ from doublegate_sdk.package import load_package
 
 
 def describe_clients() -> dict:
-    """All three doors, offline: the ``/rpc`` and socket clients (ADR-0068) plus the ``/mcp`` client.
+    """All three doors, offline: the ``/rpc`` and socket clients (ADR-0074) plus the ``/mcp`` client.
 
     The top level is ``doublegate_sdk.describe.describe_client()``; the ``/mcp`` tool-catalog
     client's own description sits under ``mcp_client``. Neither describes a running gate.

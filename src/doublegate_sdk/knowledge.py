@@ -1,4 +1,4 @@
-"""The knowledge client: what an agent may do with a gate (ADR-0068 d2, d4).
+"""The knowledge client: what an agent may do with a gate (ADR-0074 d2, d4).
 
 Propose, learn, ask, annotate, weight for an audience. Never decide: no
 method here signs, promotes, demotes, rejects or relates, and the transport
@@ -281,7 +281,7 @@ class KnowledgeClient:
             params['manifest'] = manifest
         return self._object(self._transport.call('dg.ingest_bundle', params))
 
-    # ---- annotations (ADR-0066): remarks, never decisions ----
+    # ---- annotations (ADR-0072): remarks, never decisions ----
 
     def annotate(self, artifact_id: str, body: str, *, kind: str = 'note',
                  reply_to: str | None = None) -> dict[str, Any]:
@@ -296,7 +296,7 @@ class KnowledgeClient:
 
     def raise_objection(self, artifact_id: str, body: str) -> dict[str, Any]:
         """An objection on the record. Only a human's objection holds promotion
-        (ADR-0066); an agent's is a remark the reviewer will see (GAPS 21)."""
+        (ADR-0072); an agent's is a remark the reviewer will see (GAPS 21)."""
         return self.annotate(artifact_id, body, kind='objection')
 
     def resolve(self, artifact_id: str, body: str, *, reply_to: str) -> dict[str, Any]:

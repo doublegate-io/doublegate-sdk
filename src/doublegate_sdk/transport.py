@@ -1,4 +1,4 @@
-"""Two transports, one framing, one allowlist (ADR-0068 d1, d6).
+"""Two transports, one framing, one allowlist (ADR-0074 d1, d6).
 
 No connection on import or construction; no discovery, credentials, retries
 or alternate endpoints. The transport's ``scope`` is the widest class of

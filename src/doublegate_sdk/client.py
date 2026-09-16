@@ -64,7 +64,7 @@ _FORBIDDEN_PATH_CHARS = frozenset(chr(c) for c in range(0x21)) | {chr(0x7f)}
 _UNSUPPORTED_CODES = frozenset({-32601, -32602})
 
 
-from doublegate_sdk.errors import GateError  # one class for every door (ADR-0068 d5)
+from doublegate_sdk.errors import GateError  # one class for every door (ADR-0074 d5)
 
 __all__ = ["GateClient", "GateError", "HttpMcpTransport", "McpTransport", "connect", "describe_client"]
 

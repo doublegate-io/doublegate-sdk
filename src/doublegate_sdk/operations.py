@@ -1,5 +1,5 @@
 """The operation table: every ``dg.*`` verb of both gate catalogs, with what a
-call needs (ADR-0068 d1). The catalog is the schema (I7); this table is its
+call needs (ADR-0074 d1). The catalog is the schema (I7); this table is its
 client-side reading and the allowlist every transport enforces before I/O.
 
 ``scope`` is the widest client that may emit the verb:

@@ -7,7 +7,7 @@ decisions. Organization Gate's proprietary boundary is unchanged.
 Two lines of work met in `0.1.0.dev5`: the HTTP/MCP client over `POST /mcp` with its
 starter apps, authoring composition and observability, and the two `dg.*` clients
 (`KnowledgeClient`, `CurationClient`) over the Unix socket and `POST /rpc`
-(ADR-0068). The table below carries both; a row names the door it was proved on.
+(ADR-0074). The table below carries both; a row names the door it was proved on.
 
 ## Release sequence
 
@@ -25,7 +25,7 @@ starter apps, authoring composition and observability, and the two `dg.*` client
 | door | module | who | what |
 |---|---|---|---|
 | Unix socket | `doublegate_sdk.transport.UnixSocketTransport` | a process on the gate's host | every `dg.*` verb within the transport's scope |
-| `POST /rpc` | `doublegate_sdk.transport.HttpTransport` | a console token (client) or admin key (org) holder | the same verbs, over HTTP, one transport for consoles (ADR-0067) |
+| `POST /rpc` | `doublegate_sdk.transport.HttpTransport` | a console token (client) or admin key (org) holder | the same verbs, over HTTP, one transport for consoles (ADR-0073) |
 | `POST /mcp` | `doublegate_sdk.client.HttpMcpTransport` | an MCP host | the tool catalog the maintained client tier serves: `status`, `recall`, `pending`, `why`, opt-in `propose` |
 
 Nothing connects on import or construction; no environment credential discovery;

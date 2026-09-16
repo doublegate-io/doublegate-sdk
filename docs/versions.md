@@ -17,7 +17,7 @@ resolver, automatic schema upgrade or dependency installer.
 Two development lines merged. From `main`: the HTTP/MCP client (`doublegate_sdk.client`,
 `connect`), `evaluate_file` authoring composition, the starter apps and recipes,
 optional observability, reason and skipped vocabularies, response schemas and the
-release workflow. From the ADR-0068 line: `KnowledgeClient` and `CurationClient` over
+release workflow. From the ADR-0074 line: `KnowledgeClient` and `CurationClient` over
 `UnixSocketTransport` and `HttpTransport` (`POST /rpc`), the `dg.*` operation table,
 the operator proof providers, the organization gate's REST helpers (`org_rest`), the
 signed submission event and identity verification (`identity` extra). Reconciled:

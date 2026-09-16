@@ -1,4 +1,4 @@
-"""The organization gate's two REST doors a fleet client speaks (ADR-0068 d6):
+"""The organization gate's two REST doors a fleet client speaks (ADR-0074 d6):
 ``PUT /submissions/{artifact_id}`` (ADR-0030) and ``GET /outcomes`` (ADR-0041).
 The body a submission carries is ``doublegate_sdk.submission``'s; this module
 only moves it and classifies what the door said. Policy — what to do about a

@@ -1,7 +1,7 @@
 # DoubleGate SDK — developer map
 
 Offline gate contracts plus three explicitly connected doors to a gate. Two clients
-over the gate's `dg.*` verbs (ADR-0068): the knowledge client (what an agent may do:
+over the gate's `dg.*` verbs (ADR-0074): the knowledge client (what an agent may do:
 remember, learn, recall, annotate) and the curation client (the operator's decisions,
 each under an operator proof), over a Unix socket or `POST /rpc`. A third client
 speaks the MCP tool catalog over `POST /mcp` for hosts that integrate that way. A

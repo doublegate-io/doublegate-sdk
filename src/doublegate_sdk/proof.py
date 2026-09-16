@@ -1,4 +1,4 @@
-"""The operator proof seam (ADR-0068 d3).
+"""The operator proof seam (ADR-0074 d3).
 
 An operator verb carries ``{nonce, sig}``: a fresh ``dg.challenge`` nonce and
 the operator key's signature over it (ADR-0028 d1). The SDK never holds that
