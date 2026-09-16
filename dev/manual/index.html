@@ -1146,6 +1146,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Human review and authority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#client-console-introduction-and-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client console: introduction and review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-console-search-and-held-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client console: search and held content
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1295,6 +1323,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1356,14 +1390,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/authoring/" class="md-nav__link">
+      <a href="../api/client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check a file against a manifest
+    Gate clients (socket, /rpc)
   
 
     
@@ -1384,14 +1418,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/client/" class="md-nav__link">
+      <a href="../api/mcp-client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Gate memory client
+    Gate client (HTTP/MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check a file against a manifest
   
 
     
@@ -1588,6 +1650,62 @@
     
   
     Skipped reasons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/submission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte submission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity verification
   
 
     
@@ -1842,6 +1960,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Human review and authority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#client-console-introduction-and-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client console: introduction and review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-console-search-and-held-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client console: search and held content
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1913,11 +2059,15 @@
 and returns evidence. It does not install a gate, run plugins, contact a daemon,
 or admit or publish an artifact. A <code>clean</code> result means only that the configured
 literal strings were found.</p>
+<p>The Python API also provides the shared <a href="../api/submission/">byte submission contract</a>:
+frozen v1 envelopes, canonical base64 transport and decoded-byte integrity checks.
+This is separate from the text-only offline CLI and carries no authentication or
+admission authority. Limits are supplied by the calling gate.</p>
 <h2 id="run-from-the-standalone-checkout">Run from the standalone checkout</h2>
 <p>Install this local repository with <code>python -m pip install .</code> in a virtual
 environment. Run all commands below from the standalone repository root, using
 that environment's Python. The console command <code>doublegate-sdk</code> is equivalent to
-<code>python -m doublegate_sdk</code>. The package version is <code>0.1.0.dev3</code>; manifest and SDK
+<code>python -m doublegate_sdk</code>. The package version is <code>0.1.0.dev5</code>; manifest and SDK
 contract versions are both <code>"0.1"</code>. Source is available on GitHub; no PyPI release is claimed.</p>
 <p>Python 3.11+ is required. The loader uses POSIX descriptor-relative operations and
 <code>O_NOFOLLOW</code>; Linux/WSL is verified, native Windows loading is unsupported.
@@ -2144,6 +2294,40 @@ workflow to implement; <code>inherit</code> is not an approval or a way to disab
 <p>Do not wire exit <code>0</code> directly to publication on the assumption that Doublegate
 has admitted the content. A consumer must separately enforce its admission and
 human-review policy. This SDK slice does not supply that integration.</p>
+<h3 id="client-console-introduction-and-review">Client console: introduction and review</h3>
+<p>The following describes the separate Client gate console, not commands or
+features of the offline SDK.</p>
+<p>Introduction is not admission. <strong>Introduce</strong> submits content under the local
+connection's identity; a new artifact enters quarantine and is scanned. The
+returned artifact ID and state describe the recorded submission, not approval.
+A skill submitted as a reusable procedure follows the same admission workflow
+as a memory: selecting <code>skill</code> does not bypass scanning, independent review, or
+the applicable trust-class and signing policy.</p>
+<p><strong>Review</strong> shows the capped human-review digest, not every pending submission.
+Newly scanned claims can still be waiting for gate evaluation before appearing
+there. Read the recorded state, scanner findings and existing verdicts before
+acting. Scanner matches are evidence to review, not confirmed personal data.
+A flagged item needs an operator to clear or reject it; clearing a scanner hold
+is not itself promotion. <strong>Defer</strong> records that the item was considered without
+changing its lifecycle state. A promotion signature counts toward the configured
+threshold; remaining verdicts, human sign-off or an organization countersignature
+may still be required. The daemon checks operator proof and refuses a reviewer
+whose signing identity is the artifact's writer. A signature is not a warranty
+that the content is true.</p>
+<h3 id="client-console-search-and-held-content">Client console: search and held content</h3>
+<p><strong>Knowledge</strong> requests up to 20 ranked local hits. Ranking uses keyword search
+and, when configured, vector retrieval, with recency, importance and a penalty
+for provisional content. Result position is relevance ordering, not an admission
+decision; inspect the state and provenance as well as the body.</p>
+<p>The caller's own scanned, unflagged pending claims can be appended after those
+ranked hits, so the displayed total can exceed 20. They are marked <strong>Unreviewed</strong>
+(<code>ratified: false</code>, <code>provenance.unreviewed: true</code>), are not fused into the ranking,
+and may disappear if later rejected. This exception does not expose another
+writer's pending claims or the caller's unscanned or scanner-flagged claims.</p>
+<p>The <strong>Claim inspector</strong> looks up recorded state and metadata by artifact ID;
+it does not retrieve a held content body. That boundary is separate from the
+masked content available to the operator in the Review digest and the explicitly
+labelled own-pending results above.</p>
 <h2 id="exit-codes-and-output-streams">Exit codes and output streams</h2>
 <table>
 <thead>

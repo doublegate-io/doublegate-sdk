@@ -1162,6 +1162,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1223,14 +1229,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/authoring/" class="md-nav__link">
+      <a href="../api/client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check a file against a manifest
+    Gate clients (socket, /rpc)
   
 
     
@@ -1251,14 +1257,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/client/" class="md-nav__link">
+      <a href="../api/mcp-client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Gate memory client
+    Gate client (HTTP/MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check a file against a manifest
   
 
     
@@ -1455,6 +1489,62 @@
     
   
     Skipped reasons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/submission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte submission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity verification
   
 
     
@@ -1698,7 +1788,7 @@ server. For a local development endpoint, explicitly add
 <p>Catch <code>GateError</code> from <code>doublegate_sdk.client</code> and branch on <code>kind</code>, not its text.
 If <code>outcome_unknown</code> is true after a write, reconcile with the gate before retrying:
 the server may already have accepted the request. The SDK does not retry writes.
-See <a href="../api/client/">client reference</a> for the exact errors and bounds.</p>
+See <a href="../api/mcp-client/">client reference</a> for the exact errors and bounds.</p>
 <h2 id="deployment-boundary">Deployment boundary</h2>
 <p>Use the MCP URL, not the daemon administration <code>/rpc</code> URL. Both use HTTP but
 have different operations. See <a href="../http-interfaces/">HTTP interfaces and migration</a>.</p>

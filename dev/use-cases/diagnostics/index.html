@@ -1240,6 +1240,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1301,14 +1307,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/authoring/" class="md-nav__link">
+      <a href="../../api/client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check a file against a manifest
+    Gate clients (socket, /rpc)
   
 
     
@@ -1329,14 +1335,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/client/" class="md-nav__link">
+      <a href="../../api/mcp-client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Gate memory client
+    Gate client (HTTP/MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check a file against a manifest
   
 
     
@@ -1533,6 +1567,62 @@
     
   
     Skipped reasons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/submission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte submission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity verification
   
 
     
@@ -2008,7 +2098,7 @@ deployment serve it".</p>
 </code></pre></div>
 <p><code>server_catalog</code> performs both negotiation reads. It raises <code>TypeError</code> if you
 hand it a client over a caller-supplied transport that offers neither — the
-<code>GateTransport</code> protocol declares only <code>call</code>, so negotiation is not something
+<code>McpTransport</code> protocol declares only <code>call</code>, so negotiation is not something
 every transport has, and reporting its absence as a gate failure would be wrong.</p>
 <h3 id="mapping-the-failure">Mapping the failure</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">NOT_REACHED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"unavailable"</span><span class="p">,</span> <span class="s2">"timeout"</span><span class="p">,</span> <span class="s2">"redirect_refused"</span><span class="p">}</span>
@@ -2037,7 +2127,7 @@ without a token is not evidence of a misconfiguration you can fix from here —
 on that tier it is expected. Equally, a probe that succeeds <em>with</em> a token does
 not show the token was checked. The SDK's own 401/403 handling is proved
 against scripted responders. Closing the server-side gap is the service's work.
-See <a href="../../api/client/">client reference</a> and the <a href="../../roadmap/">roadmap</a>.</p>
+See <a href="../../api/mcp-client/">client reference</a> and the <a href="../../roadmap/">roadmap</a>.</p>
 </div>
 <p>For a gate on this host, <code>--allow-insecure-loopback</code> permits plain <code>http://</code>; it
 refuses any non-loopback host, so it cannot send a credential unencrypted to a
@@ -2049,7 +2139,7 @@ each error kind to its fixed next step, reports an unknown kind without guessing
 and reports only the <em>presence</em> of a credential. They open no socket. The failure
 transcript above was produced by running the app against a genuinely closed local
 port. Real-service acceptance for this SDK is recorded separately in
-<a href="../../api/client/">the client reference</a> and was not re-run for these starters.</p>
+<a href="../../api/mcp-client/">the client reference</a> and was not re-run for these starters.</p>
 
 
 

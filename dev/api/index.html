@@ -16,7 +16,7 @@
         <link rel="prev" href="../roadmap/">
       
       
-        <link rel="next" href="authoring/">
+        <link rel="next" href="client/">
       
       
         
@@ -1046,6 +1046,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1110,14 +1116,14 @@
   
   
     <li class="md-nav__item">
-      <a href="authoring/" class="md-nav__link">
+      <a href="client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check a file against a manifest
+    Gate clients (socket, /rpc)
   
 
     
@@ -1138,14 +1144,42 @@
   
   
     <li class="md-nav__item">
-      <a href="client/" class="md-nav__link">
+      <a href="mcp-client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Gate memory client
+    Gate client (HTTP/MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check a file against a manifest
   
 
     
@@ -1362,6 +1396,62 @@
   
   
     <li class="md-nav__item">
+      <a href="submission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte submission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="cli/" class="md-nav__link">
         
   
@@ -1444,6 +1534,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#errors-in-one-place" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors, in one place
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#published-without-a-reference-page" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1487,6 +1588,14 @@ not copied by hand. Use the navigation rail to select a module.</p>
 </thead>
 <tbody>
 <tr>
+<td><a href="client/">Gate clients (socket, <code>/rpc</code>)</a></td>
+<td><code>KnowledgeClient</code> (an agent: remember, learn, recall, annotate) and <code>CurationClient</code> (the operator: approve, veto, relate, rank, keys) over one socket/HTTP transport layer, one operation table, one error vocabulary.</td>
+</tr>
+<tr>
+<td><a href="mcp-client/">Gate client (HTTP/MCP)</a></td>
+<td>Explicit <code>POST /mcp</code> tool calls: status/recall/pending reads, opt-in proposals, bounded exchanges; the third door, for hosts that speak the tool catalog.</td>
+</tr>
+<tr>
 <td><a href="authoring/">Check a file</a></td>
 <td>Apply a manifest to a file in one call; the offline operation the CLI runs.</td>
 </tr>
@@ -1519,12 +1628,16 @@ not copied by hand. Use the navigation rail to select a module.</p>
 <td>Validate published responses against a bounded Draft 2020-12 subset.</td>
 </tr>
 <tr>
-<td><a href="cli/">CLI</a></td>
-<td>Schema, validation and evaluation command entry point.</td>
+<td><a href="submission/">Byte submission</a></td>
+<td>Canonical bytes, the two identities (<code>content_digest</code>, <code>artifact_id</code>), the signed submission event, canonical base64 and decoded-byte integrity; no authority.</td>
 </tr>
 <tr>
-<td><a href="client/">Gate client</a></td>
-<td>Explicit HTTP/MCP status/recall/pending reads, opt-in proposals, bounded exchanges and the error taxonomy.</td>
+<td><a href="identity/">Identity verification</a></td>
+<td>Optional access-token and attribution verification; identity, not authorization.</td>
+</tr>
+<tr>
+<td><a href="cli/">CLI</a></td>
+<td>Schema, validation, evaluation and client description command entry point.</td>
 </tr>
 </tbody>
 </table>
@@ -1532,15 +1645,20 @@ not copied by hand. Use the navigation rail to select a module.</p>
 arbitrary direct <code>GatePackage</code> construction. Dataclass annotations are not runtime
 validation. <code>Finding</code> is also a container, not a sanitizer: custom callers must
 never put raw secrets in its fields. The bundled evaluator emits fixed diagnostics.</p>
+<h2 id="errors-in-one-place">Errors, in one place</h2>
+<p>Every SDK failure is a <code>doublegate_sdk.errors.DoublegateError</code>, so one <code>except</code>
+catches the SDK without swallowing an application's own <code>ValueError</code>s. The wire
+error is <code>GateError</code>, one class for all three doors: <code>kind</code> is what a caller acts
+on, <code>code</code> the server's JSON-RPC number or HTTP status, <code>detail</code> the server's
+message capped and kept out of <code>str(exc)</code>. The canonicalization exceptions in
+<code>doublegate_sdk.submission</code> (<code>CanonicalizationRefused</code>, <code>RouteIdMismatch</code>) are
+<code>ValueError</code>s, not <code>DoublegateError</code>s: catch them explicitly.</p>
 <h2 id="published-without-a-reference-page">Published without a reference page</h2>
-<p>Two modules are importable and used by the starters but have no generated page
-in this build. Read them at the source until they do:</p>
+<p>One module is importable and used by the starters but has no generated page in
+this build. Read it at the source until it does:</p>
 <ul>
 <li><code>doublegate_sdk.vocabulary</code> — the nine closed blocker values and
   <code>normalise_blockers</code>.</li>
-<li><code>doublegate_sdk.submission</code> — canonical bytes, <code>content_digest</code> derivation and
-  <code>submission_artifact_id</code>. Its exceptions are <strong>not</strong> under <code>DoublegateError</code>;
-  catch <code>CanonicalizationRefused</code> and <code>RouteIdMismatch</code> explicitly.</li>
 </ul>
 
 

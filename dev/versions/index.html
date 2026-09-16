@@ -1035,6 +1035,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#010dev5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.1.0.dev5
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#compatibility-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1135,6 +1146,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1196,14 +1213,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/authoring/" class="md-nav__link">
+      <a href="../api/client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check a file against a manifest
+    Gate clients (socket, /rpc)
   
 
     
@@ -1224,14 +1241,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/client/" class="md-nav__link">
+      <a href="../api/mcp-client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Gate memory client
+    Gate client (HTTP/MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check a file against a manifest
   
 
     
@@ -1448,6 +1493,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/submission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte submission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/cli/" class="md-nav__link">
         
   
@@ -1541,6 +1642,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#010dev5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.1.0.dev5
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#compatibility-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1606,7 +1718,7 @@
 <tbody>
 <tr>
 <td>Python distribution</td>
-<td><code>0.1.0.dev3</code></td>
+<td><code>0.1.0.dev5</code></td>
 <td>Unreleased development snapshot of <code>doublegate-sdk</code>.</td>
 </tr>
 <tr>
@@ -1628,6 +1740,16 @@
 </table>
 <p>The validator accepts only the two exact contract strings. There is no range
 resolver, automatic schema upgrade or dependency installer.</p>
+<h2 id="010dev5"><code>0.1.0.dev5</code></h2>
+<p>Two development lines merged. From <code>main</code>: the HTTP/MCP client (<code>doublegate_sdk.client</code>,
+<code>connect</code>), <code>evaluate_file</code> authoring composition, the starter apps and recipes,
+optional observability, reason and skipped vocabularies, response schemas and the
+release workflow. From the ADR-0074 line: <code>KnowledgeClient</code> and <code>CurationClient</code> over
+<code>UnixSocketTransport</code> and <code>HttpTransport</code> (<code>POST /rpc</code>), the <code>dg.*</code> operation table,
+the operator proof providers, the organization gate's REST helpers (<code>org_rest</code>), the
+signed submission event and identity verification (<code>identity</code> extra). Reconciled:
+one <code>DoublegateError</code> base with one <code>GateError</code> for every door; <code>describe-client</code>
+prints both descriptions; the <code>/mcp</code> reference page moved to <code>api/mcp-client.md</code>.</p>
 <h2 id="compatibility-boundary">Compatibility boundary</h2>
 <p>The extracted schema, evaluation algorithms and serialized payloads retain the
 source SDK behavior. Imports move from <code>doublegate.sdk</code> to <code>doublegate_sdk</code>.

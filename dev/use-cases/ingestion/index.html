@@ -1240,6 +1240,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1301,14 +1307,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/authoring/" class="md-nav__link">
+      <a href="../../api/client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check a file against a manifest
+    Gate clients (socket, /rpc)
   
 
     
@@ -1329,14 +1335,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/client/" class="md-nav__link">
+      <a href="../../api/mcp-client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Gate memory client
+    Gate client (HTTP/MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check a file against a manifest
   
 
     
@@ -1533,6 +1567,62 @@
     
   
     Skipped reasons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/submission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte submission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity verification
   
 
     
@@ -2017,7 +2107,7 @@ the receiving endpoint verifies it.</p>
 authentication check; only <code>/api/*</code> enforces the console bearer token, and
 loopback is the credential on that tier. A successful local run proves the
 protocol path, not an authenticated remote one. This is the service's to
-close. See <a href="../../api/client/">client reference</a> and the
+close. See <a href="../../api/mcp-client/">client reference</a> and the
 <a href="../../roadmap/">roadmap</a>.</p>
 </div>
 <p>For a gate on this host, <code>--allow-insecure-loopback</code> permits plain <code>http://</code>; it
@@ -2028,7 +2118,7 @@ client double: they prove the document is read and refused locally where it shou
 be, that the <code>file://</code> source URI is derived from the real path, that <code>submit</code>
 writes and <code>pending</code> does not, and that an unknown write outcome is reported
 without a retry. No socket is opened. Real-service acceptance is recorded
-separately in <a href="../../api/client/">the client reference</a> and was not re-run here.</p>
+separately in <a href="../../api/mcp-client/">the client reference</a> and was not re-run here.</p>
 
 
 

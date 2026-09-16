@@ -1245,6 +1245,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1306,14 +1312,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/authoring/" class="md-nav__link">
+      <a href="../../api/client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check a file against a manifest
+    Gate clients (socket, /rpc)
   
 
     
@@ -1334,14 +1340,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/client/" class="md-nav__link">
+      <a href="../../api/mcp-client/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Gate memory client
+    Gate client (HTTP/MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check a file against a manifest
   
 
     
@@ -1538,6 +1572,62 @@
     
   
     Skipped reasons
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/submission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte submission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/identity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identity verification
   
 
     
@@ -2044,7 +2134,7 @@ console's authentication check; only <code>/api/*</code> routes enforce the cons
 bearer token. On that tier loopback is the credential. So a working run
 against a local gate proves the protocol path, not an authenticated remote
 one. Closing that is the service's work, not the SDK's. See
-<a href="../../api/client/">client reference</a> and the <a href="../../roadmap/">roadmap</a>.</p>
+<a href="../../api/mcp-client/">client reference</a> and the <a href="../../roadmap/">roadmap</a>.</p>
 </div>
 <p>For a local development gate on this host, pass <code>--allow-insecure-loopback</code> to
 permit plain <code>http://</code>. It refuses any non-loopback host, so it cannot be used to
@@ -2055,7 +2145,7 @@ send a credential unencrypted to a remote endpoint.</p>
 which operation each subcommand calls, with which write permission, and that the
 credential comes from the environment. They open no socket and are not evidence
 about any deployment. Real-service acceptance for this SDK is recorded separately
-in <a href="../../api/client/">the client reference</a>; it was not re-run for these starters.</p>
+in <a href="../../api/mcp-client/">the client reference</a>; it was not re-run for these starters.</p>
 
 
 
