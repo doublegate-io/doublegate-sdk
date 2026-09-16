@@ -5,11 +5,12 @@ literal checks, and return evidence. **A clean result is not admission.**
 
 Development snapshot **0.1.0.dev0**. No PyPI package or stable release yet.
 
-The optional [gate memory client](docs/api/client.md) connects explicitly to
-an authorized local Client Gate socket for status, inventory and recall, with
-proposal writes requiring explicit opt-in. It adds no
-mandatory dependencies and makes no connection on import. See the
-[SDK roadmap](docs/roadmap.md) for the service-client and adapter release sequence.
+The [gate clients](docs/api/client.md) connect explicitly to a gate — over its
+Unix socket or its `POST /rpc` door — as an agent (`KnowledgeClient`: remember,
+learn, recall, annotate; never decide) or as the operator (`CurationClient`:
+approve, veto, relate, rank, keys, each under an operator proof the SDK never
+mints itself). No mandatory dependencies, no connection on import. See the
+[SDK roadmap](docs/roadmap.md) for the release sequence.
 
 For agent-assisted development, start with [llms.txt](llms.txt). Use
 `python -m doublegate_sdk describe-client` for the offline client contract and

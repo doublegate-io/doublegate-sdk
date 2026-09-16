@@ -9,9 +9,9 @@ decisions. Organization Gate's proprietary boundary is unchanged.
 | Milestone | Scope | Acceptance | Status |
 |---|---|---|---|
 | SDK-1 Read access | Explicit transport; status; paginated inventory; typed failures | Real gate read-back, missing method/outage refusal, bounded paging, no implicit connection | Local socket slice implemented and source-tested; release checks pending |
-| SDK-2 Memory lifecycle | Propose, operation status, recall; distinct pending/admitted results | Two-session proposal/admission/recall plus retry and scope negatives | Local proposal/recall implemented; same-peer stub-reviewed lifecycle verified; cross-principal, live-model and release checks pending |
-| SDK-3 Adapter reference | MCP reference flow and one native adapter, then a second independent consumer | Same lifecycle contract in both hosts; native history remains untouched | Planned |
-| SDK-4 Corrections and resilience | Authorized withdrawal/correction; cancellation reconciliation; bounded batches | Revocation/cache, partial result and uncertain-write outcomes tested | Planned |
+| SDK-2 Memory lifecycle | Propose, learn (content plus provenance), operation status, recall, annotations; distinct pending/admitted results | Two-session proposal/admission/recall plus retry and scope negatives | Implemented as `KnowledgeClient` over socket and HTTP (ADR-0068); same-peer stub-reviewed lifecycle verified; cross-principal, live-model and release checks pending |
+| SDK-3 Adapter reference | MCP reference flow and one native adapter, then a second independent consumer | Same lifecycle contract in both hosts; native history remains untouched | The crawler gate and the client gate's tier-1 plugin are the two consumers on the shared client |
+| SDK-4 Corrections and resilience | Authorized withdrawal/correction; cancellation reconciliation; bounded batches | Revocation/cache, partial result and uncertain-write outcomes tested | `CurationClient` carries the operator's corrections (veto, reject, relate, override) under a per-verb proof; a proposed supersession by an agent stays a note until the daemon carries the field (client-gate GAPS 20) |
 | SDK-5 Broader integrations | Additional harnesses/languages or generated clients when justified | Contract parity, package/dependency/license checks | Deferred |
 
 ## Immediate packet: SDK-1

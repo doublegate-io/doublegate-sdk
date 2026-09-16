@@ -62,5 +62,5 @@ nav:
       - CLI: api/cli.md
       - Byte submission: api/submission.md
       - Identity verification: api/identity.md
-      - Gate memory client: api/client.md
+      - Gate clients: api/client.md
   - Maintainers: maintaining.md

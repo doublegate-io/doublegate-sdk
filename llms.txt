@@ -1,13 +1,16 @@
 # DoubleGate SDK — developer map
 
-Standalone offline gate contracts plus an explicitly connected local gate client.
-A scan result, successful proposal or HTTP/RPC response is not admission authority.
+Standalone offline gate contracts plus two explicitly connected gate clients: the
+knowledge client (what an agent may do: remember, learn, recall, annotate) and the
+curation client (the operator's decisions, each under an operator proof). A scan
+result, successful proposal or HTTP/RPC response is not admission authority.
 
 ## Machine-readable entry points
 
-- `python -m doublegate_sdk describe-client`: actual client method signatures,
-  defaults, RPC mappings, mutation classification and transport scope. Offline.
-  Describes this SDK, not the capabilities of an arbitrary running gate.
+- `python -m doublegate_sdk describe-client`: both clients' method signatures,
+  the operation table (verb, mutates, proof, role, scope), the scopes and the
+  error tables. Offline. Describes this SDK, not a running gate; that is
+  `KnowledgeClient.describe()`.
 - `python -m doublegate_sdk schema`: declarative gate manifest JSON Schema.
 
 ## Read these next
@@ -17,8 +20,9 @@ A scan result, successful proposal or HTTP/RPC response is not admission authori
 - [Developer verification](docs/maintaining.md)
 - [Offline authoring](docs/manual.md)
 - [API module index](docs/api/index.md)
-- [Source client](src/doublegate_sdk/client.py)
-- [Client behavior tests](tests/test_memory_client.py)
+- [Knowledge client](src/doublegate_sdk/knowledge.py), [curation client](src/doublegate_sdk/curation.py),
+  [transports](src/doublegate_sdk/transport.py), [operation table](src/doublegate_sdk/operations.py)
+- [Client behavior tests](tests/test_knowledge_client.py), [curation tests](tests/test_curation_client.py)
 - [Optional real-gate lifecycle probe](examples/verify_memory_lifecycle.py)
 
 ## One verification command
@@ -35,8 +39,14 @@ selected environment without running tests or building docs.
 
 - Imports use `doublegate_sdk`, never `doublegate.sdk`.
 - `GateTransport` is a Python protocol, not MCP or HTTP compatibility.
-- Local socket proposal writes require explicit opt-in; server identity/permissions
-  remain authoritative. Do not put writer identity into proposal parameters.
+- A transport's `scope` (`read` | `knowledge` | `curation`) is the widest verb class it
+  emits, checked before I/O; the server's identity and permissions remain authoritative.
+  The knowledge client never signs, promotes, demotes, rejects, relates or bans, on any
+  transport. Do not put writer identity into proposal parameters (I2).
+- The curation client forwards an operator proof from a `ProofProvider`; the SDK never
+  loads an operator key and never imports a crypto library in its base modules (ADR-0040).
+- A learning (`learn`) is content plus `derives_from` evidence; `replaces=` is provenance
+  plus a note, never a supersession — only a gate decision replaces belief (GAPS 20).
 - Recall excludes pending echoes and provisional knowledge by default. Enabling
   provisional results must be explicit and preserves the flag in returned data.
 - Uncertain write outcome is not permission to retry automatically.

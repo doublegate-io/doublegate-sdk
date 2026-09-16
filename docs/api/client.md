@@ -1,133 +1,172 @@
-# Gate memory client
+# Gate clients
 
-`doublegate_sdk.client` is an explicit, optional import using only the Python
-standard library. It adds no connection or credential discovery on import or
-construction. Offline authoring and evaluation remain unchanged.
+`doublegate_sdk` connects to a gate only when you construct a transport and
+call a method. Nothing is discovered from the environment; no credential is
+read on import; nothing retries on its own. Two clients share one transport
+layer and one operation table ([ADR-0068](https://github.com/doublegate-io/design/blob/main/docs/adr/ADR-0068-the-sdks-two-clients.md)):
 
-## Discover the client API
+| client | who | what it can do | what it can never do |
+| --- | --- | --- | --- |
+| `KnowledgeClient` | an agent, a connector, an application | remember, learn, propose a skill or a bundle, recall, read status/why/tip/relations/approval/comments, annotate, object, resolve, defer, rank or hide *another* writer's row | sign, promote, demote, reject, relate, ban, mint an operator proof |
+| `CurationClient` | the operator (a human, or a script the human runs) | approve, hold, reject, veto, promote, relate/supersede, override the tip, rank, hide, ban, away/back, submit, semantic review, the organization's keys | act without the operator's signature |
 
-`python -m doublegate_sdk describe-client` emits the SDK's operations, RPC names,
-read/write classification, parameters, defaults and return annotations as JSON.
-The parameter list comes from actual Python signatures; operation mappings are
-shared with the client and transport. Tests require every public client method
-to be described. This is a Python-call description, not JSON Schema, MCP tool
-declaration or a claim that a remote gate supports every operation.
+The gate is not callable by the thing being gated. The knowledge client's
+transport refuses a deciding verb before any I/O; the gate refuses it again
+from the identity it derived off the connection (I2). A successful proposal is
+a receipt, not an admission: every result carries `proposals_are_admission = False`.
 
-## Local client-gate connection
+## Discover the API
 
-```python
-from doublegate_sdk.client import GateClient, UnixSocketTransport
+`python -m doublegate_sdk describe-client` prints both clients' methods from
+their live signatures, the operation table (`rpc`, `mutates`, `proof`, `role`,
+`scope`), the three scopes, the error kinds and the two code tables. It
+describes this SDK. `KnowledgeClient.describe()` is what a *running gate*
+answers (`dg.describe`), parsed into `Capabilities`.
 
-client = GateClient(UnixSocketTransport('/explicit/gate/daemon.sock', timeout=5))
-status = client.status()
-page = client.inventory(limit=25)
-for row in page.records:
-    print(row['artifact_id'], row['state'])
-
-for page in client.inventory_pages(limit=25, max_pages=4):
-    if not page.complete:
-        print('Partial coverage:', page.coverage_errors)
-    # Process each page; presence does not imply admission.
-```
-
-The transport speaks the existing local Unix-socket JSON-RPC methods `dg.status`
-and `dg.inventory`, plus `dg.recall` and explicitly enabled `dg.ingest`. It is not an HTTP client, SSO adapter or new authorization
-layer. The receiving gate identifies the socket peer and enforces its permissions.
-The caller must already be authorized to access that socket. Builds that lack
-`dg.inventory` raise `GateError(kind='unsupported_operation', code=-32601)`.
-
-A relative socket path is converted to an absolute path at construction, so a
-later working-directory change cannot redirect the client to a different gate.
-This pins path resolution against cwd changes, not the socket inode or symlink
-target. Empty, byte-valued and NUL-containing paths are refused. Invalid timeout
-types and invalid UTF-8 proposal text receive explicit validation errors before I/O.
-
-Status responses preserve their service-defined shape. `InventoryPage` exposes
-records, scope, counts, paging and coverage without converting unknown states to
-approved states. Filters are the existing service parameters: state, space,
-content_type, trust_class, retrievability, source, q, sort and descending. Unknown
-parameter names are refused before transport. Filter values remain service-validated.
-
-## Bounds and errors
-
-The default timeout is one 10-second deadline shared by connection, sending and
-all response reads. A peer cannot extend it by slowly sending additional bytes.
-It bounds transport I/O, not arbitrary computation or OS scheduling latency.
-Responses are capped at 1 MiB by default, configurable through
-`max_response_bytes`; requests are capped at 1 MiB. No automatic retries occur.
-
-`GateError.kind` distinguishes `unavailable`, `timeout`, `unsupported_transport`,
-`unsupported_operation`, `remote_error`, `invalid_response`, `request_too_large`,
-`response_too_large`, `writes_disabled` and `page_limit`. Remote errors retain their numeric `code`,
-not their possibly sensitive message. Applications should map server-specific
-codes explicitly; this version does not claim a universal authorization taxonomy.
-
-`inventory_pages` raises `page_limit` if more data remains after the declared page
-budget. A repeated/non-progressing offset is invalid rather than an infinite loop.
-Inventory may change between requests: this API does not promise a snapshot across
-pages. Consumers requiring a snapshot must use a future service-supported revision
-contract, not assume the iterator creates one.
-
-## Explicit transport injection
-
-`GateClient` also accepts a `GateTransport` implementing
-`call(method, params) -> dict`. This lets an application supply a supported service
-transport without importing an agent framework into the SDK. The provided socket
-transport itself refuses every method except the three read methods and an
-explicitly enabled proposal write. A custom injected transport owns its own
-write-enablement contract; none of these client-side flags grant server authority.
-
-`GateTransport` replaces the misleading pre-release `ReadTransport` name now that
-the interface also carries explicitly enabled proposals. Only the annotation's
-name changed; `call(method, params)` is unchanged.
-
-Duplicate JSON object keys and internally contradictory inventory paging/coverage
-are rejected as `invalid_response`, not silently normalized into success.
-
-## Propose and recall
+## Transports and scopes
 
 ```python
-client = GateClient(UnixSocketTransport('/explicit/gate/daemon.sock', allow_proposals=True))
-proposal = client.propose(
-    'The laboratory labels basalt specimens by collection date.',
-    content_type='memory', trust_class='T-4', source_uri='application://observation/123',
-)
-current = client.status(proposal['artifact_id'])
-knowledge = client.recall('basalt specimens', limit=5)
+from doublegate_sdk.transport import UnixSocketTransport, HttpTransport
+
+local = UnixSocketTransport('/explicit/gate/daemon.sock', timeout=5, scope='knowledge')
+console = HttpTransport('http://127.0.0.1:8480', bearer=console_token, scope='knowledge')
+org = HttpTransport('https://org.example', bearer=admin_key, scope='curation')
 ```
 
-Proposal accepts text or bytes, encoded without changing the content. Required
-content type, trust classification and source URI are explicit; the receiving
-gate still validates them. The SDK never supplies writer/deployment identity.
-The returned state is the service's actual state, not an SDK claim of approval.
+`scope` is the widest class of verb the transport will emit: `read` (the
+default; every write is `writes_disabled`), `knowledge` (an agent's verbs), or
+`curation` (the operator's). A verb outside the scope raises
+`GateError('forbidden_operation')` before a connection is opened; an unknown
+verb is a `ValueError`. Both transports share one deadline for connect, send
+and every read (10 s by default), a 1 MiB request cap and a 1 MiB response cap,
+duplicate-key rejection and the same code table. `with_timeout(seconds)`
+returns a copy for a short liveness probe. A caller-supplied `GateTransport`
+(`call(method, params) -> dict`) owns its own allowlist.
 
-Recall always excludes the caller's unreviewed pending echoes. It also excludes
-provisional knowledge by default. Set `include_provisional=True` explicitly when
-the application's policy permits Solo-provisional results; each hit retains its
-provisional flag, provenance and score. No score is relabelled as trust/confidence.
+`HttpTransport` posts one JSON-RPC message to `{base}/rpc` with a bearer: the
+client gate's console token on its loopback listener, or an organization
+gate's admin key. A JSON-RPC refusal rides a 200; the door's own refusals are
+HTTP statuses (`auth` 401, `scope` 403, `request_too_large` 413, `busy` 429/503
+with `Retry-After` kept as `retry_after_ms`). It is not an SSO adapter and it
+adds no authorization: the gate still checks every request.
 
-Writes are disabled in `UnixSocketTransport` unless `allow_proposals=True` was
-provided. No proposal is automatically retried. If sending may have begun and the
-response is lost, malformed or oversized, `GateError.outcome_unknown` is true:
-the server may have retained the observation. Reconcile before resubmission;
-content duplicate detection is not an exactly-once or idempotency-key guarantee.
-The SDK does not clear findings, approve records or perform organization submission.
+## Errors
+
+`GateError.kind` is what you act on. `code` keeps the server's JSON-RPC number;
+`retry_after_ms` is set on `busy`; `outcome_unknown` is true when a write may
+have been retained although the reply was lost; `detail` carries the server's
+message, capped at 512 characters, and never appears in `str(exc)`.
+
+| kind | when |
+| --- | --- |
+| `unavailable`, `timeout`, `unsupported_transport` | no gate answered in time |
+| `invalid_response`, `response_too_large`, `request_too_large` | the frame, not the gate |
+| `writes_disabled`, `forbidden_operation`, `proof_required`, `page_limit` | refused on this side, before I/O |
+| `identity`, `invalid_params`, `unsupported_operation`, `busy`, `banned`, `refused`, `remote_error` | the gate's answer (`-32000`, `-32600/-32602`, `-32601`, `-32006`, `-32009`, `-32010..-32014`, other) |
+| `auth`, `scope` | the HTTP door (401, 403) |
+
+The same two tables live in the constellation app's `rpc.ts`; change both or neither.
+
+## The knowledge client
+
+```python
+from doublegate_sdk.knowledge import KnowledgeClient
+
+agent = KnowledgeClient(local)
+if agent.present():
+    caps = agent.describe()                       # Capabilities: verbs, params, content types
+    memo = agent.remember('The lab labels basalt by collection date.',
+                          content_type='memory', trust_class='T-4', source_uri='agent://field/42')
+    fact = agent.learn('Basalt labels are durable.', source_uri='agent://field/42',
+                       evidence=[memo.artifact_id], kind='derived_fact')
+    agent.annotate(fact.artifact_id, 'derived from the 2026-09 survey', kind='note')
+    row = agent.wait_for(fact.artifact_id, {'ACTIVE', 'REJECTED'}, timeout=30)
+    hits = agent.recall('basalt', limit=5, include_provisional=True)
+```
+
+* `remember` proposes one artifact: bytes travel base64 and unchanged; the
+  gate scans before it answers and holds the row (`L1_SCANNED` or
+  `L1B_FLAGGED`). No writer identity is ever sent.
+* `learn` is a belief distilled from evidence: `kind` is `derived_fact`,
+  `summary` or `memory`; `evidence` becomes `derives_from`, which is provenance
+  and never hides a parent; the default trust class is `T-5`, a proposal about
+  the world. `replaces=<artifact id>` adds that claim to the provenance and
+  leaves a note "proposes: supersedes …" on the new row. Only a gate decision
+  replaces belief; `supersedes` itself is the operator's relation.
+* `propose_skill`, `propose_prompt_template` and `propose_bundle` (a ZIP,
+  inspected locally first, then `dg.ingest_bundle` beside its fetch record).
+* `recall` always excludes the caller's own unreviewed rows; provisional,
+  superseded and hidden rows only on explicit request, each hit keeping its
+  flags. No score is relabelled as trust.
+* `annotate`, `raise_objection`, `resolve`, `retract_comment` are remarks on
+  the record (ADR-0066). Only a *human's* objection holds a promotion; an
+  agent's is a remark the reviewer will see.
+* `rank` and `hide` weight a row for an audience; the gate refuses them on the
+  caller's own rows (I2).
+* `inventory` / `inventory_pages` list retained metadata with scope and
+  coverage, bounded by `max_pages`; presence never implies admission.
+
+## The curation client
+
+```python
+from doublegate_sdk.curation import CurationClient
+from doublegate_sdk.proof import ServerMinted, SignerProof
+
+# on the client gate's host, the daemon mints the proof from the key it holds
+operator = CurationClient(UnixSocketTransport(sock, scope='curation'), ServerMinted())
+# anywhere else, the operator signs the nonce with a function the SDK never sees inside
+operator = CurationClient(org, SignerProof(sign=my_ed25519_key.sign))
+
+operator.approve(aid, note='matches the survey')        # dg.sign {promote: true}
+operator.veto(other, 'contradicts the 2025 audit')      # dg.demote
+operator.supersede(new=aid, old=other)                  # dg.relate supersedes
+operator.reject(third, 'duplicate', in_favour_of=aid)
+```
+
+Every operator verb fetches a fresh `dg.challenge` nonce, has the provider
+sign it, and sends `{nonce, sig}` with the call; nonces are single-use, so
+`approve` is one proof for the signature and the promotion it was for.
+Without a provider the operator verbs raise `proof_required` before I/O.
+`rank`, `hide` and `comment` attach a proof when a provider is present. The
+SDK never loads `keys/operator.ed25519` and never depends on a crypto
+library: the signer is yours. `operator.knowledge` reads the same gate the
+agent's way.
+
+## The organization gate's REST doors
+
+`doublegate_sdk.org_rest` moves the submission body that
+`doublegate_sdk.submission` encodes: `put_submission` returns a
+`SubmissionOutcome` whose `result` is one of `accepted` (202/200), `retry`
+(503/429 with the door's delay, or an unexpected status), `stopped` (401/403:
+a key problem does not become correct by waiting) or `refused` (400/413/422:
+this body, not the key). `pull_outcomes` pages `GET /outcomes` by cursor.
+Policy — backoff, cursors, what to do about `retry` — stays with the caller.
 
 ## Verified scope
 
-Unit tests exercise real socket response parsing, response bounds, invalid input,
-unavailable service, partial results and paging errors. A source-mode isolated
-Client Gate run returned an empty inventory, then three product-ingested fixture
-records across three pages; each status remained `L1_SCANNED`, not admitted.
+Unit tests drive both transports against a real `AF_UNIX` listener and a
+loopback `http.server`: the allowlist before I/O, the shared deadline, byte
+caps, malformed and duplicate-key replies, lost-reply outcomes, the code
+tables, every client method against a recording transport, the proof flow for
+each operator verb. `examples/verify_memory_lifecycle.py` runs a real Client
+Gate in-process with the deterministic `StubBackend`: proposal → held →
+duplicate → admission → provisional recall → a learning with provenance. It is
+not live-model, cross-principal, Windows or organization-delivery evidence.
 
-This is local source-mode verification on Linux/WSL. It is not installed-wheel,
-Windows, HTTP, cross-tenant, live-deployment or organization-delivery acceptance.
-The consolidated gate source used for that run contains Inventory; the maintained
-gate source may not yet expose that operation. No SDK installation was performed.
+::: doublegate_sdk.knowledge
 
-`examples/verify_memory_lifecycle.py` is an optional source-mode integration probe
-requiring Client Gate in addition to the SDK. It verified proposal → pending
-exclusion → duplicate recognition → product admission → recall of the same record,
-with provisional results explicitly enabled. The reviewer is `StubBackend`:
-this proves SDK/service lifecycle plumbing, not real model judgment quality.
-Two SDK clients use the same local peer; this is not a cross-principal permission test.
+::: doublegate_sdk.curation
+
+::: doublegate_sdk.transport
+
+::: doublegate_sdk.proof
+
+::: doublegate_sdk.capabilities
+
+::: doublegate_sdk.errors
+
+::: doublegate_sdk.operations
+
+::: doublegate_sdk.inventory
+
+::: doublegate_sdk.org_rest
