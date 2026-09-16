@@ -275,3 +275,57 @@ else:
 def test_malformed_or_empty_jwks_fails_closed(keys, document):
     with pytest.raises(identity.AccessTokenError):
         verify(keys, jwks=document)
+
+
+# ---- ADR-0080 d1/d4/d5: a local issuer is a key, and its profile is EdDSA ----
+
+def _ed_keys():
+    from cryptography.hazmat.primitives.asymmetric import ed25519
+    return [ed25519.Ed25519PrivateKey.generate() for _ in range(2)]
+
+
+def _ed_jwks(keys):
+    return {'keys': [dict(json.loads(jwt.algorithms.OKPAlgorithm.to_jwk(key.public_key())),
+                          kid=f'op-{i}', alg='EdDSA', use='sig')
+                     for i, key in enumerate(keys)]}
+
+
+def _ed_signed(keys, claims=None, index=0, alg='EdDSA'):
+    return jwt.encode((payload() | {'iss': 'operator:abc', 'aud': 'client-gate-1'}) if claims is None else claims,
+                      keys[index], algorithm=alg, headers={'typ': 'at+jwt', 'kid': f'op-{index}'})
+
+
+def _local_resolver(request):
+    assert request.issuer == 'operator:abc'
+    return identity.ResolvedIdentity(requester_id='operator:abc', requester_kind='human',
+                                     actor_id='operator:abc', actor_kind='human',
+                                     client_principal_id='browser-1')
+
+
+def test_a_local_operator_key_mints_a_per_gate_assertion_the_gate_verifies():
+    keys = _ed_keys()
+    prof = profile(issuer='operator:abc', audience='client-gate-1', algorithm='EdDSA')
+    result = identity.verify_access_token(_ed_signed(keys), issuer_profile=prof, jwks=_ed_jwks(keys),
+                                          resolver=_local_resolver, now=NOW)
+    assert result.issuer == 'operator:abc' and result.audience == 'client-gate-1'
+    assert result.requester_kind == 'human' and result.actor_id == 'operator:abc'
+
+
+def test_the_algorithm_is_the_profiles_never_the_tokens(keys):
+    ed = _ed_keys()
+    prof = profile(issuer='operator:abc', audience='client-gate-1', algorithm='EdDSA')
+    with pytest.raises(identity.AccessTokenError):
+        # an RS256 token, an RS256 key record, under an EdDSA profile: refused at the header
+        identity.verify_access_token(signed(keys), issuer_profile=prof, jwks=jwks(keys),
+                                     resolver=_local_resolver, now=NOW)
+    with pytest.raises(identity.AccessTokenError):
+        # an EdDSA token under the external RS256 profile: refused the same way
+        identity.verify_access_token(_ed_signed(ed), issuer_profile=profile(), jwks=_ed_jwks(ed),
+                                     resolver=resolver, now=NOW)
+    with pytest.raises(identity.AccessTokenError):
+        # a token for another door is not this door's (ADR-0080 d1)
+        identity.verify_access_token(_ed_signed(ed, claims=payload() | {'iss': 'operator:abc', 'aud': 'org-gate-1'}),
+                                     issuer_profile=prof, jwks=_ed_jwks(ed), resolver=_local_resolver, now=NOW)
+    with pytest.raises(identity.AccessTokenError):
+        identity.IssuerProfile(issuer='x', tenant_id='t', audience='a', tenant_claim='tid',
+                               mapping_revision='m', token_kind='direct', algorithm='HS256')

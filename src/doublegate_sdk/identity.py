@@ -243,12 +243,16 @@ class AccessTokenError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class IssuerProfile:
-    """Owner-enrolled first RFC 9068 profile, never constructed from a token.
+    """Owner-enrolled RFC 9068 profile, never constructed from a token.
 
     Exact tenant claim name and direct/app_only interpretation are enrollment
-    inputs, not universal OIDC conventions. RS256, 300s TTL and 30s tolerance are
-    fixed for this bounded profile. Delegation/OBO is deliberately unsupported.
-    No membership authority is implemented here; token groups confer nothing.
+    inputs, not universal OIDC conventions. 300s TTL and 30s tolerance are fixed
+    for this bounded profile. Two algorithms, chosen at enrollment and never by
+    the token: ``RS256`` for an external issuer, ``EdDSA`` (Ed25519, RFC 8037)
+    for a *local* issuer — an operator or agent key that mints its own per-gate
+    assertions (ADR-0080 d1, d4, d5). Delegation/OBO is deliberately
+    unsupported. No membership authority is implemented here; token groups
+    confer nothing.
     """
 
     issuer: str
@@ -257,13 +261,16 @@ class IssuerProfile:
     tenant_claim: str
     mapping_revision: str
     token_kind: str
+    algorithm: str = 'RS256'
 
     def __post_init__(self) -> None:
         for value in (self.issuer, self.tenant_id, self.audience, self.tenant_claim,
-                      self.mapping_revision, self.token_kind):
+                      self.mapping_revision, self.token_kind, self.algorithm):
             _access_identifier(value)
         if self.token_kind not in ('direct', 'app_only'):
             raise AccessTokenError('only direct and app_only profiles are supported')
+        if self.algorithm not in ('RS256', 'EdDSA'):
+            raise AccessTokenError('only RS256 (external) and EdDSA (local key) profiles are supported')
         if self.tenant_claim in {'iss', 'sub', 'aud', 'exp', 'iat', 'nbf', 'jti',
                                  'client_id', 'act', 'scope', 'groups', 'roles'}:
             raise AccessTokenError('tenant mapping must use a distinct enrolled claim')
@@ -389,7 +396,7 @@ def verify_access_token(
         header = _access_json(parts[0])
         claims = _access_json(parts[1])
         if set(header) != {'alg', 'typ', 'kid'} or (
-                header['alg'] != 'RS256' or header['typ'] != 'at+jwt'):
+                header['alg'] != p.algorithm or header['typ'] != 'at+jwt'):
             raise AccessTokenError('unsupported access-token JOSE profile')
         _access_identifier(header['kid'])
         if not isinstance(jwks, Mapping) or not isinstance(jwks.get('keys'), list):
@@ -400,16 +407,18 @@ def verify_access_token(
         if len(matches) != 1:
             raise AccessTokenError('unknown or ambiguous kid')
         enrolled = dict(matches[0])
-        if (enrolled.get('kty') != 'RSA' or enrolled.get('alg', 'RS256') != 'RS256'
+        public_shape = ((enrolled.get('kty') == 'RSA') if p.algorithm == 'RS256'
+                        else (enrolled.get('kty') == 'OKP' and enrolled.get('crv') == 'Ed25519'))
+        if (not public_shape or enrolled.get('alg', p.algorithm) != p.algorithm
                 or enrolled.get('use', 'sig') != 'sig'
                 or enrolled.get('key_ops', ['verify']) != ['verify']
                 or {'d', 'p', 'q', 'dp', 'dq', 'qi', 'oth'} & enrolled.keys()):
-            raise AccessTokenError('enrolled key must be a public RS256 signing key')
-        key = jwt.PyJWK.from_dict(enrolled, algorithm='RS256')
+            raise AccessTokenError(f'enrolled key must be a public {p.algorithm} signing key')
+        key = jwt.PyJWK.from_dict(enrolled, algorithm=p.algorithm)
         # PyJWT performs crypto and exact issuer/audience/required-claim checks.
         # Time is checked below against caller-supplied receiver time, not a
         # hidden wall clock. Strict JSON above precedes PyJWT's permissive parser.
-        jwt.decode(token, key=key.key, algorithms=['RS256'], issuer=p.issuer,
+        jwt.decode(token, key=key.key, algorithms=[p.algorithm], issuer=p.issuer,
                    audience=p.audience, options={
                        'require': ['iss', 'sub', 'aud', 'exp', 'iat', 'jti', 'client_id'],
                        'verify_exp': False, 'verify_iat': False, 'verify_nbf': False,
