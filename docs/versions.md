@@ -4,13 +4,25 @@
 
 | Domain | Current value | Meaning |
 | --- | --- | --- |
-| Python distribution | `0.1.0.dev3` | Unreleased development snapshot of `doublegate-sdk`. |
+| Python distribution | `0.1.0.dev5` | Unreleased development snapshot of `doublegate-sdk`. |
 | Manifest `schema_version` | `"0.1"` | Exact JSON shape accepted by the validator. |
 | Manifest `sdk_version` | `"0.1"` | Exact declarative capability contract; not a PyPI version constraint. |
 | Gate author's `version` | e.g. `"1.0.0"` | User-owned gate metadata, not an SDK release. |
 
 The validator accepts only the two exact contract strings. There is no range
 resolver, automatic schema upgrade or dependency installer.
+
+## `0.1.0.dev5`
+
+Two development lines merged. From `main`: the HTTP/MCP client (`doublegate_sdk.client`,
+`connect`), `evaluate_file` authoring composition, the starter apps and recipes,
+optional observability, reason and skipped vocabularies, response schemas and the
+release workflow. From the ADR-0074 line: `KnowledgeClient` and `CurationClient` over
+`UnixSocketTransport` and `HttpTransport` (`POST /rpc`), the `dg.*` operation table,
+the operator proof providers, the organization gate's REST helpers (`org_rest`), the
+signed submission event and identity verification (`identity` extra). Reconciled:
+one `DoublegateError` base with one `GateError` for every door; `describe-client`
+prints both descriptions; the `/mcp` reference page moved to `api/mcp-client.md`.
 
 ## Compatibility boundary
 

@@ -1,36 +1,49 @@
 # DoubleGate SDK — developer map
 
-Two jobs: connect an application or agent to a gate over HTTP/MCP, and author the
-declarative manifest a gate applies. A scan result, a successful proposal or any
-HTTP/MCP response is not admission authority.
+Offline gate contracts plus three explicitly connected doors to a gate. Two clients
+over the gate's `dg.*` verbs (ADR-0074): the knowledge client (what an agent may do:
+remember, learn, recall, annotate) and the curation client (the operator's decisions,
+each under an operator proof), over a Unix socket or `POST /rpc`. A third client
+speaks the MCP tool catalog over `POST /mcp` for hosts that integrate that way. A
+scan result, successful proposal or any HTTP/RPC/MCP response is not admission
+authority.
 
 ## Machine-readable entry points
 
-- `python -m doublegate_sdk describe-client`: actual client method signatures,
-  defaults, the MCP tool each operation calls, mutation classification, the MCP
-  subset supported and the operations explicitly *not* supported. Offline.
-  Describes this SDK, not the capabilities of an arbitrary running gate.
+- `python -m doublegate_sdk describe-client`: both `dg.*` clients' method
+  signatures, the operation table (verb, mutates, proof, role, scope), the scopes
+  and the error tables; under `mcp_client`, the MCP client's methods, the tool each
+  calls, the MCP subset supported and the operations explicitly *not* supported.
+  Offline. Describes this SDK, not a running gate; that is `KnowledgeClient.describe()`.
 - `python -m doublegate_sdk schema`: declarative gate manifest JSON Schema.
 
-## The two entry points
+## The entry points
 
-- `doublegate_sdk.connect(endpoint, token=...)` — the gate client. Resolved
-  lazily; importing the package opens nothing.
+- `doublegate_sdk.knowledge.KnowledgeClient(transport)` and
+  `doublegate_sdk.curation.CurationClient(transport, proof)` over
+  `doublegate_sdk.transport.UnixSocketTransport` / `HttpTransport` (`POST /rpc`).
+- `doublegate_sdk.connect(endpoint, token=...)` — the MCP client (`POST /mcp`).
+  Resolved lazily; importing the package opens nothing.
 - `doublegate_sdk.evaluate_file(manifest, content, artifact_type=...)` — the
   offline check. Composes `load_package` + `read_bounded` + `evaluate`, which
   all remain public for callers the composition does not fit.
 
 ## Read these next
 
-- [Client operations and limits](docs/api/client.md)
+- [Gate clients over the socket and `/rpc`](docs/api/client.md)
+- [Gate client over `/mcp`](docs/api/mcp-client.md)
 - [Starter apps, seven runnable workflows](docs/use-cases/index.md)
 - [SDK roadmap and delivery criteria](docs/roadmap.md)
 - [Developer verification](docs/maintaining.md)
 - [Offline authoring](docs/manual.md)
 - [API module index](docs/api/index.md)
-- [Source client](src/doublegate_sdk/client.py)
-- [Client behavior tests](tests/test_memory_client.py)
-- [Optional real-gate HTTP/MCP probe](examples/verify_memory_lifecycle.py)
+- [Knowledge client](src/doublegate_sdk/knowledge.py), [curation client](src/doublegate_sdk/curation.py),
+  [`/rpc` transports](src/doublegate_sdk/transport.py), [operation table](src/doublegate_sdk/operations.py),
+  [MCP client](src/doublegate_sdk/client.py), [errors](src/doublegate_sdk/errors.py)
+- [Client behavior tests](tests/test_knowledge_client.py), [curation tests](tests/test_curation_client.py),
+  [MCP client tests](tests/test_memory_client.py)
+- Optional real-gate probes: [`/rpc` lifecycle](examples/verify_knowledge_lifecycle.py),
+  [`/mcp` lifecycle](examples/verify_memory_lifecycle.py)
 
 ## Starters, and which reach a network
 
@@ -39,16 +52,24 @@ HTTP/MCP response is not admission authority.
 `ingestion.py`, `provenance.py`, `diagnostics.py`. Only `memory.py remember`
 and `ingestion.py submit` write; every other subcommand opens a client with
 `allow_writes=False`. No starter starts a gate or falls back to a fake server.
+The starters use the MCP client.
 
-## The transport, exactly
+## The transports, exactly
 
-- The public surface is `POST /mcp` (ADR-0050): one JSON-RPC message in, one JSON
-  object out. Stateless — **no SSE, no `Mcp-Session-Id`**. Negotiation is
-  `server/discover` and `tools/list`; `initialize` is not sent.
-- HTTPS by default. Plain HTTP requires `allow_insecure_loopback=True` *and* a
-  loopback host; a remote plain-HTTP endpoint is refused.
-- A success is unwrapped from `result.structuredContent`. A missing structured
-  half, or `isError`, is a failure — never guessed at from the text block.
+- `UnixSocketTransport` and `HttpTransport` post one JSON-RPC message carrying a
+  `dg.*` verb; `HttpTransport` to `{base}/rpc` with a bearer (the client gate's
+  console token, or an organization gate's admin key). A transport's `scope`
+  (`read` | `knowledge` | `curation`) is the widest verb class it emits, checked
+  before I/O. The server's identity and permissions remain authoritative.
+- `HttpMcpTransport` posts to `POST /mcp` (ADR-0050): one JSON-RPC message in, one
+  JSON object out. Stateless — **no SSE, no `Mcp-Session-Id`**. Negotiation is
+  `server/discover` and `tools/list`; `initialize` is not sent. HTTPS by default;
+  plain HTTP requires `allow_insecure_loopback=True` *and* a loopback host. A
+  success is unwrapped from `result.structuredContent`; a missing structured half,
+  or `isError`, is a failure — never guessed at from the text block.
+- One `GateError` for every door (`doublegate_sdk.errors`): `kind` is what a
+  caller acts on, `code` the JSON-RPC number or HTTP status, `detail` the server's
+  message, capped and never in `str(exc)`. `KINDS` enumerates every kind.
 
 ## One verification command
 
@@ -58,32 +79,50 @@ Use an existing SDK development interpreter with test/docs extras:
 It resolves the checkout from the script, checks SDK source identity, runs tests
 and strict docs, rejects empty/skipped acceptance, and records each run separately
 under `.tmp/verification/`. It installs/publishes nothing. `--preflight` checks the
-selected environment without running tests or building docs.
+selected environment without running tests or building docs. The observability
+tests need the `[observability]` extra installed or they skip, and a skip fails
+the run.
 
 ## Boundaries agents must preserve
 
 - Imports use `doublegate_sdk`, never `doublegate.sdk`.
-- `GateTransport` is a Python protocol (`call(tool, arguments) -> dict`). It is not
-  a general MCP framework and claims no streaming or session support.
-- Do not add a tool the maintained client tier does not serve. There is **no
-  inventory tool**, and `doublegate.status` requires an artifact id. An absent
-  capability is reported as unsupported, never emulated.
-- `propose` sends UTF-8 text. Non-UTF-8 bytes are refused; the service's
-  `remember` schema has no `encoding` field, so base64 would be stored as literal
-  text. Never put writer identity into proposal arguments — the service derives it
-  from the connection and refuses a request carrying it.
-- Proposal writes require explicit opt-in at the transport. Server-side identity
-  and permissions remain authoritative; no client flag grants server authority.
+- `doublegate_sdk.transport.GateTransport` (`call(method, params) -> dict`, a
+  `dg.*` verb) and `doublegate_sdk.client.McpTransport` (`call(tool, arguments)
+  -> dict`, an MCP tool) are two Python protocols with the same shape and different
+  vocabularies. Neither is a general MCP framework; neither claims streaming or
+  session support.
+- The knowledge client never signs, promotes, demotes, rejects, relates or bans, on
+  any transport. Do not put writer identity into proposal parameters (I2); the
+  service derives it from the connection and refuses a request carrying it.
+- The curation client forwards an operator proof from a `ProofProvider`; the SDK
+  never loads an operator key and never imports a crypto library in its base modules
+  (ADR-0040).
+- A learning (`learn`) is content plus `derives_from` evidence; `replaces=` is
+  provenance plus a note, never a supersession — only a gate decision replaces
+  belief (GAPS 20).
+- The MCP client exposes only the tools the maintained client tier serves. There is
+  **no inventory tool** there (inventory is a `dg.*` verb of the knowledge client),
+  and `doublegate.status` requires an artifact id. An absent capability is reported
+  as unsupported, never emulated.
+- MCP `propose` sends UTF-8 text; non-UTF-8 bytes are refused. `dg.ingest` through
+  the knowledge client carries bytes base64, unchanged.
+- Proposal writes require explicit opt-in at the transport (`allow_writes=True`, or
+  a `knowledge`/`curation` scope). No client flag grants server authority.
 - Recall excludes pending echoes and provisional knowledge by default. Enabling
   provisional results must be explicit and preserves the flag in returned data.
 - Uncertain write outcome (`GateError.outcome_unknown`) is not permission to retry
-  automatically. Nothing in this client retries, and redirects are never followed.
-- Remote error text is withheld; the numeric code is kept. Do not log server prose.
+  automatically. Nothing in these clients retries, and redirects are never followed.
+- Remote error text rides `GateError.detail`, never `str(exc)`. Do not log server prose.
 - On the maintained client tier, `POST /mcp` is mounted **keyless** on loopback —
-  only `/api/*` enforces the console bearer token. Do not describe the MCP client
-  as authenticated merely because it can send an `Authorization` header.
+  only `/api/*` and `/rpc` enforce the console bearer token. Do not describe the MCP
+  client as authenticated merely because it can send an `Authorization` header.
+- Inventory scope is gate-local and coverage may be partial; never equate retained
+  records with admitted/retrievable knowledge.
 - Reuse envelope/content/submission-event identities; they are different contracts.
-- The optional real-gate probe requires Client Gate and uses a deterministic
-  reviewer. It is not live-model or organization-delivery evidence.
+  `content_digest` is `"sha256:" + envelope.content_hash`, derived, never hashed a
+  second time; `artifact_id` is sha256 of the event's own canonical bytes and is not
+  a member of the signed document.
+- The optional real-gate probes require Client Gate and use a deterministic
+  reviewer. They are not live-model or organization-delivery evidence.
 - No credential discovery, installations, commits, pushes or live restarts unless
   separately authorized. Preserve existing WIP; add a failing test before a fix.

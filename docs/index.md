@@ -38,7 +38,7 @@ knowledge merely because a request succeeded.
 
 ## Developer resources
 
-- [Client API and error handling](api/client.md)
+- [Client API and error handling](api/mcp-client.md)
 - [Compatibility](versions.md)
 - [SDK roadmap](roadmap.md)
 - [Contributing and verification](maintaining.md)

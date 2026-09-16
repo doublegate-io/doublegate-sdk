@@ -263,7 +263,7 @@ means the SDK sends a bearer header — it does not mean the receiver checks it.
     bearer token. On that tier loopback is the credential. So a working run
     against a local gate proves the protocol path, not an authenticated remote
     one. Closing that is the service's work, not the SDK's. See
-    [client reference](../api/client.md) and the [roadmap](../roadmap.md).
+    [client reference](../api/mcp-client.md) and the [roadmap](../roadmap.md).
 
 For a local development gate on this host, pass `--allow-insecure-loopback` to
 permit plain `http://`. It refuses any non-loopback host, so it cannot be used to
@@ -276,4 +276,4 @@ The starter app and its behaviour tests are complete and pass. Those tests are
 which operation each subcommand calls, with which write permission, and that the
 credential comes from the environment. They open no socket and are not evidence
 about any deployment. Real-service acceptance for this SDK is recorded separately
-in [the client reference](../api/client.md); it was not re-run for these starters.
+in [the client reference](../api/mcp-client.md); it was not re-run for these starters.

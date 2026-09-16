@@ -308,7 +308,7 @@ def server_catalog(client: GateClient) -> dict[str, Any]:
     against the call you were trying to make: a missing tool explains an
     ``unsupported_operation`` with no further digging.
 
-    Negotiation is **not** part of the ``GateTransport`` protocol, which
+    Negotiation is **not** part of the ``McpTransport`` protocol, which
     declares only ``call``. :class:`doublegate_sdk.client.HttpMcpTransport`
     provides both methods; a caller-supplied transport may not, and this raises
     :class:`TypeError` in that case rather than pretending the endpoint refused.
@@ -318,5 +318,5 @@ def server_catalog(client: GateClient) -> dict[str, Any]:
     tool_names = getattr(transport, "tool_names", None)
     if discover is None or tool_names is None:
         raise TypeError("this transport does not offer server/discover and tools/list; "
-                        "negotiation is outside the GateTransport protocol")
+                        "negotiation is outside the McpTransport protocol")
     return {"discover": discover(), "tools": list(tool_names())}

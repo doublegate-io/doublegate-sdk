@@ -5,12 +5,17 @@ and returns evidence. It does not install a gate, run plugins, contact a daemon,
 or admit or publish an artifact. A `clean` result means only that the configured
 literal strings were found.
 
+The Python API also provides the shared [byte submission contract](api/submission.md):
+frozen v1 envelopes, canonical base64 transport and decoded-byte integrity checks.
+This is separate from the text-only offline CLI and carries no authentication or
+admission authority. Limits are supplied by the calling gate.
+
 ## Run from the standalone checkout
 
 Install this local repository with `python -m pip install .` in a virtual
 environment. Run all commands below from the standalone repository root, using
 that environment's Python. The console command `doublegate-sdk` is equivalent to
-`python -m doublegate_sdk`. The package version is `0.1.0.dev3`; manifest and SDK
+`python -m doublegate_sdk`. The package version is `0.1.0.dev5`; manifest and SDK
 contract versions are both `"0.1"`. Source is available on GitHub; no PyPI release is claimed.
 
 Python 3.11+ is required. The loader uses POSIX descriptor-relative operations and
@@ -263,6 +268,48 @@ workflow to implement; `inherit` is not an approval or a way to disable review.
 Do not wire exit `0` directly to publication on the assumption that Doublegate
 has admitted the content. A consumer must separately enforce its admission and
 human-review policy. This SDK slice does not supply that integration.
+
+### Client console: introduction and review
+
+The following describes the separate Client gate console, not commands or
+features of the offline SDK.
+
+Introduction is not admission. **Introduce** submits content under the local
+connection's identity; a new artifact enters quarantine and is scanned. The
+returned artifact ID and state describe the recorded submission, not approval.
+A skill submitted as a reusable procedure follows the same admission workflow
+as a memory: selecting `skill` does not bypass scanning, independent review, or
+the applicable trust-class and signing policy.
+
+**Review** shows the capped human-review digest, not every pending submission.
+Newly scanned claims can still be waiting for gate evaluation before appearing
+there. Read the recorded state, scanner findings and existing verdicts before
+acting. Scanner matches are evidence to review, not confirmed personal data.
+A flagged item needs an operator to clear or reject it; clearing a scanner hold
+is not itself promotion. **Defer** records that the item was considered without
+changing its lifecycle state. A promotion signature counts toward the configured
+threshold; remaining verdicts, human sign-off or an organization countersignature
+may still be required. The daemon checks operator proof and refuses a reviewer
+whose signing identity is the artifact's writer. A signature is not a warranty
+that the content is true.
+
+### Client console: search and held content
+
+**Knowledge** requests up to 20 ranked local hits. Ranking uses keyword search
+and, when configured, vector retrieval, with recency, importance and a penalty
+for provisional content. Result position is relevance ordering, not an admission
+decision; inspect the state and provenance as well as the body.
+
+The caller's own scanned, unflagged pending claims can be appended after those
+ranked hits, so the displayed total can exceed 20. They are marked **Unreviewed**
+(`ratified: false`, `provenance.unreviewed: true`), are not fused into the ranking,
+and may disappear if later rejected. This exception does not expose another
+writer's pending claims or the caller's unscanned or scanner-flagged claims.
+
+The **Claim inspector** looks up recorded state and metadata by artifact ID;
+it does not retrieve a held content body. That boundary is separate from the
+masked content available to the operator in the Review digest and the explicitly
+labelled own-pending results above.
 
 ## Exit codes and output streams
 

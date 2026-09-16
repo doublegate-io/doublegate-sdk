@@ -160,7 +160,7 @@ def test_recipe_modules_create_no_client_of_their_own():
 # --------------------------------------------------------------------------
 
 class ScriptedTransport:
-    """A ``GateTransport`` that answers from a script and records every call.
+    """An ``McpTransport`` that answers from a script and records every call.
 
     Unit-only. It satisfies the protocol (``call(tool, arguments) -> dict``) so
     the real ``GateClient`` validation runs against these dicts, but there is no

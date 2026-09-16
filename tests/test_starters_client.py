@@ -691,7 +691,11 @@ def test_each_error_kind_has_a_fixed_next_step(kind, code, fragment, capsys):
 
 
 def test_unknown_error_kind_is_reported_without_guessing(capsys):
-    recorder = Recorder({'discover': GateError('some_future_kind'), 'tools': ('a',)})
+    # The SDK refuses an unknown kind at construction (ADR-0074 d5: a closed vocabulary);
+    # a consumer built against an older SDK still meets one, so the starter reads ``kind``.
+    future = GateError('remote_error')
+    future.kind = 'some_future_kind'
+    recorder = Recorder({'discover': future, 'tools': ('a',)})
     assert diagnostics.main(['--endpoint', ENDPOINT, 'probe'], recorder) == diagnostics.GATE_FAILURE
     assert 'unrecognized error kind' in capsys.readouterr().err
 

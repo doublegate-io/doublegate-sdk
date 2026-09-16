@@ -1,0 +1,13 @@
+{
+  "sha": "72754b68b9ad503ad0a208840069a57dfbda7723",
+  "files": [
+    "docs/01-foundations/03-trust-model.md",
+    "docs/04-cross-cutting/02-security.md",
+    "docs/06-roadmap/execution/P1-A/01-submission-contract.md",
+    "docs/06-roadmap/execution/P1-A/05-field-inventory-evidence.md",
+    "docs/06-roadmap/execution/P1-A/06-sdk-submission-role.md",
+    "docs/06-roadmap/execution/P1-A/06-signing-migration-plan.md",
+    "docs/adr/ADR-0066-the-submission-carries-the-envelope.md",
+    "docs/adr/ADR-0068-artifact-id-is-the-submission-event.md"
+  ]
+}

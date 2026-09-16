@@ -215,7 +215,7 @@ checks a signature either.
     authentication check; only `/api/*` enforces the console bearer token, and
     loopback is the credential there. Supplying `DOUBLEGATE_TOKEN` makes the SDK
     send a bearer header; it does not make the receiver verify it. The service owns
-    closing this. See [client reference](../api/client.md) and the
+    closing this. See [client reference](../api/mcp-client.md) and the
     [roadmap](../roadmap.md).
 
 For a gate on this host, `--allow-insecure-loopback` permits plain `http://`; it
@@ -228,4 +228,4 @@ client double: they prove the app reads only, calls `why` with the id given,
 derives its summary from the payload, reports missing event keys as absent, and
 handles an empty event list and an unknown id without inventing anything. They open
 no socket. Real-service acceptance is recorded separately in
-[the client reference](../api/client.md) and was not re-run for these starters.
+[the client reference](../api/mcp-client.md) and was not re-run for these starters.

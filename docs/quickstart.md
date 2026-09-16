@@ -76,7 +76,7 @@ server. For a local development endpoint, explicitly add
 Catch `GateError` from `doublegate_sdk.client` and branch on `kind`, not its text.
 If `outcome_unknown` is true after a write, reconcile with the gate before retrying:
 the server may already have accepted the request. The SDK does not retry writes.
-See [client reference](api/client.md) for the exact errors and bounds.
+See [client reference](api/mcp-client.md) for the exact errors and bounds.
 
 ## Deployment boundary
 

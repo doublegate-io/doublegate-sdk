@@ -1,0 +1,14 @@
+{
+  "source": "pr23-reconciliation-20260911",
+  "design_merge": "72754b68b9ad503ad0a208840069a57dfbda7723",
+  "public_test_seed": "PUBLIC TEST SEED submission",
+  "sha256": {
+    "wire.json": "2180850282b1280b29785f479d4322bf163c8d7048609aa80f816c1098e09a4a",
+    "manifest.json": "8af35cfd6e4a848f978b50f827898a3a87d3b2ba285c98a6dd37aa96ee56cbb8",
+    "event.canonical.bin": "b8105eff763163ba7ccc94cb2533e22e5d6c7da294877abf1ce49f0c8ca365df",
+    "production-evidence.json": "43be0aabe9d695c3c9363610e3ac3e47b2ef02bc4a8601784776b7a1ee8a1aa7",
+    "source-manifest.json": "3f0b3362622214359d638715586f25aba7fffb03f064236e8f0b6ee91f47598f",
+    "RECONCILIATION.md": "76b38ffb073f6b06d665835f84280fd98f6eeb54d84a03701be67eb3064d1b8b",
+    "consumer.mjs": "06548b5964471f34794538b7d1c14afa3cf3c909fae6eba11f4b2508c9ef5903"
+  }
+}

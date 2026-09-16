@@ -233,7 +233,7 @@ the receiving endpoint verifies it.
     authentication check; only `/api/*` enforces the console bearer token, and
     loopback is the credential on that tier. A successful local run proves the
     protocol path, not an authenticated remote one. This is the service's to
-    close. See [client reference](../api/client.md) and the
+    close. See [client reference](../api/mcp-client.md) and the
     [roadmap](../roadmap.md).
 
 For a gate on this host, `--allow-insecure-loopback` permits plain `http://`; it
@@ -246,4 +246,4 @@ client double: they prove the document is read and refused locally where it shou
 be, that the `file://` source URI is derived from the real path, that `submit`
 writes and `pending` does not, and that an unknown write outcome is reported
 without a retry. No socket is opened. Real-service acceptance is recorded
-separately in [the client reference](../api/client.md) and was not re-run here.
+separately in [the client reference](../api/mcp-client.md) and was not re-run here.

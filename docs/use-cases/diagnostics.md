@@ -189,7 +189,7 @@ else:
 
 `server_catalog` performs both negotiation reads. It raises `TypeError` if you
 hand it a client over a caller-supplied transport that offers neither — the
-`GateTransport` protocol declares only `call`, so negotiation is not something
+`McpTransport` protocol declares only `call`, so negotiation is not something
 every transport has, and reporting its absence as a gate failure would be wrong.
 
 ### Mapping the failure
@@ -225,7 +225,7 @@ mean your credential was verified.
     on that tier it is expected. Equally, a probe that succeeds *with* a token does
     not show the token was checked. The SDK's own 401/403 handling is proved
     against scripted responders. Closing the server-side gap is the service's work.
-    See [client reference](../api/client.md) and the [roadmap](../roadmap.md).
+    See [client reference](../api/mcp-client.md) and the [roadmap](../roadmap.md).
 
 For a gate on this host, `--allow-insecure-loopback` permits plain `http://`; it
 refuses any non-loopback host, so it cannot send a credential unencrypted to a
@@ -239,4 +239,4 @@ each error kind to its fixed next step, reports an unknown kind without guessing
 and reports only the *presence* of a credential. They open no socket. The failure
 transcript above was produced by running the app against a genuinely closed local
 port. Real-service acceptance for this SDK is recorded separately in
-[the client reference](../api/client.md) and was not re-run for these starters.
+[the client reference](../api/mcp-client.md) and was not re-run for these starters.

@@ -62,4 +62,4 @@ retroactively authenticate that separate MCP endpoint. Remote MCP authentication
 server grants and cross-principal testing remain separate acceptance work.
 
 See [Python quickstart](quickstart.md), [agent integration](agents.md), and
-[client reference](api/client.md) for the supported calls and errors.
+[client reference](api/mcp-client.md) for the supported calls and errors.

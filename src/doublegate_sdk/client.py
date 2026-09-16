@@ -64,28 +64,17 @@ _FORBIDDEN_PATH_CHARS = frozenset(chr(c) for c in range(0x21)) | {chr(0x7f)}
 _UNSUPPORTED_CODES = frozenset({-32601, -32602})
 
 
-from doublegate_sdk.errors import DoublegateError
+from doublegate_sdk.errors import GateError  # one class for every door (ADR-0074 d5)
+
+__all__ = ["GateClient", "GateError", "HttpMcpTransport", "McpTransport", "connect", "describe_client"]
 
 
-class GateError(DoublegateError, RuntimeError):
-    """A fixed diagnostic with an optional numeric code.
+class McpTransport(Protocol):
+    """Explicit tool transport over ``POST /mcp``; the receiving gate remains authoritative.
 
-    Remote error *text* is withheld deliberately: server messages carry
-    internals, and a client log is the wrong place for them. Callers branch on
-    :attr:`kind`; nobody parses English.
+    Distinct from ``doublegate_sdk.transport.GateTransport``, whose ``call`` takes a
+    ``dg.*`` verb for ``POST /rpc`` or the Unix socket. Same shape, different vocabulary.
     """
-
-    def __init__(self, kind: str, code: int | None = None, *, outcome_unknown: bool = False):
-        self.kind, self.code = kind, code
-        self.outcome_unknown = outcome_unknown
-        super().__init__(kind)
-
-    def __repr__(self) -> str:
-        return f'GateError(kind={self.kind!r}, code={self.code!r}, outcome_unknown={self.outcome_unknown!r})'
-
-
-class GateTransport(Protocol):
-    """Explicit tool transport; the receiving gate remains authoritative."""
 
     def call(self, tool: str, arguments: dict[str, Any]) -> dict[str, Any]: ...
 
@@ -475,11 +464,11 @@ class GateClient:
     proposal is not an approval. The gate decides; this object carries bytes.
     """
 
-    def __init__(self, transport: GateTransport):
+    def __init__(self, transport: McpTransport):
         self._transport = transport
 
     @property
-    def transport(self) -> GateTransport:
+    def transport(self) -> McpTransport:
         """The underlying transport — for ``discover()`` / ``tool_names()``."""
         return self._transport
 

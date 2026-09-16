@@ -6,9 +6,7 @@ paths. It conveys integrity and classification, NEVER approval to materialize.
 """
 from __future__ import annotations
 
-import hashlib
 import io
-import json
 import re
 import stat
 import unicodedata
@@ -16,25 +14,7 @@ import zipfile
 from dataclasses import dataclass
 from typing import Any
 
-
-def canonical_json(obj: Any) -> bytes:
-    """Canonical JSON per ADR-0022: sorted keys, no whitespace, UTF-8, no NaN.
-
-    ``ensure_ascii=False`` so non-ASCII content hashes as its UTF-8 bytes, not
-    as ``\\uXXXX`` escapes — the escaped form is not canonical across encoders.
-    """
-    return json.dumps(
-        obj,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-        allow_nan=False,
-    ).encode("utf-8")
-
-
-def content_hash(blob: bytes) -> str:
-    """sha256 of a content blob — the value that goes in ``content_hash``."""
-    return hashlib.sha256(blob).hexdigest()
+from .envelope import canonical_json, content_hash
 
 
 class BundleError(ValueError):

@@ -67,8 +67,9 @@ nav:
   - Roadmap: roadmap.md
   - API reference:
       - Overview: api/index.md
+      - Gate clients (socket, /rpc): api/client.md
+      - Gate client (HTTP/MCP): api/mcp-client.md
       - Check a file against a manifest: api/authoring.md
-      - Gate memory client: api/client.md
       - Manifest: api/manifest.md
       - Load a check manifest: api/package.md
       - Evaluation: api/runtime.md
@@ -76,5 +77,7 @@ nav:
       - Reason categories: api/reasons.md
       - Response schemas: api/schema.md
       - Skipped reasons: api/skipped.md
+      - Byte submission: api/submission.md
+      - Identity verification: api/identity.md
       - CLI: api/cli.md
   - Maintainers: maintaining.md
