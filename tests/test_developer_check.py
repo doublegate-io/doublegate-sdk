@@ -47,6 +47,23 @@ def test_preflight_runs_from_another_directory(tmp_path):
     assert json.loads(result.stdout)['source'] == str(ROOT/'src/doublegate_sdk')
 
 
+def test_snapshot_detects_changes_to_executed_examples_and_package_docs(tmp_path, monkeypatch):
+    module = checker()
+    monkeypatch.setattr(module, 'ROOT', tmp_path)
+    monkeypatch.setattr(module, 'SOURCE', tmp_path/'src/doublegate_sdk')
+    names = ['examples/starters/app.py', 'llms.txt', 'MANIFEST.in']
+    for name in names:
+        path = tmp_path/name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('initial fixture')
+    before = module.snapshot()
+    assert set(names).issubset(before)
+    for name in names:
+        (tmp_path/name).write_text('changed fixture')
+        after = module.snapshot()
+        assert after[name] != before[name]
+
+
 def prepare_run(tmp_path, monkeypatch):
     module = checker()
     monkeypatch.setattr(module, 'ROOT', tmp_path)

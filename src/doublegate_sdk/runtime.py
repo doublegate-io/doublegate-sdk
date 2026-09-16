@@ -6,8 +6,14 @@ from doublegate_sdk.checks import Finding, ScanResult
 from doublegate_sdk.manifest import GatePackage
 
 
-class EvaluationError(ValueError):
+from doublegate_sdk.errors import DoublegateError
+
+
+class EvaluationError(DoublegateError, ValueError):
     """A fixed diagnostic, never containing input text."""
+    @property
+    def kind(self):
+        return str(self.args[0]) if self.args else 'evaluation_error'
 
 
 def evaluate(package: GatePackage, content: str, artifact_type: str) -> ScanResult:

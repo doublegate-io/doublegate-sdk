@@ -27,6 +27,16 @@ jobs:
       - run: uv run --no-sync pytest
       - run: uv run --no-sync mkdocs build --strict
       - run: uv build
+      - name: Verify the built wheel in a fresh consumer environment
+        run: |
+          uv venv .tmp/wheel-consumer --python '${{ matrix.python }}'
+          uv pip install --python .tmp/wheel-consumer/bin/python dist/*.whl
+          uv pip check --python .tmp/wheel-consumer/bin/python
+          mkdir -p .tmp/consumer-work
+          consumer_python="$PWD/.tmp/wheel-consumer/bin/python"
+          verifier="$PWD/scripts/verify_installed.py"
+          cd .tmp/consumer-work
+          "$consumer_python" -I "$verifier"
   docs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: test

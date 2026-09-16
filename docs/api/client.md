@@ -15,6 +15,12 @@ transport refuses a deciding verb before any I/O; the gate refuses it again
 from the identity it derived off the connection (I2). A successful proposal is
 a receipt, not an admission: every result carries `proposals_are_admission = False`.
 
+These two clients speak the gate's `dg.*` verbs over its Unix socket or its
+`POST /rpc` door. The third door, `POST /mcp`, is the tool catalog an MCP host
+sees; `doublegate_sdk.client` ([Gate client (HTTP/MCP)](mcp-client.md)) speaks
+it with `HttpMcpTransport`, exposes only the tools the maintained client tier
+serves, and raises the same `GateError`.
+
 ## Discover the API
 
 `python -m doublegate_sdk describe-client` prints both clients' methods from
@@ -63,7 +69,8 @@ message, capped at 512 characters, and never appears in `str(exc)`.
 | `invalid_response`, `response_too_large`, `request_too_large` | the frame, not the gate |
 | `writes_disabled`, `forbidden_operation`, `proof_required`, `page_limit` | refused on this side, before I/O |
 | `identity`, `invalid_params`, `unsupported_operation`, `busy`, `banned`, `refused`, `remote_error` | the gate's answer (`-32000`, `-32600/-32602`, `-32601`, `-32006`, `-32009`, `-32010..-32014`, other) |
-| `auth`, `scope` | the HTTP door (401, 403) |
+| `auth`, `scope` | the HTTP `/rpc` door (401, 403) |
+| `unauthorized`, `forbidden`, `tool_error`, `redirect_refused` | the HTTP `/mcp` door ([mcp-client](mcp-client.md)) |
 
 The same two tables live in the constellation app's `rpc.ts`; change both or neither.
 
@@ -148,7 +155,7 @@ Unit tests drive both transports against a real `AF_UNIX` listener and a
 loopback `http.server`: the allowlist before I/O, the shared deadline, byte
 caps, malformed and duplicate-key replies, lost-reply outcomes, the code
 tables, every client method against a recording transport, the proof flow for
-each operator verb. `examples/verify_memory_lifecycle.py` runs a real Client
+each operator verb. `examples/verify_knowledge_lifecycle.py` runs a real Client
 Gate in-process with the deterministic `StubBackend`: proposal → held →
 duplicate → admission → provisional recall → a learning with provenance. It is
 not live-model, cross-principal, Windows or organization-delivery evidence.

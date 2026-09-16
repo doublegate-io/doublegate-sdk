@@ -1,0 +1,20 @@
+{
+  "note": "One offline exchange this application would have with a reviewer adapter if the SDK published one. Recorded by hand; no model produced it.",
+  "input": {
+    "artifact_type": "memory",
+    "content_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "deterministic_outcome": "flagged",
+    "human_review": "required",
+    "excerpt_policy": "withheld",
+    "findings": [
+      {"kind": "required-text", "severity": "warning",
+       "detail": "required_text_missing: check 1", "start": 0, "end": 0, "excerpt": ""}
+    ]
+  },
+  "output": {
+    "category": "quality",
+    "blockers": ["semantic_review", "human_required"],
+    "skipped_reason": null,
+    "notes": "Rollback instructions absent; a human reviewer still owns this decision."
+  }
+}

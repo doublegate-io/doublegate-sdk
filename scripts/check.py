@@ -50,8 +50,15 @@ def coverage(path, *, require_success=True):
 
 
 def snapshot():
-    paths = [ROOT / 'pyproject.toml', ROOT / 'mkdocs.yml', ROOT / 'README.md']
-    paths += [p for base in (SOURCE, ROOT / 'docs', ROOT / 'tests', ROOT / 'scripts')
+    # examples/ is hashed because the suite executes it: tests/test_examples.py
+    # runs examples/quickstart.py, and the starter tests run and import
+    # examples/starters/*. A snapshot that skips the programs under test cannot
+    # support a source_unchanged claim about them.
+    paths = [ROOT / 'pyproject.toml', ROOT / 'mkdocs.yml', ROOT / 'README.md',
+             ROOT / 'llms.txt', ROOT / 'MANIFEST.in']
+    paths = [p for p in paths if p.is_file()]
+    paths += [p for base in (SOURCE, ROOT / 'docs', ROOT / 'tests', ROOT / 'scripts',
+                             ROOT / 'examples')
               for p in base.rglob('*') if p.is_file() and '__pycache__' not in p.parts
               and p.suffix != '.pyc']
     return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}

@@ -1,0 +1,113 @@
+name: publish
+
+# ADR-0051 (FR-71), as it applies to the one PUBLIC repository: every push to
+# main assembles the distributions from the commit, records their sha256
+# digests in the run log, and uploads them as a run artifact named
+# doublegate-sdk-dist-sha-<sha12> — the same shape client-gate and
+# organization-gate use (doublegate-dist-sha-<sha12>,
+# doublegate-org-dist-sha-<sha12>).
+#
+# Per the dated 2026-09-09 correction in ADR-0051, doublegate publishes to
+# GitHub ONLY until the first release: no PyPI, no trusted publishing, no name
+# registration. Consumers hash-pin a GitHub release asset URL, so the digests
+# printed here are the thing a human compares against a pin — this workflow
+# exists so nobody has to trust a hand-cut wheel.
+#
+# workflow_dispatch cuts a release: it builds the same way, then attaches the
+# wheel and sdist to a GitHub pre-release for the tag it creates from the
+# dispatched ref.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag to create and publish a pre-release for (e.g. v0.1.0.dev3). Leave empty to build artifacts only.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  dist:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # only used when release_tag is supplied
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e  # v6.8.0
+        with:
+          version: '0.8.22'
+      - name: resolve tags
+        id: meta
+        run: echo "sha12=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: build the wheel and sdist
+        run: uv build
+
+      # The pin in every consumer is a sha256 of a release asset. Printing the
+      # digests here makes the pin checkable against a build log rather than
+      # against somebody's memory of an upload.
+      - name: record the sha256 digests
+        run: |
+          echo "commit: $GITHUB_SHA"
+          sha256sum dist/* | tee dist-sha256.txt
+          {
+            echo '### distributions built from `'"$GITHUB_SHA"'`'
+            echo
+            echo '```'
+            cat dist-sha256.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # A wheel that does not contain the module it advertises is the failure
+      # this workflow was written after. Install it clean and import every
+      # public module by name.
+      - name: the built wheel imports in a fresh consumer environment
+        run: |
+          uv venv /tmp/smoke
+          uv pip install --python /tmp/smoke/bin/python dist/*.whl
+          /tmp/smoke/bin/python -I -c "
+          import importlib
+          for name in ('checks', 'manifest', 'package', 'runtime', 'submission'):
+              importlib.import_module('doublegate_sdk.' + name)
+              print('imported: doublegate_sdk.' + name)
+          "
+          /tmp/smoke/bin/doublegate-sdk --help > /dev/null
+
+      - name: publish the bundle as a run artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+        with:
+          name: doublegate-sdk-dist-sha-${{ steps.meta.outputs.sha12 }}
+          path: |
+            dist/
+            dist-sha256.txt
+          retention-days: 30
+          if-no-files-found: error
+
+      # GitHub release assets are the only distribution channel before the
+      # first release (ADR-0051, 2026-09-09 correction). No index, no PyPI.
+      - name: attach the distributions to a GitHub pre-release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.release_tag }}
+        run: |
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "SDK ${TAG#v} — offline declarative gate authoring" \
+            --notes "Built by the publish workflow from \`$GITHUB_SHA\`.
+
+          sha256 of the attached distributions:
+
+          \`\`\`
+          $(cat dist-sha256.txt)
+          \`\`\`" \
+            dist/*

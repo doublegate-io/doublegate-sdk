@@ -15,7 +15,7 @@ admission authority. Limits are supplied by the calling gate.
 Install this local repository with `python -m pip install .` in a virtual
 environment. Run all commands below from the standalone repository root, using
 that environment's Python. The console command `doublegate-sdk` is equivalent to
-`python -m doublegate_sdk`. The package version is `0.1.0.dev0`; manifest and SDK
+`python -m doublegate_sdk`. The package version is `0.1.0.dev5`; manifest and SDK
 contract versions are both `"0.1"`. Source is available on GitHub; no PyPI release is claimed.
 
 Python 3.11+ is required. The loader uses POSIX descriptor-relative operations and
@@ -29,10 +29,13 @@ python -m doublegate_sdk validate --help
 python -m doublegate_sdk evaluate --help
 ```
 
-All four help commands exit `0`. The top-level command lists only `schema`,
-`validate`, and `evaluate`. Evaluation takes a manifest, a regular UTF-8 input
-file, and the required `--artifact-type` option. It does not accept stdin or fetch
-URLs; `-` is not a stdin shortcut.
+All four help commands exit `0`. The top-level command lists four subcommands:
+`schema`, `describe-client`, `validate` and `evaluate`. The first two are pure
+emitters that take no arguments and cannot fail on input; `describe-client`
+describes *this SDK's* Python client offline and is documented on the
+[client reference](api/client.md), not here. Evaluation takes a manifest, a
+regular UTF-8 input file, and the required `--artifact-type` option. It does not
+accept stdin or fetch URLs; `-` is not a stdin shortcut.
 
 ## Quick start: the included runbook gate
 
@@ -96,7 +99,7 @@ python -m doublegate_sdk evaluate examples/gates/runbook/gate.json examples/gate
 Exit `0`, empty stderr, actual stdout:
 
 ```json
-{"digest": "c0b4b8bf5d9c07147b99892547421127205e7a8815050c3bd0e5248a43a80745", "findings": [], "human_review": "required", "name": "runbook", "outcome": "clean", "version": "1.0.0"}
+{"artifact_type": "memory", "digest": "c0b4b8bf5d9c07147b99892547421127205e7a8815050c3bd0e5248a43a80745", "findings": [], "human_review": "required", "name": "runbook", "outcome": "clean", "version": "1.0.0"}
 ```
 
 Notice that `human_review` is still `required`. The check has not performed or
@@ -116,7 +119,7 @@ python -m doublegate_sdk evaluate examples/gates/runbook/gate.json pyproject.tom
 Exit `1`, empty stderr, actual stdout:
 
 ```json
-{"digest": "c0b4b8bf5d9c07147b99892547421127205e7a8815050c3bd0e5248a43a80745", "findings": [{"detail": "required_text_missing: check 0", "end": 0, "excerpt": "", "kind": "required-text", "severity": "warning", "start": 0}], "human_review": "required", "name": "runbook", "outcome": "flagged", "version": "1.0.0"}
+{"artifact_type": "memory", "digest": "c0b4b8bf5d9c07147b99892547421127205e7a8815050c3bd0e5248a43a80745", "findings": [{"detail": "required_text_missing: check 0", "end": 0, "excerpt": "", "kind": "required-text", "severity": "warning", "start": 0}], "human_review": "required", "name": "runbook", "outcome": "flagged", "version": "1.0.0"}
 ```
 
 Check indexes are zero-based and follow manifest order. Missing-text findings
@@ -152,6 +155,29 @@ Exit `2`, empty stdout, actual stderr:
 ```json
 {"error": "invalid_json"}
 ```
+
+## The same check from Python
+
+The CLI is a thin wrapper. `evaluate_file` is the operation itself, and it
+produces the payload the CLI prints:
+
+```python
+from doublegate_sdk import evaluate_file
+
+evaluation = evaluate_file('examples/gates/runbook/gate.json',
+                           'examples/gates/runbook/pass.txt',
+                           artifact_type='memory')
+print(evaluation.outcome, evaluation.human_review)   # clean required
+```
+
+`evaluation.flagged` is the boolean behind exit code `1`, `evaluation.findings`
+carries the same findings, and `evaluation.to_payload()` is the stdout object.
+Failures the CLI reports as `{"error": ...}` with exit `2` are raised here
+instead, all under `doublegate_sdk.errors.DoublegateError`.
+
+`examples/quickstart.py` is this workflow as a runnable program. See
+[the API page](api/authoring.md) for the result fields, the error table, and when
+to drop to `load_package`/`evaluate` directly instead.
 
 ## Authoring `gate.json`
 
@@ -310,15 +336,19 @@ supplied arguments; do not put secrets in command-line arguments.
 | `unsafe_path` | Remove `..` components or an empty path. Select a direct local path. |
 | `unreadable_file` | Check existence, access permissions, and symlink-free path components. OS open failures are deliberately collapsed into this diagnostic. |
 | `not_regular_file` | Select a regular file, not a directory or special file. Some path-open failures instead report `unreadable_file`. |
-| `file_too_large` | Keep manifest size at or below 65,536 bytes and input at or below the manifest's `max_input_bytes`. Raise the declared input limit only within its allowed maximum. |
+| `file_too_large` | The **manifest** exceeded 65,536 bytes. Only the manifest reports this code; an oversized content file reports `input_too_large` instead. |
 | `invalid_utf8` during evaluation | Supply valid UTF-8 input. Invalid manifest encoding instead reports `invalid_json`. |
 | `unsupported_artifact_type` | Choose a CLI-supported type also listed in this manifest. Unknown CLI choices are parser errors instead. |
 | Unexpected `flagged` | Inspect the zero-based missing-check index. Match exact case, spaces, and newlines; no normalization or regex is applied. |
 | `clean` but review is still required | Expected: checks produce evidence and do not complete human review. |
 
-The in-process evaluator also defines `invalid_input_type` and `input_too_large`
-for direct callers. Normal CLI input is decoded from a bounded file first, so
-oversized CLI files report `file_too_large` rather than `input_too_large`.
+`input_too_large` is the code for an oversized **content** file, whether it is
+caught by the bounded read or by the evaluator: `evaluate_file` translates the
+loader's `file_too_large` into `EvaluationError('input_too_large')` so that one
+condition has one name regardless of which layer noticed. Keep content at or
+below the manifest's `max_input_bytes`, and raise that declared limit only
+within its allowed maximum of 1,048,576. The in-process evaluator also defines
+`invalid_input_type` for direct callers passing a non-`str` body.
 
 ## Future scope, not current commands
 

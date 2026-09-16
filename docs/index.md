@@ -1,27 +1,50 @@
-# Checks produce evidence.
-# People retain authority.
+# Add governed memory to your application
 
-Doublegate SDK is a small, offline Python toolkit for declarative gate authors.
-Validate one JSON manifest, check required text, and carry structured findings
-into your own trusted review workflow.
+Use DoubleGate to submit observations, inspect their review state and retrieve
+knowledge with provenance. The SDK gives Python applications a client; agent hosts
+can connect directly through MCP.
 
-<div class="contract">manifest → bounded check → evidence<br>Human review and publication remain outside this SDK.</div>
+## Choose your starting point
 
-!!! warning "Development snapshot · 0.1.0.dev0"
-    This is a development snapshot, not a stable release. The manifest and
-    SDK contract are both `0.1`. The package is not published to PyPI.
+| What you are building | Start here |
+|---|---|
+| A Python application using memory | [Connect, propose and recall](quickstart.md) |
+| An agent using tools | [Connect your agent through MCP](agents.md) |
+| A deterministic content check | [Author a check](manual.md) |
+| A DoubleGate integration or extension | [API reference](api/index.md) |
 
-[Run the Python quickstart](quickstart.md){ .md-button .md-button--primary }
-[Browse the API](api/index.md){ .md-button }
+## One client, a few memory operations
 
-## Small by design
+```python
+import os
+from doublegate_sdk import connect
 
-- **No runtime dependencies.** Python standard library only.
-- **No executable plugins.** Required strings are literal and case-sensitive.
-- **Bounded local files.** POSIX-only loader rejects symlinks and special files.
-- **No authority handles.** A clean result does not authorize publication.
+client = connect(os.environ['DOUBLEGATE_ENDPOINT'],
+                 token=os.environ.get('DOUBLEGATE_TOKEN'))
+answers = client.recall('How do we label laboratory specimens?', limit=5)
+```
 
-Use the [offline manual](manual.md) for CLI examples and the complete manifest
-contract, or [compatibility policy](versions.md) before integrating with client-gate.
+Start with a running gate endpoint. Enable writes explicitly when your application
+needs to propose observations. Preserve the artifact id to follow review, and keep
+provenance with retrieved content. See the [complete quickstart](quickstart.md).
+
+## How the workflow fits together
+
+Submit an observation → inspect its state → retrieve it when eligible for serving.
+
+The gate performs review and enforces permissions. Your application chooses when
+to submit and how to use the returned evidence. Pending submissions do not become
+knowledge merely because a request succeeded.
+
+## Developer resources
+
+- [Client API and error handling](api/mcp-client.md)
+- [Compatibility](versions.md)
+- [SDK roadmap](roadmap.md)
+- [Contributing and verification](maintaining.md)
+
+The development SDK is distributed through GitHub. Remote authenticated MCP and
+release acceptance are tracked in the roadmap. The inspected local Client Gate's
+MCP listener is keyless on loopback; do not expose it as an authenticated remote API.
 
 Apache-2.0. Copyright 2026 Eugene Korniichuk and the doublegate contributors.

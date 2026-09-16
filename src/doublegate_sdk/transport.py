@@ -6,6 +6,11 @@ verb it will emit — checked before any I/O — and a refusal here is a
 courtesy: the receiving gate refuses regardless, from the identity it
 derived off the connection (I2). A caller-supplied ``GateTransport`` owns
 its own allowlist.
+
+Both transports here carry ``dg.*`` verbs: ``UnixSocketTransport`` over the
+daemon socket, ``HttpTransport`` over ``POST /rpc``. The third door,
+``POST /mcp`` (the MCP tool catalog), is ``doublegate_sdk.client.HttpMcpTransport``
+behind ``doublegate_sdk.client.McpTransport``; same shape, different vocabulary.
 """
 from __future__ import annotations
 

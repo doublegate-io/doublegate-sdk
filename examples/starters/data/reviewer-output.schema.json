@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local reviewer-adapter output (caller-owned, not a product contract)",
+  "description": "What this application would accept back from a reviewer adapter. category, blockers and skipped_reason reuse the SDK's published closed vocabularies (doublegate_sdk.reasons, .vocabulary, .skipped) so a value that passes here also passes the SDK normalisers. No field here admits, promotes or withdraws anything; a gate never sees this document, and no gate validates it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["category", "blockers", "notes"],
+  "properties": {
+    "category": {
+      "type": ["string", "null"],
+      "enum": ["off-scope", "quality", "policy", "duplicate", "unreadable", null]
+    },
+    "blockers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["hard_constraint", "semantic_review", "needs_evidence", "quorum",
+                 "reviewer_unavailable", "human_required", "human_directive",
+                 "authority_conflict", "retry_exhausted"]
+      }
+    },
+    "skipped_reason": {
+      "type": ["string", "null"],
+      "enum": ["duplicate", "surface_unwritable", "never_promoted", "not_served", null]
+    },
+    "notes": {"type": "string", "maxLength": 512}
+  }
+}
