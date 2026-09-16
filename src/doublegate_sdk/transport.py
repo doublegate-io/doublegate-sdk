@@ -21,6 +21,7 @@ import os
 import socket
 import time
 import urllib.parse
+from collections.abc import Callable
 from typing import Any, Protocol
 
 from doublegate_sdk.errors import GateError, kind_of_code, kind_of_status
@@ -42,6 +43,13 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
             raise GateError('invalid_response')
         result[key] = value
     return result
+
+
+def _bearer_text(bearer: Any) -> str:
+    """A bearer is text without whitespace; anything else is refused before I/O."""
+    if isinstance(bearer, str) and not any(c.isspace() for c in bearer):
+        return bearer
+    raise ValueError('bearer must be text without whitespace')
 
 
 def _remaining(deadline: float) -> float:
@@ -179,11 +187,15 @@ class UnixSocketTransport(_Bounded):
 
 class HttpTransport(_Bounded):
     """The same message over ``POST {base}/rpc`` with a bearer: the client
-    gate's console token on its loopback listener, or an organization gate's
-    admin key. JSON-RPC refusals ride a 200; the door's own refusals are HTTP
-    statuses (401 auth, 403 scope, 413, 429/503 with Retry-After)."""
+    gate's console token on its loopback listener, an organization gate's
+    admin key, or an assertion an agent mints from its own key (ADR-0080 d4).
+    ``bearer`` is the string itself or a zero-argument callable returning the
+    current one, called once per request — the shape a short-lived assertion
+    needs, re-minted by its holder before it expires. JSON-RPC refusals ride a
+    200; the door's own refusals are HTTP statuses (401 auth, 403 scope, 413,
+    429/503 with Retry-After)."""
 
-    def __init__(self, base_url: str, *, bearer: str = '', timeout: float = 10.0,
+    def __init__(self, base_url: str, *, bearer: str | Callable[[], str] = '', timeout: float = 10.0,
                  max_response_bytes: int = DEFAULT_MAX_RESPONSE_BYTES, scope: str = READ):
         self._init_bounds(timeout, max_response_bytes, scope)
         if not isinstance(base_url, str) or not base_url:
@@ -191,8 +203,8 @@ class HttpTransport(_Bounded):
         parts = urllib.parse.urlsplit(base_url)
         if parts.scheme not in ('http', 'https') or not parts.hostname:
             raise ValueError('base_url must be an http(s) URL with a host')
-        if not isinstance(bearer, str) or any(c.isspace() for c in bearer):
-            raise ValueError('bearer must be text without whitespace')
+        if not callable(bearer):
+            _bearer_text(bearer)
         self._parts, self._bearer = parts, bearer
         self._base_url = base_url
 
@@ -213,8 +225,9 @@ class HttpTransport(_Bounded):
         writing = self._admit(method)
         body = encode_request(method, params)
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        if self._bearer:
-            headers['Authorization'] = 'Bearer ' + self._bearer
+        bearer = _bearer_text(self._bearer()) if callable(self._bearer) else self._bearer
+        if bearer:
+            headers['Authorization'] = 'Bearer ' + bearer
         path = (self._parts.path.rstrip('/') or '') + '/rpc'
         sending = False
         try:

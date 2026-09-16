@@ -130,6 +130,24 @@ def test_the_http_transport_posts_one_message_to_rpc_with_the_bearer(http_server
     assert seen == [('POST', '/rpc', 'Bearer tok-1', {'jsonrpc': '2.0', 'id': 1, 'method': 'dg.ping', 'params': {}})]
 
 
+def test_a_callable_bearer_is_asked_once_per_request_so_a_holder_can_re_mint(http_server):
+    """ADR-0080 d4: an agent's assertion is short-lived; the transport asks its
+    holder for the current one on every call and never caches it."""
+    seen = []
+    minted = iter(['first', 'second', 'third'])
+
+    def handler(method, path, headers, body):
+        seen.append(headers.get('Authorization'))
+        return 200, {'Content-Type': 'application/json'}, json.dumps({'jsonrpc': '2.0', 'id': 1, 'result': {}}).encode()
+    transport = HttpTransport(http_server(handler), bearer=lambda: next(minted))
+    transport.call('dg.ping', {}); transport.call('dg.ping', {})
+    assert seen == ['Bearer first', 'Bearer second']
+    transport.with_timeout(1).call('dg.ping', {})  # the callable travels with the copy
+    assert seen[-1] == 'Bearer third'
+    with pytest.raises(ValueError, match='bearer'):
+        HttpTransport(http_server(handler), bearer=lambda: 'has space').call('dg.ping', {})
+
+
 @pytest.mark.parametrize('status,kind,retry', [(401, 'auth', None), (403, 'scope', None), (413, 'request_too_large', None),
                                                (429, 'busy', 2000), (503, 'busy', 2000), (500, 'remote_error', None)])
 def test_the_http_door_statuses_become_kinds_and_retry_after_is_kept(http_server, status, kind, retry):
