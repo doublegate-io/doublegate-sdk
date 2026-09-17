@@ -1,0 +1,85 @@
+# LINT / TYPE GATE REPORT
+run_utc: 2026-09-13T13:29:08Z
+
+## Tool provenance (IMPORTANT)
+The repo pins NO ruff/mypy: pyproject.toml has no [tool.ruff]/[tool.mypy], there is no
+ruff.toml/.ruff.toml/mypy.ini/setup.cfg, uv.lock contains neither package, and .github/workflows/ci.yml
+runs only: pytest, mkdocs build --strict, uv build, wheel-consumer verify. So there is NO repo-pinned
+lint/type gate to reproduce. Tools below are explicitly chosen and version-pinned by the reviewer:
+  ruff 0.14.6 (uvx ruff@0.14.6) — DEFAULT rule set (E4,E7,E9,F), target-version inferred from requires-python >=3.11
+  mypy 1.18.2 (uvx mypy@1.18.2)
+Stale .ruff_cache/.mypy_cache existed in the worktree; every run below used --no-cache / a fresh cache dir.
+
+=== [1] ruff check — FULL SCOPE (src tests scripts examples), default rules ===
+All checks passed!
+ruff_full_exit=0
+
+=== [2] ruff check — CHANGED FILES ONLY ===
+All checks passed!
+ruff_changed_exit=0
+
+=== [3] ruff format --check (informational; repo never enforced formatting) ===
+Would reformat: examples/quickstart.py
+Would reformat: scripts/preview_docs.py
+Would reformat: scripts/verify_installed.py
+Would reformat: src/doublegate_sdk/__main__.py
+Would reformat: src/doublegate_sdk/_schema.py
+Would reformat: src/doublegate_sdk/checks.py
+Would reformat: src/doublegate_sdk/manifest.py
+Would reformat: src/doublegate_sdk/observability/__init__.py
+Would reformat: src/doublegate_sdk/observability/_otel.py
+Would reformat: src/doublegate_sdk/observability/options.py
+Would reformat: src/doublegate_sdk/observability/redaction.py
+Would reformat: src/doublegate_sdk/package.py
+Would reformat: src/doublegate_sdk/reasons.py
+Would reformat: src/doublegate_sdk/runtime.py
+Would reformat: src/doublegate_sdk/schema.py
+Would reformat: src/doublegate_sdk/skipped.py
+Would reformat: src/doublegate_sdk/submission.py
+Would reformat: src/doublegate_sdk/vocabulary.py
+Would reformat: tests/support/generate_note_fixture.py
+Would reformat: tests/test_bounded_schema.py
+Would reformat: tests/test_content_digest_mapping.py
+Would reformat: tests/test_examples.py
+Would reformat: tests/test_gate_lifecycle.py
+Would reformat: tests/test_gate_manifest.py
+Would reformat: tests/test_gate_sdk_cli.py
+Would reformat: tests/test_installed_artifact.py
+Would reformat: tests/test_observability_collector.py
+Would reformat: tests/test_observability_deployment_identity.py
+Would reformat: tests/test_observability_exception_leak.py
+Would reformat: tests/test_observability_exceptions.py
+Would reformat: tests/test_observability_logs_bridge.py
+Would reformat: tests/test_observability_options.py
+Would reformat: tests/test_observability_otel.py
+Would reformat: tests/test_observability_redaction.py
+Would reformat: tests/test_observability_wire.py
+Would reformat: tests/test_response_schema.py
+Would reformat: tests/test_skipped_reasons.py
+Would reformat: tests/test_standalone.py
+Would reformat: tests/test_submission_canonicalization.py
+Would reformat: tests/test_vocabulary.py
+40 files would be reformatted, 2 files already formatted
+ruff_format_exit=1
+
+=== [4] mypy 1.18.2 — default settings, package scope src/doublegate_sdk (python 3.11 target, worktree venv for otel deps) ===
+Success: no issues found in 16 source files
+mypy_default_src_exit=0
+
+=== [5] mypy --strict — src/doublegate_sdk (whole package: gives BASELINE vs new-code split) ===
+src/doublegate_sdk/_schema.py:23: error: Returning Any from function declared to return "bool"  [no-any-return]
+src/doublegate_sdk/_schema.py:30: error: Returning Any from function declared to return "bool"  [no-any-return]
+src/doublegate_sdk/package.py:65: error: Function is missing a type annotation  [no-untyped-def]
+Found 3 errors in 2 files (checked 16 source files)
+mypy_strict_src_exit=1
+
+### BASELINE SPLIT for [5]: all 3 --strict errors are in PRE-EXISTING files (_schema.py, package.py) that this
+### change does not touch. ZERO strict errors in the 4 new observability modules. Baseline documented, not hidden.
+
+=== [6] mypy --strict — CHANGED observability source files only ===
+Success: no issues found in 4 source files
+mypy_strict_changed_exit=0
+
+=== [7] mypy (default) — new observability tests ===
+Success: no issues found in 9 source files
+mypy_tests_exit=0

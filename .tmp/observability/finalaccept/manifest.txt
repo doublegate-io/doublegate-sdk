@@ -1,0 +1,101 @@
+# FINAL ACCEPTANCE MANIFEST — SDK observability
+generated_utc: 2026-09-13T13:28:33Z
+worktree: /home/eugene/workspace/doublegate/.tmp/sdk-observability
+gitdir: gitdir: /home/eugene/workspace/doublegate/doublegate-sdk/.git/worktrees/sdk-observability
+head: efc8e74c848b69fececba6d1ef364a0c37a8bf06  fix(sdk): validate published schemas through one bounded engine (#9)
+branch: feat/observability
+
+## git status --porcelain -uall (tracked + untracked, excluding .tmp checkpoint dir)
+ M pyproject.toml
+ A src/doublegate_sdk/observability/__init__.py
+ A src/doublegate_sdk/observability/_otel.py
+ A src/doublegate_sdk/observability/options.py
+ A src/doublegate_sdk/observability/redaction.py
+ A tests/test_observability_collector.py
+ A tests/test_observability_deployment_identity.py
+ A tests/test_observability_exception_leak.py
+ A tests/test_observability_exceptions.py
+ A tests/test_observability_logs_bridge.py
+ A tests/test_observability_options.py
+ A tests/test_observability_otel.py
+ A tests/test_observability_redaction.py
+ A tests/test_observability_wire.py
+ M uv.lock
+
+## git check-ignore report for build artefacts present on disk
+.venv          .gitignore:1:.venv*/	.venv
+.mypy_cache    NOT-IGNORED (present: yes)
+.ruff_cache    NOT-IGNORED (present: yes)
+build          .gitignore:6:build/	build
+dist           .gitignore:7:dist/	dist
+site           .gitignore:8:site/	site
+.pytest_cache  .gitignore:5:.pytest_cache/	.pytest_cache
+.tmp           NOT-IGNORED (present: yes)
+
+## sha256 of every added/modified tracked source file
+eeb63313b24ed0d32186d567e8157081ec6df8ff7498b8e38354f698862950b1  pyproject.toml
+e96b6f3c54b45f60a9b061828144f6bf6b3de34a18718fe07d298a5c6610f334  src/doublegate_sdk/observability/__init__.py
+9741d69e97c10684c9736138331c58192365b6e0dd3193fe86a97fb1949fb211  src/doublegate_sdk/observability/_otel.py
+f75e5940a727f4ef032d079c099a38a79a8c79b799b3f4ca23d1ee79be5b03c4  src/doublegate_sdk/observability/options.py
+ed830ce85f10ddc0392623a4819a9559f528bb993636704ff763953ddfd33d31  src/doublegate_sdk/observability/redaction.py
+0125f80bd6f3007911ae0a0372082a8a26392f357179a5038e21fa75e50c828f  tests/test_observability_collector.py
+e580d4d0c4323aa0b29f6b4c58a3a00f95920d231d2be87389c4e68e0b11dfaa  tests/test_observability_deployment_identity.py
+4e8313ed075012c19ba3faa04832cd662403ee40616f8335410fd4cfaaf9fc47  tests/test_observability_exception_leak.py
+7a248fe6555db0239887d9f92ef08c695323be7f30cc69c925fe2d081dc453cf  tests/test_observability_exceptions.py
+27612c26519dc6b2827b8110a09e09c2d5b4633da8f47c109bcdc2bd4177b63c  tests/test_observability_logs_bridge.py
+723fe423d3b1fded7de60eeae7975e0158aa59861094e0b57a6df80161a3fc27  tests/test_observability_options.py
+58cfd6e09cb9627201e69326078ccbdaf494283bbc8cee5b3835c2fdadbe1346  tests/test_observability_otel.py
+a49f95050800c66c861fe193f22e0b16e418834d0bd77ff421d9ab71d26f45d1  tests/test_observability_redaction.py
+4bdb0bf0d55c8d1a2e5a51e4e730d28e1086fd4e155ff9450e3f6bb177bf49e2  tests/test_observability_wire.py
+d513fc2bb48d3f3ceaa348a64b2d1fbba22df9028d89c0225c70d421c5909130  uv.lock
+
+## diffstat vs HEAD
+ pyproject.toml                                  |  14 +
+ src/doublegate_sdk/observability/__init__.py    | 365 ++++++++++++++++++++++++
+ src/doublegate_sdk/observability/_otel.py       | 303 ++++++++++++++++++++
+ src/doublegate_sdk/observability/options.py     | 138 +++++++++
+ src/doublegate_sdk/observability/redaction.py   | 140 +++++++++
+ tests/test_observability_collector.py           | 136 +++++++++
+ tests/test_observability_deployment_identity.py |  63 ++++
+ tests/test_observability_exception_leak.py      | 318 +++++++++++++++++++++
+ tests/test_observability_exceptions.py          | 130 +++++++++
+ tests/test_observability_logs_bridge.py         |  66 +++++
+ tests/test_observability_options.py             |  56 ++++
+ tests/test_observability_otel.py                | 154 ++++++++++
+ tests/test_observability_redaction.py           | 111 +++++++
+ tests/test_observability_wire.py                | 216 ++++++++++++++
+ uv.lock                                         | 250 +++++++++++++++-
+ 15 files changed, 2459 insertions(+), 1 deletion(-)
+
+## Wheel evidence
+worktree dist:
+2a17b857c0e74b63c3fc21871668f6fc2a429bde1bd6b0eeda9e174fb276382c  dist/doublegate_sdk-0.1.0.dev2-py3-none-any.whl
+builder dist (/home/eugene/.hermes/claude-code/fix-sdk-obs/dist):
+1ab04ca5cad561652701c5ad8ef2979f03229988bd0edce23f041359c20ddcb4  /home/eugene/.hermes/claude-code/fix-sdk-obs/dist/doublegate_sdk-0.1.0.dev2-py3-none-any.whl
+NOTE: the two .whl archives differ by sha256 (zip metadata/timestamps) but their EXTRACTED CONTENTS are byte-identical (verified diff -r, no differences).
+
+### wheel member sha256 (RECORD-independent, from extracted worktree wheel)
+2a08d0715cfe554b946246e2e3c745b864c82ce05b2e6be7cbc308cf2038576c  ./doublegate_sdk-0.1.0.dev2.dist-info/METADATA
+532df77946a5275c7ed998cec8c140165e0bbd6eb30820165c548f7d1da45d48  ./doublegate_sdk-0.1.0.dev2.dist-info/RECORD
+61532836a2b3111b7ec23519c09df7c41180c27165fb872a6d8913b566b88ad1  ./doublegate_sdk-0.1.0.dev2.dist-info/WHEEL
+59abf8353db429e554974cae01c5e0422d470eb8626a41a46b26f1f3300f01d7  ./doublegate_sdk-0.1.0.dev2.dist-info/entry_points.txt
+da12d0124e02c5db9a596fe3e286b66371a43cc586a8cdb47b9094d97966a3f6  ./doublegate_sdk-0.1.0.dev2.dist-info/licenses/LICENSE
+460f0b39675fd262f7bfd5c2af3c0cb77837c0f570119d24a5a53df80fc598c7  ./doublegate_sdk-0.1.0.dev2.dist-info/licenses/NOTICE
+ebf7c9f84c232f98a741d765965db36dffde0fb196cbde31aaf197a14da5962c  ./doublegate_sdk-0.1.0.dev2.dist-info/top_level.txt
+9ca3da8128bcb3bbb44cbf7dd8e4121eb5245a5770e4ca8a1ff39b66c4b008b3  ./doublegate_sdk/__init__.py
+ea788791a241d64f2d06dc71f394213292ce1bc8f285c64e3d3e784dd009482e  ./doublegate_sdk/__main__.py
+1564a6b9a2e889a21a00a684132185ac7098600e6179951e8d4cca718dda72e2  ./doublegate_sdk/_schema.py
+2636e13000480bc8093962e02b0dbf6e3f3c0019cb77d052d6c613af25b07b0a  ./doublegate_sdk/checks.py
+f4b8935266c26e5a1b8906172cb715e08aa55e1d0852c16f82dfe0fdb21675bc  ./doublegate_sdk/manifest.py
+e96b6f3c54b45f60a9b061828144f6bf6b3de34a18718fe07d298a5c6610f334  ./doublegate_sdk/observability/__init__.py
+9741d69e97c10684c9736138331c58192365b6e0dd3193fe86a97fb1949fb211  ./doublegate_sdk/observability/_otel.py
+f75e5940a727f4ef032d079c099a38a79a8c79b799b3f4ca23d1ee79be5b03c4  ./doublegate_sdk/observability/options.py
+ed830ce85f10ddc0392623a4819a9559f528bb993636704ff763953ddfd33d31  ./doublegate_sdk/observability/redaction.py
+3ebff38ccaf0f1b84c4808499087370ddb934264bcd2fc26bd1c9505f030e403  ./doublegate_sdk/package.py
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./doublegate_sdk/py.typed
+fd7103a9f1fd38bd0722dc6c64ff10a5532476a87de45c213925b055b65a9b45  ./doublegate_sdk/reasons.py
+f08d639233b0667e6c3f4d0ce72997034b09e331b766bf115370e6438871bd10  ./doublegate_sdk/runtime.py
+ee4d4e639fe8508073015f3ad551cea7dde8950b0a642e254ee6b396e0cef2a2  ./doublegate_sdk/schema.py
+c7f8165ffbe599a37079645193a3f37d9b75f549d86fa14b0576f21dd6c1b94f  ./doublegate_sdk/skipped.py
+f905eb9818337967085ebedeb739b01b9bcdb181cbb7cf4b83dd76fb470ca23c  ./doublegate_sdk/submission.py
+5ccea0f31ad0b7d1f53f8d0c85135673bfd02e9d8ac0025de8c406edb0d0a90f  ./doublegate_sdk/vocabulary.py
