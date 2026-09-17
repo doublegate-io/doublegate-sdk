@@ -18,6 +18,7 @@ not copied by hand. Use the navigation rail to select a module.
 | [Response schemas](schema.md) | Validate published responses against a bounded Draft 2020-12 subset. |
 | [Byte submission](submission.md) | Canonical bytes, the two identities (`content_digest`, `artifact_id`), the signed submission event, canonical base64 and decoded-byte integrity; no authority. |
 | [Identity verification](identity.md) | Optional access-token and attribution verification; identity, not authorization. |
+| [Sign-in, roles and keys](auth.md) | The whole of authentication for every service: one `[auth]` block, one `principal()` call, four roles, API keys, OIDC bearer verification behind the `identity` extra. |
 | [CLI](cli.md) | Schema, validation, evaluation and client description command entry point. |
 
 Construct packages using `validate_manifest` or `load_package`, not by trusting

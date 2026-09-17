@@ -79,5 +79,6 @@ nav:
       - Skipped reasons: api/skipped.md
       - Byte submission: api/submission.md
       - Identity verification: api/identity.md
+      - Sign-in, roles and keys: api/auth.md
       - CLI: api/cli.md
   - Maintainers: maintaining.md

@@ -32,6 +32,8 @@ authority.
 
 - [Gate clients over the socket and `/rpc`](docs/api/client.md)
 - [Gate client over `/mcp`](docs/api/mcp-client.md)
+- [Sign-in, roles and keys](docs/api/auth.md) — `doublegate_sdk.auth`, the one
+  `[auth]` block and the one `principal()` call every service uses (ADR-0082)
 - [Starter apps, seven runnable workflows](docs/use-cases/index.md)
 - [SDK roadmap and delivery criteria](docs/roadmap.md)
 - [Developer verification](docs/maintaining.md)
@@ -97,6 +99,12 @@ the run.
 - The curation client forwards an operator proof from a `ProofProvider`; the SDK
   never loads an operator key and never imports a crypto library in its base modules
   (ADR-0040).
+- `doublegate_sdk.auth` owns authentication for every service (ADR-0082): a person
+  signs in through OIDC, a program holds a `dgk_` key, a socket peer is local; the
+  four roles are `reader < agent < reviewer < admin` and an `agent` never holds a
+  curation role. JWT verification is behind the `identity` extra, imported lazily;
+  keys and socket peers need only the standard library. A refusal is `AuthError(kind)`
+  and never carries the token or the issuer's text.
 - A learning (`learn`) is content plus `derives_from` evidence; `replaces=` is
   provenance plus a note, never a supersession — only a gate decision replaces
   belief (GAPS 20).

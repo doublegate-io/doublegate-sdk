@@ -35,6 +35,11 @@ One operation table lists every `dg.*` verb with what it mutates and what proof
 it needs; one `GateError` covers all three doors. No mandatory dependencies, no
 connection on import.
 
+Every gate authenticates through [`doublegate_sdk.auth`](docs/api/auth.md): a person
+signs in with the deployment's OpenID Connect provider (or the client gate's built-in
+issuer), a program holds a `dgk_` API key, and one call, `Authenticator.principal()`,
+answers who is calling and with which of four roles.
+
 ```python
 from doublegate_sdk.knowledge import KnowledgeClient
 from doublegate_sdk.transport import UnixSocketTransport
