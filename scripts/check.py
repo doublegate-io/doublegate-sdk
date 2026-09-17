@@ -80,8 +80,17 @@ def main():
             print(json.dumps(info, sort_keys=True)); return 0
         if args.test_worker:
             import pytest
-            return int(pytest.main([str(ROOT/'tests'), '-q', '-p', 'no:cacheprovider',
-                                   '--junitxml=' + str(args.test_worker)], plugins=[SourceGuard()]))
+            # The suite is run here with plugin autoload off (below), so a
+            # distribution plugin named in `addopts` would be an unrecognised
+            # `-n`. Load it by name when it is installed, and drop the option
+            # when it is not, so the gate runs the same tests either way.
+            argv = [str(ROOT/'tests'), '-q', '-p', 'no:cacheprovider',
+                    '--junitxml=' + str(args.test_worker)]
+            if importlib.util.find_spec('xdist') is not None:
+                argv[1:1] = ['-p', 'xdist']
+            else:
+                argv[1:1] = ['-p', 'no:xdist', '-o', 'addopts=']
+            return int(pytest.main(argv, plugins=[SourceGuard()]))
     except RuntimeError as error:
         print(str(error), file=sys.stderr); return 2
     output_parent = ROOT / '.tmp' / 'verification'
