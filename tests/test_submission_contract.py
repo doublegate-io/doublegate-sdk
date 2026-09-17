@@ -134,10 +134,11 @@ def test_id_binding_is_derived_and_not_an_authority_check():
     with pytest.raises(ValueError, match="different artifact"):
         decode_submission(wire, "0" * 64, max_content_bytes=1)
     wire["document"]["envelope"]["writer_identity"] = "unverified assertion"
-    with pytest.raises(ValueError, match="envelope_digest"):
+    # The event is hashed over its own bytes, so editing the envelope inside it
+    # moves the id the body and the route both name.
+    with pytest.raises(ValueError, match="different artifact"):
         decode_submission(wire, original_id, max_content_bytes=1)
-    # Even without a URL binding, stale attribution must reject the edited envelope.
-    with pytest.raises(ValueError, match="envelope_digest"):
+    with pytest.raises(ValueError, match="different artifact"):
         decode_submission(wire, max_content_bytes=1)
     # Fresh test signatures restore consistency, not gate authority.
     wire["document"] = document(wire["document"]["envelope"])

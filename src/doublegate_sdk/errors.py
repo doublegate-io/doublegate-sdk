@@ -42,7 +42,7 @@ HTTP_KINDS: dict[int, str] = {401: 'auth', 403: 'scope', 413: 'request_too_large
 KINDS: frozenset[str] = frozenset({
     # decided on this side, before or around I/O
     'unavailable', 'timeout', 'unsupported_transport', 'invalid_response', 'request_too_large',
-    'response_too_large', 'writes_disabled', 'forbidden_operation', 'page_limit', 'proof_required',
+    'response_too_large', 'writes_disabled', 'forbidden_operation', 'page_limit',
     'redirect_refused',
     # the server's answer
     'identity', 'invalid_params', 'unsupported_operation', 'busy', 'banned', 'refused', 'remote_error',

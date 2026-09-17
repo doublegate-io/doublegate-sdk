@@ -6,7 +6,7 @@ not copied by hand. Use the navigation rail to select a module.
 
 | Module | Responsibility |
 | --- | --- |
-| [Gate clients (socket, `/rpc`)](client.md) | `KnowledgeClient` (an agent: remember, learn, recall, annotate) and `CurationClient` (the operator: approve, veto, relate, rank, keys) over one socket/HTTP transport layer, one operation table, one error vocabulary. |
+| [Gate clients (socket, `/rpc`)](client.md) | `KnowledgeClient` (an agent: remember, learn, recall, annotate) and `CurationClient` (a reviewer: approve, veto, relate, rank, keys) over one socket/HTTP transport layer, one operation table, one error vocabulary. |
 | [Gate client (HTTP/MCP)](mcp-client.md) | Explicit `POST /mcp` tool calls: status/recall/pending reads, opt-in proposals, bounded exchanges; the third door, for hosts that speak the tool catalog. |
 | [Check a file](authoring.md) | Apply a manifest to a file in one call; the offline operation the CLI runs. |
 | [Manifest](manifest.md) | Export the schema and validate immutable gate packages. |
@@ -16,8 +16,7 @@ not copied by hand. Use the navigation rail to select a module.
 | [Reason categories](reasons.md) | The five closed values a gate may give a submitter. |
 | [Skipped reasons](skipped.md) | The four closed values a reducer may give for skipping an item. |
 | [Response schemas](schema.md) | Validate published responses against a bounded Draft 2020-12 subset. |
-| [Byte submission](submission.md) | Canonical bytes, the two identities (`content_digest`, `artifact_id`), the signed submission event, canonical base64 and decoded-byte integrity; no authority. |
-| [Identity verification](identity.md) | Optional access-token and attribution verification; identity, not authorization. |
+| [Byte submission](submission.md) | Canonical bytes, the two identities (`content_digest`, `artifact_id`), the signed submission event, the evidence-manifest digest, canonical base64 and decoded-byte integrity; no authority. |
 | [Sign-in, roles and keys](auth.md) | The whole of authentication for every service: one `[auth]` block, one `principal()` call, four roles, API keys, OIDC bearer verification behind the `identity` extra. |
 | [CLI](cli.md) | Schema, validation, evaluation and client description command entry point. |
 

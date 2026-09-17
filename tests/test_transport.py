@@ -14,7 +14,7 @@ from doublegate_sdk.transport import HttpTransport, UnixSocketTransport, decode_
 def test_the_scopes_nest_and_an_agent_scope_holds_no_deciding_verb():
     assert in_scope(READ) < in_scope(KNOWLEDGE) < in_scope(CURATION)
     for verb in ('dg.sign', 'dg.promote', 'dg.demote', 'dg.reject', 'dg.relate', 'dg.ban', 'dg.override_tip',
-                 'dg.operator_proof', 'dg.keys'):
+                 'dg.people', 'dg.keys'):
         assert not allows(KNOWLEDGE, verb), verb
     for verb in ('dg.ingest', 'dg.ingest_bundle', 'dg.comment', 'dg.recall', 'dg.rank', 'dg.hide', 'dg.crawler_policy'):
         assert allows(KNOWLEDGE, verb), verb

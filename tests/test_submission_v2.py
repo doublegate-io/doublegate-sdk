@@ -1,14 +1,15 @@
 """Event transport with real test signatures; parsing remains untrusted."""
 import base64
-import hashlib
 
 import pytest
 
 from doublegate_sdk import submission
 from doublegate_sdk.identity_wire import evidence_manifest_digest
-from test_identity_wire import compact
 
 from submission_fixtures import MANIFEST, fixture
+
+OBO = {'identity': 'https://issuer.test|subject-7', 'kind': 'person', 'role': 'reviewer',
+       'iss': 'https://issuer.test', 'sub': 'subject-7', 'jti': 'token-id'}
 
 
 def encode(wire, blob=b'\x00\xff\x80'):
@@ -16,18 +17,53 @@ def encode(wire, blob=b'\x00\xff\x80'):
         **{k: v for k, v in wire.items() if k not in ('document', 'artifact_id', 'content', 'encoding')})
 
 
-def test_v2_roundtrip_exposes_structurally_bound_but_untrusted_identity():
+def test_v2_roundtrip_exposes_the_event_and_its_evidence_digest():
     wire = fixture()
     assert encode(wire) == wire
     parsed = submission._parse_submission(wire, max_content_bytes=256)
     assert parsed.content == b'\x00\xff\x80'
-    assert parsed.event.artifact_id == PAYLOAD_ID(wire)
+    assert parsed.event.artifact_id == wire['artifact_id']
     assert parsed.space == wire['space']
     assert parsed.production_evidence_digest == evidence_manifest_digest(MANIFEST)
-    assert tuple(s.compact for s in parsed.untrusted_identity.statements) == tuple(wire['document']['attribution_chain'])
-    assert all(s.signature != b'\0' * 64 for s in parsed.untrusted_identity.statements)
+    assert parsed.on_behalf_of is None
     assert not hasattr(parsed, 'verified')
-    assert submission.decode_submission(wire, PAYLOAD_ID(wire), max_content_bytes=256) == parsed.content
+    assert submission.decode_submission(wire, wire['artifact_id'], max_content_bytes=256) == parsed.content
+
+
+def test_the_event_names_no_attribution_chain():
+    """ADR-0082 d1, d7: no statement is signed, so the document closes without one."""
+    assert 'attribution_chain' not in submission.EVENT_FIELDS
+    wire = fixture()
+    wire['document']['attribution_chain'] = ['a.b.c', 'd.e.f']
+    with pytest.raises(ValueError, match='fields'):
+        submission.decode_submission(wire, max_content_bytes=256)
+
+
+def test_on_behalf_of_is_a_first_class_optional_member_of_the_body():
+    """AUTH-5: the upstream principal rides beside the event and both sides parse it."""
+    wire = fixture()
+    wire['on_behalf_of'] = dict(OBO)
+    body = submission.encode_submission(b'\x00\xff\x80', wire['document'], max_content_bytes=256,
+        signature=wire['signature'], space=wire['space'], local_verdicts=wire['local_verdicts'],
+        local_promotion=wire['local_promotion'],
+        production_evidence_manifest=wire['production_evidence_manifest'], on_behalf_of=OBO)
+    assert body['on_behalf_of'] == OBO
+    assert body['artifact_id'] == wire['artifact_id']   # trace never enters the signed bytes
+    parsed = submission._parse_submission(body, max_content_bytes=256)
+    assert parsed.on_behalf_of == OBO
+    assert submission.decode_submission(body, max_content_bytes=256) == b'\x00\xff\x80'
+
+
+def test_on_behalf_of_is_trace_and_names_only_a_principal():
+    wire = fixture()
+    for bad in (None, [], 'operator', {}, {'identity': 'who', 'scope': 'admin'},
+                {'identity': ''}, {'identity': 7}, {'identity': 'who', 'role': ['admin']},
+                {'kind': 'person'}):
+        wire['on_behalf_of'] = bad
+        with pytest.raises(ValueError):
+            submission.decode_submission(wire, max_content_bytes=256)
+    wire['on_behalf_of'] = {'identity': 'operator:local'}
+    assert submission._parse_submission(wire, max_content_bytes=256).on_behalf_of == {'identity': 'operator:local'}
 
 
 @pytest.mark.parametrize('version', [None, True, False, 1, 1.0, 2.0, 0, 3, '2', ''])
@@ -128,67 +164,17 @@ def test_v2_omitted_encoding_retains_utf8_and_exact_space():
         submission.decode_submission(wire, max_content_bytes=256)
 
 
-@pytest.mark.parametrize('shape', [None, [], 'string', (), [None, None]])
-def test_v2_requires_actual_two_jws_chain(shape):
+@pytest.mark.parametrize('field', ['writer_identity', 'manifest', 'external-artifact'])
+def test_v2_binds_the_event_to_the_actual_body(field):
     wire = fixture()
-    wire['document']['attribution_chain'] = shape
-    with pytest.raises(ValueError):
-        submission.decode_submission(wire, max_content_bytes=256)
-    with pytest.raises(ValueError):
-        encode(wire)
-
-
-@pytest.mark.parametrize('change', ['reverse', 'extra', 'omit-child', 'root-bytes'])
-def test_v2_rejects_wrong_chain_order_length_or_exact_parent(change):
-    wire = fixture()
-    chain = wire['document']['attribution_chain']
-    if change == 'reverse':
-        chain.reverse()
-    elif change == 'extra':
-        chain.append(chain[1])
-    elif change == 'omit-child':
-        chain.pop()
-    else:
-        segments = chain[0].split('.')
-        segments[2] = base64.urlsafe_b64encode(b'\1' * 64).rstrip(b'=').decode()
-        chain[0] = '.'.join(segments)
-    with pytest.raises(ValueError, match='chain|phase|parent'):
-        submission.decode_submission(wire, max_content_bytes=256)
-
-
-@pytest.mark.parametrize('field', ['envelope_digest', 'home_team_id', 'evidence_digest',
-                                  'requester_id', 'tenant_id', 'contributor_id', 'operation_id'])
-def test_v2_rejects_cross_phase_swaps(field):
-    from doublegate_sdk.identity_wire import decode_attribution_jws
-    wire = fixture()
-    child = decode_attribution_jws(wire['document']['attribution_chain'][1]).payload.to_dict()
-    child[field] = 'c' * 64 if field in ('envelope_digest', 'evidence_digest') else 'other'
-    wire['document']['attribution_chain'][1] = compact(child)
-    with pytest.raises(ValueError, match=field):
-        submission.decode_submission(wire, max_content_bytes=256)
-    with pytest.raises(ValueError, match=field):
-        encode(wire)
-
-
-@pytest.mark.parametrize('field', ['writer_identity', 'manifest', 'external-artifact', 'content-hash'])
-def test_v2_binds_chain_to_actual_body_not_just_itself(field):
-    from doublegate_sdk.identity_wire import decode_attribution_jws
-    wire = fixture()
-    expected = PAYLOAD_ID(wire)
+    expected = wire['artifact_id']
     if field == 'writer_identity':
         wire['document']['envelope']['writer_identity'] = 'different'
     elif field == 'manifest':
         wire['production_evidence_manifest'] = {'manifest_version': 1, 'evidence_refs': ['b' * 64]}
-    elif field == 'external-artifact':
-        expected = 'c' * 64
     else:
-        claims = [decode_attribution_jws(w).payload.to_dict() for w in wire['document']['attribution_chain']]
-        for c in claims:
-            c['envelope_digest'] = wire['document']['envelope']['content_hash']
-        wire['document']['attribution_chain'][0] = compact(claims[0])
-        claims[1]['parent_statement_digest'] = hashlib.sha256(wire['document']['attribution_chain'][0].encode()).hexdigest()
-        wire['document']['attribution_chain'][1] = compact(claims[1])
-    with pytest.raises(ValueError, match='envelope_digest|manifest digest|different artifact'):
+        expected = 'c' * 64
+    with pytest.raises(ValueError, match='manifest digest|different artifact|content_digest'):
         submission.decode_submission(wire, expected if field == 'external-artifact' else None,
                                         max_content_bytes=256)
 
@@ -206,7 +192,6 @@ def test_v2_reuses_closed_production_manifest_validator(manifest):
 
 def test_explicit_v1_rejected_without_identity():
     wire = fixture()
-    wire['document'].pop('attribution_chain')
     wire.pop('production_evidence_manifest')
     wire['submission_version'] = 1
     wire['scope'] = 'legacy-opaque-not-authority'
@@ -243,8 +228,3 @@ def test_encoder_rejects_omitted_version_and_sidecars():
     wire = fixture()
     with pytest.raises(TypeError, match='signature'):
         submission.encode_submission(b'\x00\xff\x80', wire['document'], max_content_bytes=256)
-
-
-def PAYLOAD_ID(wire):
-    from doublegate_sdk.envelope import Envelope
-    return wire['artifact_id']

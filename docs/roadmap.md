@@ -17,7 +17,7 @@ starter apps, authoring composition and observability, and the two `dg.*` client
 | SDK-2 Memory lifecycle | Propose, learn (content plus provenance), operation status, recall, annotations; distinct pending/admitted results | Proposal/admission/recall plus uncertain-outcome, retry and scope negatives | `/mcp`: propose → status → recall verified on one isolated gate. `/rpc` and socket: `KnowledgeClient` adds `learn`, annotations and inventory; same-peer stub-reviewed lifecycle verified. Cross-principal, live-model and release checks pending |
 | SDK-3 Authenticated remote client | HTTPS against a real deployment with an enforced credential | 401 without a credential and 200 with it against a real remote gate | `/mcp`: **blocked on the service** (keyless on the client tier, see below). `/rpc`: the door enforces the console token (client) or the admin key (org) and maps 401/403 to `auth`/`scope`; proved against scripted responders, not a real remote deployment |
 | SDK-4 Adapter reference | MCP reference flow and one native adapter, then a second independent consumer | Same lifecycle contract in both hosts; native history remains untouched | The crawler gate and the client gate's tier-1 plugin are the two consumers on the shared `dg.*` client; the MCP starters are the reference flow for the tool catalog |
-| SDK-5 Corrections and resilience | Authorized withdrawal/correction; cancellation reconciliation; bounded batches | Revocation/cache, partial result and uncertain-write outcomes tested | `CurationClient` carries the operator's corrections (veto, reject, relate, override) under a per-verb proof; a proposed supersession by an agent stays a note until the daemon carries the field (client-gate GAPS 20). Not exposed over `/mcp` |
+| SDK-5 Corrections and resilience | Authorized withdrawal/correction; cancellation reconciliation; bounded batches | Revocation/cache, partial result and uncertain-write outcomes tested | `CurationClient` carries a reviewer's corrections (veto, reject, relate, override), authorized by the role the gate assigned the caller; a proposed supersession by an agent stays a note until the daemon carries the field (client-gate GAPS 20). Not exposed over `/mcp` |
 | SDK-6 Broader integrations | Additional harnesses/languages or generated clients when justified | Contract parity, package/dependency/license checks | Deferred |
 
 ## The three doors
@@ -83,21 +83,22 @@ the service's decision; no server-side change was made here.
 ## The `dg.*` packet: SDK-1, SDK-2 and SDK-5 over the socket and `/rpc`
 
 One operation table (`doublegate_sdk.operations`) lists every `dg.*` verb of both
-catalogs with `mutates`, `proof`, `role` and `scope`; it is derived from the catalog
-and asserted equal to it, so nothing in the SDK spells a verb the catalog does not.
+catalogs with `mutates`, `role`, `service` and `scope`; the role column mirrors the
+gate's own catalog (AUTH-4), so nothing in the SDK spells a verb the catalog does
+not, or a role the catalog did not assign.
 A transport's scope (`read` | `knowledge` | `curation`) is the widest verb class it
 emits, refused before I/O; the gate refuses again from the identity it derived off
 the connection. The knowledge client never signs, promotes, demotes, rejects,
-relates or bans. The curation client forwards an operator proof from a
-`ProofProvider` and never loads a key.
+relates or bans. The curation client mints nothing: the transport carries the
+caller's credential and the gate's role table decides (ADR-0082).
 
 ### Acceptance evidence
 
 1. Both transports drive a real `AF_UNIX` listener and a loopback `http.server`:
    allowlist before I/O, one shared deadline, byte caps, malformed and duplicate-key
    replies, lost-reply outcomes, the two code tables.
-2. Every client method is asserted against a recording transport; every operator
-   verb fetches a fresh nonce and sends the proof.
+2. Every client method is asserted against a recording transport; no curation call
+   carries an operator proof or fetches a challenge.
 3. `examples/verify_knowledge_lifecycle.py` runs a real Client Gate in-process with
    the deterministic `StubBackend`: proposal → held → duplicate → admission →
    provisional recall → a learning with provenance. It is not live-model,

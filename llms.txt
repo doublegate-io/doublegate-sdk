@@ -2,8 +2,9 @@
 
 Offline gate contracts plus three explicitly connected doors to a gate. Two clients
 over the gate's `dg.*` verbs (ADR-0074): the knowledge client (what an agent may do:
-remember, learn, recall, annotate) and the curation client (the operator's decisions,
-each under an operator proof), over a Unix socket or `POST /rpc`. A third client
+remember, learn, recall, annotate) and the curation client (the decisions, each
+authorized by the role the gate assigned the caller's credential), over a Unix
+socket or `POST /rpc`. A third client
 speaks the MCP tool catalog over `POST /mcp` for hosts that integrate that way. A
 scan result, successful proposal or any HTTP/RPC/MCP response is not admission
 authority.
@@ -11,8 +12,9 @@ authority.
 ## Machine-readable entry points
 
 - `python -m doublegate_sdk describe-client`: both `dg.*` clients' method
-  signatures, the operation table (verb, mutates, proof, role, scope), the scopes
-  and the error tables; under `mcp_client`, the MCP client's methods, the tool each
+  signatures, the operation table (verb, mutates, role, service, scope), the four
+  roles, the scopes and the error tables; under `mcp_client`, the MCP client's
+  methods, the tool each
   calls, the MCP subset supported and the operations explicitly *not* supported.
   Offline. Describes this SDK, not a running gate; that is `KnowledgeClient.describe()`.
 - `python -m doublegate_sdk schema`: declarative gate manifest JSON Schema.
@@ -20,7 +22,7 @@ authority.
 ## The entry points
 
 - `doublegate_sdk.knowledge.KnowledgeClient(transport)` and
-  `doublegate_sdk.curation.CurationClient(transport, proof)` over
+  `doublegate_sdk.curation.CurationClient(transport)` over
   `doublegate_sdk.transport.UnixSocketTransport` / `HttpTransport` (`POST /rpc`).
 - `doublegate_sdk.connect(endpoint, token=...)` — the MCP client (`POST /mcp`).
   Resolved lazily; importing the package opens nothing.
@@ -59,8 +61,8 @@ The starters use the MCP client.
 ## The transports, exactly
 
 - `UnixSocketTransport` and `HttpTransport` post one JSON-RPC message carrying a
-  `dg.*` verb; `HttpTransport` to `{base}/rpc` with a bearer (the client gate's
-  console token, or an organization gate's admin key). A transport's `scope`
+  `dg.*` verb; `HttpTransport` to `{base}/rpc` with a bearer (a person's OIDC
+  access token, or a `dgk_` API key the gate issued). A transport's `scope`
   (`read` | `knowledge` | `curation`) is the widest verb class it emits, checked
   before I/O. The server's identity and permissions remain authoritative.
 - `HttpMcpTransport` posts to `POST /mcp` (ADR-0050): one JSON-RPC message in, one
@@ -96,9 +98,14 @@ the run.
 - The knowledge client never signs, promotes, demotes, rejects, relates or bans, on
   any transport. Do not put writer identity into proposal parameters (I2); the
   service derives it from the connection and refuses a request carrying it.
-- The curation client forwards an operator proof from a `ProofProvider`; the SDK
-  never loads an operator key and never imports a crypto library in its base modules
-  (ADR-0040).
+- The curation client mints nothing and loads no key: the transport carries the
+  caller's credential and the gate's `role` column (AUTH-4) decides which verbs
+  that credential reaches. `doublegate_sdk.operations` mirrors that column from the
+  gate's own catalog; the SDK never re-derives it and never enforces it.
+- The submission body carries `on_behalf_of` as a first-class optional member
+  (ADR-0082 d7, AUTH-5): the upstream principal, trace the receiving gate records
+  on its journal line. Nothing reads it to widen what a caller may do. The event
+  itself carries no attribution chain — no statement is signed.
 - `doublegate_sdk.auth` owns authentication for every service (ADR-0082): a person
   signs in through OIDC, a program holds a `dgk_` key, a socket peer is local; the
   four roles are `reader < agent < reviewer < admin` and an `agent` never holds a

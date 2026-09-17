@@ -289,8 +289,8 @@ A flagged item needs an operator to clear or reject it; clearing a scanner hold
 is not itself promotion. **Defer** records that the item was considered without
 changing its lifecycle state. A promotion signature counts toward the configured
 threshold; remaining verdicts, human sign-off or an organization countersignature
-may still be required. The daemon checks operator proof and refuses a reviewer
-whose signing identity is the artifact's writer. A signature is not a warranty
+may still be required. The daemon holds the verb to a reviewer's role and refuses
+a reviewer whose identity is the artifact's writer. A signature is not a warranty
 that the content is true.
 
 ### Client console: search and held content

@@ -17,7 +17,7 @@ class VerbInfo:
     name: str
     params: tuple[str, ...]
     dispatched: bool
-    proof: str
+    #: the role the answering gate holds this verb to (AUTH-4), as it published it
     role: str
 
 
@@ -40,7 +40,7 @@ class Capabilities:
             params = verb.get('params') if isinstance(verb.get('params'), list) else []
             names = tuple(p['name'] for p in params if isinstance(p, dict) and isinstance(p.get('name'), str))
             verbs[verb['name']] = VerbInfo(verb['name'], names, bool(verb.get('dispatched', True)),
-                                           str(verb.get('proof', 'none')), str(verb.get('role', 'both')))
+                                           str(verb.get('role', 'reader')))
             if verb['name'] == 'dg.ingest':
                 for p in params:
                     if isinstance(p, dict) and p.get('name') == 'content_type' and isinstance(p.get('enum'), list):

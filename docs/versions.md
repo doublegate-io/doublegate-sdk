@@ -19,8 +19,7 @@ Two development lines merged. From `main`: the HTTP/MCP client (`doublegate_sdk.
 optional observability, reason and skipped vocabularies, response schemas and the
 release workflow. From the ADR-0074 line: `KnowledgeClient` and `CurationClient` over
 `UnixSocketTransport` and `HttpTransport` (`POST /rpc`), the `dg.*` operation table,
-the operator proof providers, the organization gate's REST helpers (`org_rest`), the
-signed submission event and identity verification (`identity` extra). Reconciled:
+the organization gate's REST helpers (`org_rest`) and the signed submission event. Reconciled:
 one `DoublegateError` base with one `GateError` for every door; `describe-client`
 prints both descriptions; the `/mcp` reference page moved to `api/mcp-client.md`.
 

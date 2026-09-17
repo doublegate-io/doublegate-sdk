@@ -1,5 +1,5 @@
 """Describe this SDK's Python API offline: the two clients, their methods, the
-operation table, transports and proof providers. It describes this SDK, not
+operation table and the transports. It describes this SDK, not
 what a running gate answers — that is ``KnowledgeClient.describe()``."""
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any
 from doublegate_sdk.curation import CurationClient
 from doublegate_sdk.errors import CODE_KINDS, HTTP_KINDS, KINDS
 from doublegate_sdk.knowledge import KnowledgeClient, _FILTERS
-from doublegate_sdk.operations import OPERATIONS, SCOPES, in_scope
+from doublegate_sdk.operations import OPERATIONS, ROLES, SCOPES, in_scope
 
 CLIENTS: dict[str, type] = {'knowledge': KnowledgeClient, 'curation': CurationClient}
 
@@ -41,10 +41,10 @@ def describe_client() -> dict[str, Any]:
         'scope': 'sdk-contract-not-server-capabilities',
         'format': 'python-call-description-not-json-schema',
         'transports': ['unix_socket', 'http', 'caller_supplied'],
-        'proof_providers': ['SignerProof', 'ServerMinted'],
+        'roles': list(ROLES),
         'proposals_are_admission': False, 'automatic_retries': False,
         'scopes': {scope: sorted(in_scope(scope)) for scope in SCOPES},
-        'operations': {rpc: {'mutates': op.mutates, 'proof': op.proof, 'role': op.role, 'scope': op.scope}
+        'operations': {rpc: {'mutates': op.mutates, 'role': op.role, 'service': op.service, 'scope': op.scope}
                        for rpc, op in sorted(OPERATIONS.items())},
         'error_kinds': sorted(KINDS),
         'code_kinds': {str(k): v for k, v in sorted(CODE_KINDS.items())},

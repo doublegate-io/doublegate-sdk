@@ -4,38 +4,28 @@ Production evidence references and local records remain inert test assertions.
 """
 import base64
 import hashlib
-from datetime import datetime, timezone
 
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from doublegate_sdk.envelope import Envelope, make_envelope, canonical_json
+from doublegate_sdk.envelope import Envelope, make_envelope
 from doublegate_sdk.identity_wire import evidence_manifest_digest
 from doublegate_sdk.submission import SubmissionEvent, sign_submission
-from test_identity_wire import PAYLOAD, HEADER, b64
 
 MANIFEST = {'manifest_version': 1, 'evidence_refs': ['a' * 64]}
 TEST_SEED = hashlib.sha256(b'PUBLIC TEST SEED transport').digest()
-
-
-def signed_phase(claims):
-    message = (b64(canonical_json(HEADER)) + '.' + b64(canonical_json(claims))).encode('ascii')
-    return message.decode() + '.' + b64(Ed25519PrivateKey.from_private_bytes(TEST_SEED).sign(message))
+TENANT = 'tenant-inert'
+TEAM = 'home-team-inert'
+ACTOR = 'actor-inert'
 
 
 def document(envelope):
     env = Envelope.from_mapping(envelope)
-    claims = {**PAYLOAD, 'envelope_digest': env.envelope_digest,
-              'evidence_digest': evidence_manifest_digest(MANIFEST)}
-    root = signed_phase(claims)
-    child = signed_phase({**claims, 'phase': 'submission',
-        'parent_statement_digest': hashlib.sha256(root.encode('ascii')).hexdigest()})
     return {'contract': 'doublegate.submission/1', 'envelope': env.to_dict(),
         'content_digest': 'sha256:' + env.content_hash,
         'evidence_manifest_digest': 'sha256:' + evidence_manifest_digest(MANIFEST),
-        'tenant_id': claims['tenant_id'], 'team_id': claims['home_team_id'],
-        'principal': {'kind': 'workload', 'id': claims['actor_id'], 'sponsor': None},
+        'tenant_id': TENANT, 'team_id': TEAM,
+        'principal': {'kind': 'workload', 'id': ACTOR, 'sponsor': None},
         'membership': {'issuer': 'https://issuer.test', 'revision': 1, 'assertion_digest': 'a' * 64},
-        'submitted_at': datetime.fromtimestamp(claims['issued_at'], timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z'),
-        'review_refs': [], 'attribution_chain': [root, child]}
+        'submitted_at': '2026-09-17T00:00:00.000Z',
+        'review_refs': []}
 
 
 def sidecars(envelope):

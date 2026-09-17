@@ -7,8 +7,8 @@ layer and one operation table ([ADR-0074](https://github.com/doublegate-io/desig
 
 | client | who | what it can do | what it can never do |
 | --- | --- | --- | --- |
-| `KnowledgeClient` | an agent, a connector, an application | remember, learn, propose a skill or a bundle, recall, read status/why/tip/relations/approval/comments, annotate, object, resolve, defer, rank or hide *another* writer's row | sign, promote, demote, reject, relate, ban, mint an operator proof |
-| `CurationClient` | the operator (a human, or a script the human runs) | approve, hold, reject, veto, promote, relate/supersede, override the tip, rank, hide, ban, away/back, submit, semantic review, the organization's keys | act without the operator's signature |
+| `KnowledgeClient` | an agent, a connector, an application | remember, learn, propose a skill or a bundle, recall, read status/why/tip/relations/approval/comments, annotate, object, resolve, defer, rank or hide *another* writer's row | sign, promote, demote, reject, relate, ban |
+| `CurationClient` | a reviewer or an admin (a person signed in, or a program holding a key with that role) | approve, hold, reject, veto, promote, relate/supersede, override the tip, rank, hide, ban, away/back, submit, semantic review, API keys | reach a verb above the role the gate assigned the caller |
 
 The gate is not callable by the thing being gated. The knowledge client's
 transport refuses a deciding verb before any I/O; the gate refuses it again
@@ -24,10 +24,10 @@ serves, and raises the same `GateError`.
 ## Discover the API
 
 `python -m doublegate_sdk describe-client` prints both clients' methods from
-their live signatures, the operation table (`rpc`, `mutates`, `proof`, `role`,
-`scope`), the three scopes, the error kinds and the two code tables. It
-describes this SDK. `KnowledgeClient.describe()` is what a *running gate*
-answers (`dg.describe`), parsed into `Capabilities`.
+their live signatures, the operation table (`rpc`, `mutates`, `role`, `service`,
+`scope`), the four roles, the three scopes, the error kinds and the two code
+tables. It describes this SDK. `KnowledgeClient.describe()` is what a *running
+gate* answers (`dg.describe`), parsed into `Capabilities`.
 
 ## Transports and scopes
 
@@ -41,7 +41,7 @@ org = HttpTransport('https://org.example', bearer=admin_key, scope='curation')
 
 `scope` is the widest class of verb the transport will emit: `read` (the
 default; every write is `writes_disabled`), `knowledge` (an agent's verbs), or
-`curation` (the operator's). A verb outside the scope raises
+`curation` (the decisions). A verb outside the scope raises
 `GateError('forbidden_operation')` before a connection is opened; an unknown
 verb is a `ValueError`. Both transports share one deadline for connect, send
 and every read (10 s by default), a 1 MiB request cap and a 1 MiB response cap,
@@ -49,12 +49,14 @@ duplicate-key rejection and the same code table. `with_timeout(seconds)`
 returns a copy for a short liveness probe. A caller-supplied `GateTransport`
 (`call(method, params) -> dict`) owns its own allowlist.
 
-`HttpTransport` posts one JSON-RPC message to `{base}/rpc` with a bearer: the
-client gate's console token on its loopback listener, or an organization
-gate's admin key. A JSON-RPC refusal rides a 200; the door's own refusals are
+`HttpTransport` posts one JSON-RPC message to `{base}/rpc` with a bearer: a
+person's OIDC access token, or a `dgk_` API key the gate issued to a program
+([ADR-0082](https://github.com/doublegate-io/design/blob/main/docs/adr/ADR-0082-sign-in-with-your-provider-give-a-program-a-key.md)).
+A JSON-RPC refusal rides a 200; the door's own refusals are
 HTTP statuses (`auth` 401, `scope` 403, `request_too_large` 413, `busy` 429/503
 with `Retry-After` kept as `retry_after_ms`). It is not an SSO adapter and it
-adds no authorization: the gate still checks every request.
+adds no authorization: the gate still checks every request against the role it
+assigned that credential.
 
 ## Errors
 
@@ -67,7 +69,7 @@ message, capped at 512 characters, and never appears in `str(exc)`.
 | --- | --- |
 | `unavailable`, `timeout`, `unsupported_transport` | no gate answered in time |
 | `invalid_response`, `response_too_large`, `request_too_large` | the frame, not the gate |
-| `writes_disabled`, `forbidden_operation`, `proof_required`, `page_limit` | refused on this side, before I/O |
+| `writes_disabled`, `forbidden_operation`, `page_limit` | refused on this side, before I/O |
 | `identity`, `invalid_params`, `unsupported_operation`, `busy`, `banned`, `refused`, `remote_error` | the gate's answer (`-32000`, `-32600/-32602`, `-32601`, `-32006`, `-32009`, `-32010..-32014`, other) |
 | `auth`, `scope` | the HTTP `/rpc` door (401, 403) |
 | `unauthorized`, `forbidden`, `tool_error`, `redirect_refused` | the HTTP `/mcp` door ([mcp-client](mcp-client.md)) |
@@ -117,27 +119,22 @@ if agent.present():
 
 ```python
 from doublegate_sdk.curation import CurationClient
-from doublegate_sdk.proof import ServerMinted, SignerProof
 
-# on the client gate's host, the daemon mints the proof from the key it holds
-operator = CurationClient(UnixSocketTransport(sock, scope='curation'), ServerMinted())
-# anywhere else, the operator signs the nonce with a function the SDK never sees inside
-operator = CurationClient(org, SignerProof(sign=my_ed25519_key.sign))
+# the transport carries the caller's own credential; nothing else is minted
+reviewer = CurationClient(UnixSocketTransport(sock, scope='curation'))
+reviewer = CurationClient(HttpTransport(org, bearer=my_key, scope='curation'))
 
-operator.approve(aid, note='matches the survey')        # dg.sign {promote: true}
-operator.veto(other, 'contradicts the 2025 audit')      # dg.demote
-operator.supersede(new=aid, old=other)                  # dg.relate supersedes
-operator.reject(third, 'duplicate', in_favour_of=aid)
+reviewer.approve(aid, note='matches the survey')        # dg.sign {promote: true}
+reviewer.veto(other, 'contradicts the 2025 audit')      # dg.demote
+reviewer.supersede(new=aid, old=other)                  # dg.relate supersedes
+reviewer.reject(third, 'duplicate', in_favour_of=aid)
 ```
 
-Every operator verb fetches a fresh `dg.challenge` nonce, has the provider
-sign it, and sends `{nonce, sig}` with the call; nonces are single-use, so
-`approve` is one proof for the signature and the promotion it was for.
-Without a provider the operator verbs raise `proof_required` before I/O.
-`rank`, `hide` and `comment` attach a proof when a provider is present. The
-SDK never loads `keys/operator.ed25519` and never depends on a crypto
-library: the signer is yours. `operator.knowledge` reads the same gate the
-agent's way.
+Authority is the role the gate assigned the credential on the transport
+(AUTH-4): every verb this client emits sits on the `reviewer` or the `admin`
+row, and a caller the gate reads as an `agent` is refused at the door. The SDK
+mints nothing, loads no key and depends on no crypto library for any of it.
+`reviewer.knowledge` reads the same gate the agent's way.
 
 ## The organization gate's REST doors
 
@@ -154,8 +151,8 @@ Policy — backoff, cursors, what to do about `retry` — stays with the caller.
 Unit tests drive both transports against a real `AF_UNIX` listener and a
 loopback `http.server`: the allowlist before I/O, the shared deadline, byte
 caps, malformed and duplicate-key replies, lost-reply outcomes, the code
-tables, every client method against a recording transport, the proof flow for
-each operator verb. `examples/verify_knowledge_lifecycle.py` runs a real Client
+tables, every client method against a recording transport, and that no curation
+call carries an operator proof or fetches a challenge. `examples/verify_knowledge_lifecycle.py` runs a real Client
 Gate in-process with the deterministic `StubBackend`: proposal → held →
 duplicate → admission → provisional recall → a learning with provenance. It is
 not live-model, cross-principal, Windows or organization-delivery evidence.
@@ -165,8 +162,6 @@ not live-model, cross-principal, Windows or organization-delivery evidence.
 ::: doublegate_sdk.curation
 
 ::: doublegate_sdk.transport
-
-::: doublegate_sdk.proof
 
 ::: doublegate_sdk.capabilities
 

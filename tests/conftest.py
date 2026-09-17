@@ -81,7 +81,7 @@ def http_server():
                 pass
         server = http.server.HTTPServer(('127.0.0.1', 0), Handler)
         servers.append(server)
-        thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start(); threads.append(thread)
+        thread = threading.Thread(target=server.serve_forever, kwargs={'poll_interval': 0.01}, daemon=True); thread.start(); threads.append(thread)
         return f'http://127.0.0.1:{server.server_port}'
     yield start
     for server in servers:

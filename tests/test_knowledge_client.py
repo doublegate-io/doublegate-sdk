@@ -50,7 +50,7 @@ def test_every_verb_the_agent_client_emits_is_inside_the_knowledge_scope():
     c.defer('a'); c.rank('a', audience='ops', weight=2.0); c.hide('a', reason='r'); c.hide('a', lift=True)
     emitted = {m for m, _ in t.calls}
     assert emitted and emitted <= in_scope(KNOWLEDGE)
-    assert not emitted & {'dg.sign', 'dg.promote', 'dg.demote', 'dg.reject', 'dg.relate', 'dg.ban', 'dg.operator_proof'}
+    assert not emitted & {'dg.sign', 'dg.promote', 'dg.demote', 'dg.reject', 'dg.relate', 'dg.ban', 'dg.people'}
 
 
 def test_present_never_raises_and_a_probe_transport_is_used_for_it():

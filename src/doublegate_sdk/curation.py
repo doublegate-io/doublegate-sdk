@@ -1,10 +1,12 @@
-"""The curation client: what the operator does (ADR-0074 d2, d3).
+"""The curation client: the decisions a reviewer makes (ADR-0074 d2, ADR-0082).
 
-Every decision here is the human's own signature: the transport must be
-curation-scoped and the client carries a ``ProofProvider`` that mints one
-single-use operator proof per verb (ADR-0028 d1). Admin scope on an
-organization gate is not operator standing (ADR-0040): without a provider
-the operator verbs are refused before I/O with ``proof_required``.
+The transport must be curation-scoped, which is this SDK's own check on what
+the client may emit. Authority is the gate's: the transport carries the caller's
+credential — a person's OIDC bearer or a program's ``dgk_`` key — and the gate
+holds each verb to the role it assigned that credential (AUTH-4, the ``role``
+column of :mod:`doublegate_sdk.operations`). The client mints nothing and
+carries no key; a caller the gate reads as an ``agent`` is refused at the door,
+not here.
 """
 from __future__ import annotations
 
@@ -12,8 +14,7 @@ from typing import Any
 
 from doublegate_sdk.errors import GateError
 from doublegate_sdk.knowledge import KnowledgeClient
-from doublegate_sdk.operations import CURATION, OPERATIONS
-from doublegate_sdk.proof import ProofProvider
+from doublegate_sdk.operations import CURATION
 from doublegate_sdk.transport import GateTransport
 
 RELATIONS: frozenset[str] = frozenset({'supersedes', 'restates', 'corrects', 'contradicts', 'extends'})
@@ -27,25 +28,17 @@ def _text(value: Any, name: str) -> str:
 
 
 class CurationClient:
-    """The operator's view of a gate: decisions, relations, serving policy, keys."""
+    """A reviewer's view of a gate: decisions, relations, serving policy, keys."""
 
-    def __init__(self, transport: GateTransport, proof: ProofProvider | None = None):
+    def __init__(self, transport: GateTransport):
         scope = getattr(transport, 'scope', CURATION)
         if scope != CURATION:
             raise ValueError('the curation client needs a curation-scoped transport')
         self._transport = transport
-        self._proof = proof
         #: the same gate, read the agent's way
         self.knowledge = _Reader(transport)
 
     def _call(self, method: str, params: dict[str, Any]) -> dict[str, Any]:
-        op = OPERATIONS[method]
-        if op.proof == 'operator':
-            if self._proof is None:
-                raise GateError('proof_required', detail=f'{method} is the operator\'s: supply a ProofProvider')
-            params = {**params, 'operator_proof': self._proof.prove(self._transport)}
-        elif op.proof == 'optional' and self._proof is not None:
-            params = {**params, 'operator_proof': self._proof.prove(self._transport)}
         result = self._transport.call(method, params)
         if not isinstance(result, dict):
             raise GateError('invalid_response')
@@ -64,7 +57,7 @@ class CurationClient:
         return self._call('dg.sign', params)
 
     def approve(self, artifact_id: str, *, note: str = '') -> dict[str, Any]:
-        """Sign ``promote`` and promote under one proof; a promotion the boundary
+        """Sign ``promote`` and promote in one call; a promotion the boundary
         refuses is reported in ``promote.refused`` and the signature stands."""
         return self.sign(artifact_id, 'promote', note=note, promote=True)
 
@@ -95,7 +88,7 @@ class CurationClient:
             params['supersedes'] = _text(supersedes, 'supersedes')
         return self._call('dg.promote', params)
 
-    # ---- the lifecycle passes an operator runs by hand ----
+    # ---- the lifecycle passes a reviewer runs by hand ----
 
     def scan(self, artifact_id: str) -> dict[str, Any]:
         return self._call('dg.scan', {'artifact_id': _text(artifact_id, 'artifact_id')})
@@ -170,7 +163,7 @@ class CurationClient:
     def bans(self) -> dict[str, Any]:
         return self._call('dg.bans', {})
 
-    # ---- the operator's presence and the handoff ----
+    # ---- the reviewer's presence and the handoff ----
 
     def away(self, *, until: str | None = None, note: str = '') -> dict[str, Any]:
         params: dict[str, Any] = {}
@@ -195,27 +188,20 @@ class CurationClient:
     def review(self, *, cap: int | None = None) -> dict[str, Any]:
         return self._call('dg.review', {} if cap is None else {'cap': int(cap)})
 
-    # ---- the organization gate's keys (ADR-0033, ADR-0040) ----
+    # ---- API keys, on either gate (ADR-0033, AUTH-3) ----
 
     def keys(self, action: str = 'list', **fields: Any) -> dict[str, Any]:
-        """``dg.keys``: list | show | issue | revoke. Issue and revoke are the
-        operator's; a client gate answers ``unsupported_operation``."""
+        """``dg.keys``: list | show | issue | revoke. A key's role never exceeds
+        the caller's, which the gate checks against the role it assigned the
+        caller (AUTH-3)."""
         if action not in ('list', 'show', 'issue', 'revoke'):
             raise ValueError('action must be list | show | issue | revoke')
-        params = {'action': action, **fields}
-        if action in ('issue', 'revoke'):
-            if self._proof is None:
-                raise GateError('proof_required', detail='issuing or revoking a key is the operator\'s (ADR-0040)')
-            params['operator_proof'] = self._proof.prove(self._transport)
-        result = self._transport.call('dg.keys', params)
-        if not isinstance(result, dict):
-            raise GateError('invalid_response')
-        return result
+        return self._call('dg.keys', {'action': action, **fields})
 
 
 class _Reader(KnowledgeClient):
     """A knowledge client over a curation transport: the constructor's scope
-    refusal is for agents; the operator reads through the same door."""
+    refusal is for agents; a reviewer reads through the same door."""
 
     def __init__(self, transport: GateTransport):
         self._transport = transport

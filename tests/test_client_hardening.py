@@ -37,7 +37,7 @@ def serve():
 
         httpd = Quiet(('127.0.0.1', 0), handler)
         httpd.daemon_threads = True
-        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread = threading.Thread(target=httpd.serve_forever, kwargs={'poll_interval': 0.01}, daemon=True)
         thread.start()
         started.append((httpd, thread))
         return f'http://127.0.0.1:{httpd.server_address[1]}/mcp'

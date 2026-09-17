@@ -11,9 +11,10 @@ Two identities, one canonical form (ADR-0030, ADR-0064, P1-A/01 §2):
 Canonical bytes are RFC 8785 JCS narrowed to a refusal-shaped profile: UTF-8, no
 whitespace, members ordered by UTF-16 code unit, strings NFC (refused, not normalized),
 integers in ``[0, 2**53-1]``, no floats. The signed event (``SubmissionEvent``) closes the
-member set, binds the attribution chain (the federated identity of the writer) and carries a
-detached Ed25519 signature; phase and event signatures are not authorization. This module
-does not extract archives, resolve retained authority records or admit content.
+member set and carries a detached Ed25519 signature over it: content integrity, and never
+authorization. Who acted is ``on_behalf_of`` beside the event — trace the receiving gate
+records, never a credential (ADR-0082 d7, AUTH-5). This module does not extract archives,
+resolve retained authority records or admit content.
 
 Stdlib only in its base path, on purpose: the SDK declares ``dependencies = []``; signing
 and verification import ``cryptography`` lazily (the ``identity`` extra).
@@ -32,10 +33,10 @@ from datetime import datetime, timezone
 from typing import Any
 
 from doublegate_sdk.envelope import Envelope
-from doublegate_sdk.identity import _closed, _digest, _identifier
 from doublegate_sdk.identity_wire import (
-    ParsedAttributionChain,
-    decode_attribution_chain,
+    _closed,
+    _digest,
+    _identifier,
     evidence_manifest_digest,
 )
 
@@ -57,6 +58,8 @@ __all__ = [
     "verify_route_artifact_id",
     # the signed event and its transport body
     "EVENT_FIELDS",
+    "BODY_FIELDS",
+    "BODY_OPTIONAL_FIELDS",
     "SubmissionEvent",
     "sign_submission",
     "verify_submission_signature",
@@ -309,12 +312,21 @@ def verify_route_artifact_id(route_id: str, doc: Mapping[str, Any]) -> str:
     return computed
 
 
-# --- the signed submission event (ADR-0064; 10-federated-identity-attribution) --------
+# --- the signed submission event (ADR-0068, ADR-0082 d7) --------------------
 
 DOMAIN = b'doublegate.submission.v1\0'
 EVENT_FIELDS = frozenset({'contract', 'envelope', 'content_digest',
     'evidence_manifest_digest', 'tenant_id', 'team_id', 'principal', 'membership',
-    'submitted_at', 'review_refs', 'attribution_chain'})
+    'submitted_at', 'review_refs'})
+
+#: The transport body around the signed event. Closed: a member this set does
+#: not name is refused by the sender and the receiver alike.
+BODY_FIELDS = frozenset({'document', 'artifact_id', 'signature', 'content', 'space',
+    'local_verdicts', 'local_promotion', 'production_evidence_manifest'})
+
+#: ``encoding`` is the content shell; ``on_behalf_of`` is the upstream principal
+#: a hop names (ADR-0082 d7, AUTH-5).
+BODY_OPTIONAL_FIELDS = frozenset({'encoding', 'on_behalf_of'})
 
 
 def canonical_submission(value: Any) -> bytes:
@@ -380,7 +392,7 @@ class SubmissionEvent:
         timestamp = document['submitted_at']
         if not isinstance(timestamp, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z', timestamp):
             raise ValueError('submitted_at must be UTC with millisecond precision')
-        submitted = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=timezone.utc)
+        datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=timezone.utc)
         refs = document['review_refs']
         if not isinstance(refs, list):
             raise ValueError('review_refs must be an array')
@@ -388,17 +400,6 @@ class SubmissionEvent:
             _closed(ref, {'stage', 'record_digest'})
             _identifier(ref['stage'])
             _digest(ref['record_digest'])
-        chain = decode_attribution_chain(document['attribution_chain'],
-            expected_envelope_digest=env.envelope_digest,
-            expected_evidence_digest=document['evidence_manifest_digest'][7:])
-        production, submission = [s.payload.to_dict() for s in chain.statements]
-        if not production['issued_at'] <= submission['issued_at'] <= submitted.timestamp():
-            raise ValueError('phase/submission chronology is invalid')
-        for field, expected in (('tenant_id', document['tenant_id']),
-                                ('home_team_id', document['team_id']),
-                                ('actor_id', principal['id'])):
-            if submission[field] != expected:
-                raise ValueError(f'submission phase {field} disagrees with event')
         return cls(canonical)
 
     def to_dict(self) -> dict[str, Any]:
@@ -460,31 +461,49 @@ def verify_submission_signature(event: SubmissionEvent, signature: str, *,
 
 @dataclass(frozen=True, slots=True)
 class _ParsedSubmission:
-    """Decoded bytes and UNTRUSTED identity, not signature or authority verification.
+    """Decoded bytes and UNTRUSTED trace, not signature or authority verification.
 
-    Local verdict/promotion validation, enrolled signer checks, retained evidence
-    verification and current space/team/grant authorization remain gate obligations.
+    Local verdict/promotion validation, retained evidence verification and current
+    space/team authorization remain gate obligations. ``on_behalf_of`` is what the
+    sender said it acted for; nothing may read it to widen what the caller may do.
     """
 
     content: bytes
     envelope: Envelope
     space: str
     production_evidence_digest: str
-    untrusted_identity: ParsedAttributionChain
+    on_behalf_of: dict[str, Any] | None
     event: SubmissionEvent
+
+
+def _on_behalf_of(value: Any) -> dict[str, Any]:
+    """The upstream principal a hop names (ADR-0082 d7, AUTH-5).
+
+    Trace, never authority: the receiving gate records it on its journal line and
+    reads nothing from it about what the caller may do — the caller's own
+    credential, and the role that gate assigned it, decide that and nothing else.
+    ``identity`` is the canonical string of AUTH-1; the rest of the upstream
+    ``principal`` stamp rides beside it when the promotion carried one.
+    """
+    _closed(value, {'identity'}, {'kind', 'role', 'iss', 'sub', 'email', 'name',
+                                  'key_id', 'jti', 'via'})
+    _identifier(value['identity'])
+    for name, member in value.items():
+        if name != 'identity' and member is not None and not isinstance(member, str):
+            raise ValueError(f'on_behalf_of.{name} must be a string or absent')
+    return dict(value)
 
 
 def _parse_submission(body: dict[str, Any], artifact_id: str | None = None,
                       *, max_content_bytes: int) -> _ParsedSubmission:
     """Parse the sole event transport profile; all identity remains UNTRUSTED.
 
-    Gates must resolve review_refs to exact retained local verdict/promotion bytes,
-    verify both phases, and compare signed retained scope to the selected space.
+    Gates must resolve review_refs to exact retained local verdict/promotion bytes
+    and compare the signed retained scope to the selected space.
     """
     if type(max_content_bytes) is not int or max_content_bytes < 0:
         raise ValueError('max_content_bytes must be a non-negative integer')
-    _closed(body, {'document', 'artifact_id', 'signature', 'content', 'space',
-                  'local_verdicts', 'local_promotion', 'production_evidence_manifest'}, {'encoding'})
+    _closed(body, BODY_FIELDS, BODY_OPTIONAL_FIELDS)
     try:
         _identifier(body['space'])
     except ValueError as exc:
@@ -496,6 +515,7 @@ def _parse_submission(body: dict[str, Any], artifact_id: str | None = None,
         raise ValueError('local_promotion must be an object')
     if not isinstance(body['document'], dict):
         raise ValueError('document must be an object')
+    on_behalf_of = _on_behalf_of(body['on_behalf_of']) if 'on_behalf_of' in body else None
     # Preserve the byte-limit/hash/size checks before phase-resource checks.
     content = _decode_content({**body, 'envelope': body['document'].get('envelope')},
                               max_content_bytes=max_content_bytes)
@@ -507,9 +527,7 @@ def _parse_submission(body: dict[str, Any], artifact_id: str | None = None,
     digest = evidence_manifest_digest(body['production_evidence_manifest'])
     if event.to_dict()['evidence_manifest_digest'] != 'sha256:'+digest:
         raise ValueError('production evidence manifest digest does not match event')
-    identity = decode_attribution_chain(body['document']['attribution_chain'],
-        expected_envelope_digest=env.envelope_digest, expected_evidence_digest=digest)
-    return _ParsedSubmission(content, env, body['space'], digest, identity, event)
+    return _ParsedSubmission(content, env, body['space'], digest, on_behalf_of, event)
 
 
 class SubmissionTooLarge(ValueError):
@@ -521,7 +539,7 @@ def decode_submission(body: dict[str, Any], artifact_id: str | None = None,
     """Return exact content bytes after strict, UNTRUSTED submission parsing.
 
     Only doublegate.submission/1 is accepted. Parsing checks shape and byte bindings,
-    not signatures, retained evidence, membership, grants or current authority.
+    not signatures, retained evidence, membership or current authority.
     """
     return _parse_submission(body, artifact_id,
                              max_content_bytes=max_content_bytes).content
@@ -574,11 +592,14 @@ def _decode_content(body: dict[str, Any],
 def encode_submission(content: bytes, document: dict[str, Any], *,
                       max_content_bytes: int, signature: str, space: str,
                       local_verdicts: list[dict], local_promotion: dict,
-                      production_evidence_manifest: dict) -> dict[str, Any]:
+                      production_evidence_manifest: dict,
+                      on_behalf_of: dict[str, Any] | None = None) -> dict[str, Any]:
     """Encode exact content with a frozen event and its detached signature.
 
     No bearer or authority is stored. Reuse this body unchanged on token refresh.
     Structural validation only: a 64-byte invalid signature can still parse.
+    ``on_behalf_of`` is the upstream principal a hop names — trace the receiver
+    records, never authority (ADR-0082 d7, AUTH-5).
     """
     if not isinstance(content, bytes):
         raise ValueError('content must be bytes')
@@ -592,5 +613,7 @@ def encode_submission(content: bytes, document: dict[str, Any], *,
             'encoding': 'base64', 'space': space, 'local_verdicts': local_verdicts,
             'local_promotion': local_promotion,
             'production_evidence_manifest': production_evidence_manifest}
+    if on_behalf_of is not None:
+        body['on_behalf_of'] = json.loads(json.dumps(on_behalf_of))
     decode_submission(body, max_content_bytes=max_content_bytes)
     return body

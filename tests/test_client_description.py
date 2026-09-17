@@ -27,7 +27,11 @@ def test_every_public_method_of_both_clients_is_described_from_its_signature():
             expected = [p for p in inspect.signature(method).parameters if p != 'self']
             assert [p['name'] for p in description['clients'][name][method_name]['parameters']] == expected
     assert set(description['operations']) == set(OPERATIONS)
-    assert description['operations']['dg.ingest'] == {'mutates': True, 'proof': 'none', 'role': 'both', 'scope': 'knowledge'}
+    assert description['operations']['dg.ingest'] == {'mutates': True, 'role': 'agent', 'service': 'both', 'scope': 'knowledge'}
+    # AUTH-4 is the gate's column; this table mirrors it and never invents a role.
+    assert description['roles'] == ['reader', 'agent', 'reviewer', 'admin']
+    assert {op['role'] for op in description['operations'].values()} <= set(description['roles'])
+    assert 'proof_providers' not in description and 'dg.challenge' not in description['operations']
     assert 'dg.sign' not in description['scopes']['knowledge'] and 'dg.sign' in description['scopes']['curation']
 
 

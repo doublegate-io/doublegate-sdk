@@ -29,11 +29,10 @@ Writes are off until you pass `allow_writes=True`. See the
 
 The [gate clients](docs/api/client.md) connect over the gate's Unix socket or its
 `POST /rpc` door as an agent (`KnowledgeClient`: remember, learn, recall,
-annotate; never decide) or as the operator (`CurationClient`: approve, veto,
-relate, rank, keys, each under an operator proof the SDK never mints itself).
-One operation table lists every `dg.*` verb with what it mutates and what proof
-it needs; one `GateError` covers all three doors. No mandatory dependencies, no
-connection on import.
+annotate; never decide) or as a reviewer (`CurationClient`: approve, veto,
+relate, rank, keys). One operation table lists every `dg.*` verb with what it
+mutates and the role the gate holds it to; one `GateError` covers all three
+doors. No mandatory dependencies, no connection on import.
 
 Every gate authenticates through [`doublegate_sdk.auth`](docs/api/auth.md): a person
 signs in with the deployment's OpenID Connect provider (or the client gate's built-in
