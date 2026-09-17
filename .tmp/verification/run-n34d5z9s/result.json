@@ -1,0 +1,23 @@
+{
+  "interpreter": "/home/eugene/workspace/doublegate/doublegate-sdk/.venv/bin/python",
+  "source": "/home/eugene/workspace/doublegate/doublegate-sdk/.tmp/publish-sdk/src/doublegate_sdk",
+  "root": "/home/eugene/workspace/doublegate/doublegate-sdk/.tmp/publish-sdk",
+  "status": "failed",
+  "steps": [
+    {
+      "name": "tests",
+      "exit_code": 0
+    }
+  ],
+  "live_deployment_verified": false,
+  "coverage": {
+    "collected": 298,
+    "passed": 293,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 5
+  },
+  "error": "Incomplete test acceptance: {\"collected\": 298, \"errors\": 0, \"failed\": 0, \"passed\": 293, \"skipped\": 5}",
+  "failure_phase": "tests",
+  "source_unchanged": true
+}

@@ -1,0 +1,62 @@
+{
+  "interpreter": "/home/eugene/workspace/doublegate/doublegate-sdk/.venv/bin/python",
+  "source": "/home/eugene/workspace/doublegate/doublegate-sdk/.tmp/publish-sdk/src/doublegate_sdk",
+  "root": "/home/eugene/workspace/doublegate/doublegate-sdk/.tmp/publish-sdk",
+  "status": "passed",
+  "steps": [
+    {
+      "name": "tests",
+      "exit_code": 0
+    },
+    {
+      "name": "docs",
+      "exit_code": 0
+    }
+  ],
+  "live_deployment_verified": false,
+  "coverage": {
+    "collected": 86,
+    "passed": 86,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_unchanged": true,
+  "source_hashes": {
+    "README.md": "d4582254394deb4bea94df1b78d7128e7dd19b5c3cf42ea5fb6413583c7ab28d",
+    "docs/api/checks.md": "8f9a7f2f97c135355e4bd5e171e3cad71d659ceeba6afb2517097aff73152c49",
+    "docs/api/cli.md": "1e04ecd8779903827f34cbfaeca9069fe4c9973a0bed7f4b3aad008631a9d771",
+    "docs/api/client.md": "5cb747334219e466f4a2132b6272d5de81385197948d9f9036430ebf047c1321",
+    "docs/api/index.md": "75aaefe59518c1be045ecb1158e59c5186e992f26e42d009f16c07677e81beb3",
+    "docs/api/manifest.md": "1d3d0c3dd737a7c509e33240dd530ed44703002ac3139230fad63c7bdd7f28fe",
+    "docs/api/package.md": "750a6ae7288914b04277293deed1673ec9b42d59a64674744dd164b2fb79f1b6",
+    "docs/api/runtime.md": "c69bd457de8aed1194406491506eea69035121d78dbb98860ad87735a90d1d4b",
+    "docs/index.md": "366925602e0383690a707d091d5af141d8de387f0835d64ae6b1bb509ad5dd93",
+    "docs/maintaining.md": "cbe8b107fb50210362e2f4f49da95cb3b24bdd20ded282a85d087adc260622ca",
+    "docs/manual.md": "6a4fdeb672b108241a716012b50f69457c62698f3258c712f3eba73db4d42347",
+    "docs/quickstart.md": "670b42dd711dad31192f5fd7303ed17725517fb1a17d9978789061ee8df6e7c7",
+    "docs/roadmap.md": "4454c5c729e0744e4b77df351c2e04ef114e99e825988d0147c0fad264642d62",
+    "docs/stylesheets/extra.css": "3fbf1ccb8ba999071fdaafeefee94c766619420c7d72df148098d27873b50736",
+    "docs/versions.md": "4ae8ce04c9c924cbc4031531ae2b09bb66140b1caf726da14109aa89b78762d6",
+    "mkdocs.yml": "5db3ff1912f50b2124b6b0cce28df6975d9467e77ef676fd44bbcf3129df05ff",
+    "pyproject.toml": "b12d732e6eb77d97c428e46a57e842e3cdd39fa648edcae841302021fd6537be",
+    "scripts/check.py": "1c1e0d4c0bb37ebed076dbdedc858b3f0e760beea7770003679742ea2bca2eeb",
+    "scripts/preview_docs.py": "94a746ad8029f1c57816037325eb391eac7cd77c50a4cd4dd6f471550df944ca",
+    "src/doublegate_sdk/__init__.py": "9ca3da8128bcb3bbb44cbf7dd8e4121eb5245a5770e4ca8a1ff39b66c4b008b3",
+    "src/doublegate_sdk/__main__.py": "5e77fbdc9fb105c272781e77954445db0a875c166b83ba8103d3fc0533fe79d5",
+    "src/doublegate_sdk/checks.py": "2636e13000480bc8093962e02b0dbf6e3f3c0019cb77d052d6c613af25b07b0a",
+    "src/doublegate_sdk/client.py": "0fe74aae857acaf83f23cbaff8a2e86e013d4e24932c9579c2e05b0aa82caafe",
+    "src/doublegate_sdk/manifest.py": "094e5f791de4abd2ac07b5a5c9351497cbc8a67de86c9bb34e8cc43e942ac745",
+    "src/doublegate_sdk/package.py": "3ebff38ccaf0f1b84c4808499087370ddb934264bcd2fc26bd1c9505f030e403",
+    "src/doublegate_sdk/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/doublegate_sdk/runtime.py": "f08d639233b0667e6c3f4d0ce72997034b09e331b766bf115370e6438871bd10",
+    "tests/test_client_description.py": "eb55b72e585a13523185e2bc5fcc2f485c8c0327c65de62bd4881b613323f7dc",
+    "tests/test_developer_check.py": "87127adf0ecfc1a0551443d23e8b0f864aa99a301f47a2104aec9793b27e742b",
+    "tests/test_examples.py": "2562021db28323771bc2faeb8dd1a71039371a10d6faf6691113f24edd3e5e03",
+    "tests/test_gate_lifecycle.py": "a6567da259c74aa62a4f555dcc1b658722d799d149a06d4983d3b160c95a8ed5",
+    "tests/test_gate_manifest.py": "1ecbec43824a0f239d616f25f610a35622e785f1892d5b0e6e8f2896ad739203",
+    "tests/test_gate_sdk_cli.py": "29b04baeae7684075145af96c52c1fe964fc80a9abadb3a2ea432e9e8a2056d9",
+    "tests/test_memory_client.py": "500eb0fd2b93b60a89fa984e00d41b63a478c6cea0e053af9993cb3a98672399",
+    "tests/test_standalone.py": "dfd7aef959a222404aa41d8989d960e7d3e4ae499b7fb014d060c99a0f6e67a9"
+  }
+}
